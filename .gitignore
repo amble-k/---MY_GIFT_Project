@@ -15,3 +15,6 @@ snapshots/
 diagnostics/_root_archive_*/
 tmp_resume_preview*.html
 _dir_tree_*.txt
+
+# === MY GIFT: local backup archives (keep local, do not track) ===
+archive/_bak_tracked_*/
