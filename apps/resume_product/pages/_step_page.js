@@ -1,0 +1,423 @@
+// /apps/resume_product/pages/_step_page.js
+import { loadDB, saveDB, setActive } from "/core/storage/resume_db.js";
+import { deriveStatus } from "/core/session/deriveStatus.js?v=20260106_172219";
+import { STEP_ORDER, RouteMap, StepId } from "/core/session/step_ids.js?v=20260106_172219";
+const PROGRESS_ORDER = STEP_ORDER.filter((x) => x !== StepId.entry); // ✅ 不把 entry 算进分页总数
+import { dispatch } from "/apps/resume_product/router_runtime.js";
+
+// ACTIONS_LOADER_V1: single entry to load writers (cachebust to avoid stale modules)
+async function loadActions(){
+  return import(`/core/actions/v0_1_actions.js?v=${Date.now()}`);
+}
+// resetResumeDB wrapper: keep old call-sites working but always use latest actions
+async function resetResumeDB(){
+  const m = await loadActions();
+  return m.resetResumeDB();
+}
+
+// ENSURE_SESSION_LITE_V0_2_4_07
+function ensureSessionLite() {
+  try {
+    const db = loadDB();
+    db.active = db.active || {};
+    db.sessions = db.sessions || {};
+
+    let sid = db.active.session_id;
+    const hasRow = !!(sid && db.sessions[sid]);
+
+    if (!sid || !hasRow) {
+      sid = sid || ("s_" + Math.random().toString(36).slice(2, 10));
+      db.sessions[sid] = db.sessions[sid] || { id: sid, created_at: new Date().toISOString() };
+      db.active.session_id = sid;
+      saveDB(db);
+    }
+    return sid;
+  } catch (e) {
+    console.warn("[step] ensureSessionLite failed", e);
+    return null;
+  }
+}
+
+
+function stepNo(stepId) {
+ const i = PROGRESS_ORDER.indexOf(stepId);
+  return i >= 0 ? i : null;
+}
+
+function qs(key) {
+  try { return new URLSearchParams(location.search).get(key); }
+  catch { return null; }
+}
+
+// ✅ 推进：走 Router（让它落到正确物理页）
+function goRoute(route, keepQuery = false) {
+  const qs = keepQuery ? (location.search || "") : "";
+  const r = (route || "/resume");
+
+  // ✅ 直接 route -> 物理页面文件（不依赖 index 壳/dispatch，避免 Safari replace 循环）
+  const PAGE_FILE = {
+    "/resume":            "/apps/resume_product/pages/entry/index.html",
+    "/resume/scenario":   "/apps/resume_product/pages/scenario/index.html",
+    "/resume/fact":       "/apps/resume_product/pages/fact/index.html",
+    "/resume/resume/v1":  "/apps/resume_product/pages/resume/v1/index.html",
+    "/resume/role_target":"/apps/resume_product/pages/role_target/index.html",
+    "/resume/target":     "/apps/resume_product/pages/target/index.html",
+    "/resume/role":       "/apps/resume_product/pages/role/index.html",
+    "/resume/kash":       "/apps/resume_product/pages/kash/index.html",
+    "/resume/resume/v2":  "/apps/resume_product/pages/resume/v2/index.html",
+    "/resume/assessment": "/apps/resume_product/pages/assessment/index.html",
+    "/resume/fit":        "/apps/resume_product/pages/fit/index.html",
+    "/resume/resume/v3":  "/apps/resume_product/pages/resume/v3/index.html",
+    "/resume/plan":       "/apps/resume_product/pages/plan/index.html",
+    "/resume/export":     "/apps/resume_product/pages/export/index.html",
+    "/health":            "/apps/resume_product/pages/_health/index.html",
+  };
+
+  const pageFile = PAGE_FILE[r] || PAGE_FILE["/resume"];
+  location.replace(pageFile + qs + "#" + r);
+}
+
+export function bootStepPage({ title, stepId, writeFnName }) {
+  const app = document.getElementById("app");
+
+  function render() {
+    const db = loadDB();
+    const st = deriveStatus(db);
+
+    // ✅ 确保直接打开物理页时也有 hash（否则 router 会当成 Hub）
+    if (!location.hash || location.hash === "#") {
+      const r0 = RouteMap?.[stepId] || "/resume";
+      location.hash = "#" + r0;
+    }
+
+    // ✅ 每个 step 页都先跑一次路由纠正（必要时会 replace 到正确物理页）
+    const rr = dispatch({ db, st });
+    if (rr?.redirected) return;
+
+    app.innerHTML = "";
+
+    const h = document.createElement("h1");
+    h.textContent = title;
+    app.appendChild(h);
+
+    const info = document.createElement("div");
+  info.id = "step_progress_info";
+info.style.cssText = "margin:8px 0;color:#666;font-size:13px;";
+const no = stepNo(stepId);
+
+// ✅ 用户态：只显示进度
+info.textContent = (no !== null) ? `进度：${no + 1}/${PROGRESS_ORDER.length}` : "";
+app.appendChild(info);
+
+// ✅ debug=1 才显示内部状态/JSON
+if (qs("debug") === "1") {
+  const dbg = document.createElement("div");
+  dbg.style.cssText = "margin:6px 0;color:#999;font-size:12px;";
+  dbg.textContent = `route=${location.hash || ""} | state=${st.state} | required_step=${st.required_step}`;
+  app.appendChild(dbg);
+
+  const pre = document.createElement("pre");
+  pre.style.cssText =
+    "white-space:pre-wrap;word-break:break-word;background:#fafafa;padding:12px;border:1px solid #eee;border-radius:10px;";
+  pre.textContent = JSON.stringify({ milestones: st.milestones, active_ids: st.active_ids }, null, 2);
+  app.appendChild(pre);
+}
+
+   // ---- Resume V1 / Export 预览：优先 V3 > V2 > V1 ----
+if (stepId === "resume_v1" || stepId === "export") {
+  const rv3Id = db?.active?.resume_v3_id || null;
+  const rv2Id = db?.active?.resume_v2_id || null;
+  const rv1Id = db?.active?.resume_version_id || null;
+
+  const previewText =
+    (rv3Id && (
+      db?.resume_v3s?.[rv3Id]?.content ??
+      db?.resume_v3s?.[rv3Id]?.payload?.content ??
+      db?.resume_versions?.[rv3Id]?.content ??
+      db?.resume_versions?.[rv3Id]?.payload?.content
+    )) ||
+    (rv2Id && (
+      db?.resume_v2s?.[rv2Id]?.content ??
+      db?.resume_v2s?.[rv2Id]?.payload?.content ??
+      db?.resume_v2_versions?.[rv2Id]?.content ??
+      db?.resume_v2_versions?.[rv2Id]?.payload?.content ??
+      db?.resume_versions?.[rv2Id]?.content ??
+      db?.resume_versions?.[rv2Id]?.payload?.content
+    )) ||
+    (rv1Id && (
+      db?.resume_versions?.[rv1Id]?.content ??
+      db?.resume_versions?.[rv1Id]?.payload?.content
+    )) ||
+    "";
+
+  if (previewText && previewText.trim()) {
+    const hr = document.createElement("hr");
+    hr.style.cssText = "margin:14px 0;border:none;border-top:1px solid #eee;";
+    app.appendChild(hr);
+
+    const h2 = document.createElement("h2");
+    h2.textContent = "预览（当前导出内容）";
+    h2.style.cssText = "margin:0 0 8px 0;font-size:16px;";
+    app.appendChild(h2);
+
+    const preview = document.createElement("pre");
+    preview.style.cssText =
+      "white-space:pre-wrap;word-break:break-word;background:#fff;padding:12px;border:1px solid #eee;border-radius:10px;line-height:1.5;";
+    preview.textContent = previewText;
+    app.appendChild(preview);
+  }
+}
+
+    const bar = document.createElement("div");
+    bar.style.cssText = "margin-top:12px;";
+    app.appendChild(bar);
+
+    const b = (text, onClick) => {
+      const btn = document.createElement("button");
+      btn.textContent = text;
+      btn.style.cssText = "margin:6px 6px 0 0;padding:8px 12px;";
+      btn.onclick = onClick;
+      return btn;
+    };
+
+    // 回入口 / 清空
+    bar.appendChild(b("回入口", () => goRoute("/resume")));
+    bar.appendChild(b("清空重来", () => {
+      resetResumeDB();
+      goRoute("/resume");
+    }));
+
+    // 主按钮：写入/保存 -> 自动进入下一步（Export 默认隐藏，debug=1 才显示）
+    if (stepId !== "export" || qs("debug") === "1") {
+    // STAY_BTN_SINGLE: “写入 / 保存并留在本页”=只写入，不跳转
+    if (stepId !== "export") {
+      bar.appendChild(b("写入 / 保存并留在本页", async () => {
+          console.log("[STEP][CLICK][STAY]", { stepId, writeFnName, payload: window.__STEP_PAYLOAD__ });
+
+        const m = await loadActions();
+        const fn = m?.[writeFnName];
+
+        if (typeof fn !== "function") {
+          alert(`找不到 writer: ${writeFnName}（请确认 actions 里已导出）`);
+          return;
+        }
+
+        const payload =
+          (window.__STEP_PAYLOAD__ && typeof window.__STEP_PAYLOAD__ === "object")
+            ? window.__STEP_PAYLOAD__
+            : (stepId === "fact" ? (window.__FACT_PAYLOAD__ || {}) : { ok: true });
+
+        let retId = null;
+        try {
+          // Export：没有 Resume V1 内容就不允许“写入/保存（导出就绪）”
+          if (stepId === "export") {
+            const db2 = loadDB();
+            const rvId = db2?.active?.resume_version_id;
+            const content = rvId ? (db2?.resume_versions?.[rvId]?.content || "") : "";
+            if (!rvId || !content.trim()) {
+              alert("当前没有可导出的简历内容，请先生成 Resume V1。");
+              return;
+            }
+          }
+
+          retId = await Promise.resolve(fn(payload));
+        } catch (e) {
+          console.error(e);
+          alert(e?.message || String(e));
+          return;
+        }
+
+        // 关键产物强制写回 active（只补我们自己的 key）
+        const patch = {};
+        if (writeFnName === "writeScenarioDummy") Object.assign(patch, { scenario_id: retId, scenario_profile_id: retId });
+        if (writeFnName === "writeFactProfileDummy") Object.assign(patch, { fact_profile_id: retId });
+        if (writeFnName === "writeResumeV1Dummy") Object.assign(patch, { resume_version_id: retId });
+        if (writeFnName === "writeTargetProfileDummy") Object.assign(patch, { target_profile_id: retId });
+        if (writeFnName === "writeRoleDummy") Object.assign(patch, { role_id: retId, role_profile_id: retId });
+          if (writeFnName === "writeRoleTargetDummy") Object.assign(patch, { role_target_id: retId });
+        if (writeFnName === "writeKashDummy") Object.assign(patch, { claimed_kash_id: retId });
+        if (writeFnName === "writeResumeV2Dummy") Object.assign(patch, { resume_v2_id: retId });
+        if (writeFnName === "writeAssessmentDummy") Object.assign(patch, { assessment_id: retId });
+        if (writeFnName === "writeFitDummy") Object.assign(patch, { fit_result_id: retId, fit_id: retId });
+        if (writeFnName === "writeResumeV3Dummy") Object.assign(patch, { resume_v3_id: retId });
+        if (writeFnName === "writePlan90dDummy" || writeFnName === "writePlan90DDummy") Object.assign(patch, { plan_90d_id: retId });
+
+        if (Object.keys(patch).length) setActive(loadDB(), patch);
+          console.log('[STEP] saved stay ok', { retId, patch });
+          try{ const el=document.getElementById('step_progress_info'); if(el && !String(el.textContent||'').includes('✓已保存')) el.textContent = String(el.textContent||'') + '  ✓已保存'; }catch(e){}
+console.log("[STEP] saved stay", stepId, writeFnName, retId);
+        // ✅ 不做 deriveStatus / 不 goRoute
+      }));
+    }
+
+
+      bar.appendChild(b(stepId === "export" ? "写入 / 保存（导出就绪）" : "写入 / 保存并进入下一步", async () => {
+        const m = await loadActions();
+        const fn = m?.[writeFnName];
+
+        if (typeof fn !== "function") {
+          alert(`找不到 writer: ${writeFnName}（请确认 actions 里已导出）`);
+          return;
+        }
+
+        const payload =
+          (window.__STEP_PAYLOAD__ && typeof window.__STEP_PAYLOAD__ === "object")
+            ? window.__STEP_PAYLOAD__
+            : (stepId === "fact" ? (window.__FACT_PAYLOAD__ || {}) : { ok: true });
+
+        let retId = null;
+        try {
+          // Export：没有 Resume V1 内容就不允许“写入/保存（导出就绪）”
+          if (stepId === "export") {
+            const db2 = loadDB();
+            const rvId = db2?.active?.resume_version_id;
+            const content = rvId ? (db2?.resume_versions?.[rvId]?.content || "") : "";
+            if (!rvId || !content.trim()) {
+              alert("当前没有可导出的简历内容，请先生成 Resume V1。");
+              return;
+            }
+          }
+
+          retId = await Promise.resolve(fn(payload));
+} catch (e) {
+          console.error(e);
+          alert(e?.message || String(e));
+          return;
+        }
+
+        // 关键产物强制写回 active（只补我们自己的 key）
+        const patch = {};
+        if (writeFnName === "writeScenarioDummy") Object.assign(patch, { scenario_id: retId, scenario_profile_id: retId });
+        if (writeFnName === "writeFactProfileDummy") Object.assign(patch, { fact_profile_id: retId });
+        if (writeFnName === "writeResumeV1Dummy") Object.assign(patch, { resume_version_id: retId });
+        if (writeFnName === "writeTargetProfileDummy") Object.assign(patch, { target_profile_id: retId });
+        if (writeFnName === "writeRoleDummy") Object.assign(patch, { role_id: retId, role_profile_id: retId });
+          if (writeFnName === "writeRoleTargetDummy") Object.assign(patch, { role_target_id: retId });
+        if (writeFnName === "writeKashDummy") Object.assign(patch, { claimed_kash_id: retId });
+        if (writeFnName === "writeResumeV2Dummy") Object.assign(patch, { resume_v2_id: retId });
+        if (writeFnName === "writeAssessmentDummy") Object.assign(patch, { assessment_id: retId });
+        if (writeFnName === "writeFitDummy") Object.assign(patch, { fit_result_id: retId, fit_id: retId });
+        if (writeFnName === "writeResumeV3Dummy") Object.assign(patch, { resume_v3_id: retId });
+        if (writeFnName === "writePlan90dDummy" || writeFnName === "writePlan90DDummy") Object.assign(patch, { plan_90d_id: retId });
+
+        if (Object.keys(patch).length) setActive(loadDB(), patch);
+          console.log('[STEP] saved stay ok', { retId, patch });
+          try{ const el=document.querySelector('div[style*="margin:8px 0"]'); if(el) el.textContent = (el.textContent||'') + '  ✓已保存'; }catch(e){}
+
+        try{
+          const a2 = await loadActions();
+          if (typeof a2.ensureSession === "function") a2.ensureSession();
+        }catch(e){
+          console.warn("[step] ensureSession failed", e);
+        }
+        ensureSessionLite();
+          const st2 = deriveStatus(loadDB());
+          let nextRoute = (st2?.required_step && RouteMap?.[st2.required_step]) ? RouteMap[st2.required_step] : "/resume/scenario";
+          if (st2?.required_step === "entry") nextRoute = "/resume/scenario";
+          // KEEP_PREVIEW_ON_RESUME_V1: generate V1 then stay to show preview
+          if (stepId === "resume_v1") {
+            render();
+            return;
+          }
+          goRoute(nextRoute, true);
+          // FORCE_NAV_ROLE_TARGET_V0_2_4_08:
+          // 发现部分环境下 goRoute/dispatch 不切物理文件，导致又停留在当前页。
+          // 对 role_target 强制切到对应页面文件。
+          if (nextRoute === "/resume/role_target") {
+            location.replace("/apps/resume_product/pages/role_target/index.html" + (location.search || "") + "#/resume/role_target");
+            return;
+          }
+
+      }));
+    }
+
+    // Export：下载 TXT（BASE）
+    if (stepId === "export") {
+      bar.appendChild(b("去生成 Resume V1", () => goRoute("/resume/resume/v1")));
+      bar.appendChild(b("下载 TXT（BASE）", async () => {
+       const db2 = loadDB();
+
+const rv3Id = db2?.active?.resume_v3_id || null;
+const rv2Id = db2?.active?.resume_v2_id || null;
+const rv1Id = db2?.active?.resume_version_id || null;
+
+const content =
+  (rv3Id && (
+    db2?.resume_v3s?.[rv3Id]?.content ??
+    db2?.resume_v3s?.[rv3Id]?.payload?.content ??
+    db2?.resume_versions?.[rv3Id]?.content ??
+    db2?.resume_versions?.[rv3Id]?.payload?.content
+  )) ||
+  (rv2Id && (
+    db2?.resume_v2s?.[rv2Id]?.content ??
+    db2?.resume_v2s?.[rv2Id]?.payload?.content ??
+    db2?.resume_v2_versions?.[rv2Id]?.content ??
+    db2?.resume_v2_versions?.[rv2Id]?.payload?.content ??
+    db2?.resume_versions?.[rv2Id]?.content ??
+    db2?.resume_versions?.[rv2Id]?.payload?.content
+  )) ||
+  (rv1Id && (
+    db2?.resume_versions?.[rv1Id]?.content ??
+    db2?.resume_versions?.[rv1Id]?.payload?.content
+  )) ||
+  "";
+
+const outId = rv3Id || rv2Id || rv1Id || "resume";
+
+        if (!content.trim()) {
+          alert("当前没有可导出的简历内容，请先生成 Resume V1。");
+          return;
+        }
+
+        // 下载即视为一次“导出动作”，写入 export_ready 快照（可追溯）
+        try {
+          const m = await loadActions();
+          const mark = m?.writeExportReadyDummy;
+          if (typeof mark === "function") mark({ format: "txt", mime: "text/plain", action: "download_txt" });
+        } catch {}
+
+        const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+       a.download = `resume_${outId}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }));
+    }
+
+    // Resume V1：生成并留在本页
+    if (stepId === "resume_v1") {
+      bar.appendChild(b("生成并预览（留在本页）", async () => {
+        const m = await loadActions();
+        const fn = m?.[writeFnName];
+
+        if (typeof fn !== "function") {
+          alert(`找不到 writer: ${writeFnName}（请确认 actions 里已导出）`);
+          return;
+        }
+
+        const retId = fn({ ok: true });
+        setActive(loadDB(), { resume_version_id: retId });
+
+       // KEEP_PREVIEW_ON_RESUME_V1_BTN: generate V1 then stay here to show preview
+
+       render();
+
+       return;
+      }));
+    }
+
+
+    // debug
+    if (qs("debug") === "1") {
+      bar.appendChild(b("去 Hub（debug）", () => goRoute("/resume", true)));
+    }
+  }
+
+  render();
+}

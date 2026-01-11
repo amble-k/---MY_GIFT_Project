@@ -1,0 +1,146 @@
+/* style.css - MY GIFT Professional Theme (Layout Fixed) */
+
+:root {
+    --primary-color: #2c3e50; /* 深蓝 */
+    --secondary-color: #34495e;
+    --accent-color: #d35400;  /* 焦糖金 */
+    --highlight-bg: #fdfbf7;
+    --text-main: #333333;
+    --border-color: #e0e0e0;
+}
+
+body {
+    font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', Arial, sans-serif;
+    color: var(--text-main);
+    line-height: 1.6;
+    background-color: #f4f6f9;
+    margin: 0;
+    padding: 0;
+}
+
+/* =========================================
+   1. 问卷核心样式 (解决“缩成一团”的关键)
+   ========================================= */
+.question-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 40px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.question-card {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px dashed #eee;
+}
+
+.question-text {
+    font-size: 1.15em;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    display: block;
+}
+
+/* 选项组：让选项分开排列，不挤在一起 */
+.options-group {
+    display: flex;
+    flex-direction: column; /* 默认垂直排列，适合手机 */
+    gap: 10px;              /* 选项之间的间距 */
+}
+
+/* 选项按钮化：把小圆点变成大点击区域 */
+.options-group label {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.options-group label:hover {
+    background: #eef7ff;
+    border-color: #3498db;
+}
+
+/* 选中状态高亮 */
+.options-group input[type="radio"]:checked + span {
+    font-weight: bold;
+    color: #2c3e50;
+}
+/* 选中时边框变色 */
+.options-group label:has(input:checked) {
+    border-color: #2c3e50;
+    background-color: #f0f4f8;
+}
+
+/* 按钮美化 */
+.btn-container {
+    margin-top: 40px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+button.primary-btn {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 12px 40px;
+    font-size: 1em;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(44, 62, 80, 0.3);
+}
+
+button.secondary-btn {
+    background-color: #ecf0f1;
+    color: #7f8c8d;
+    padding: 12px 30px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+}
+
+/* =========================================
+   2. 报告页面样式 (保持原有美观)
+   ========================================= */
+.report-container {
+    max-width: 950px;
+    margin: 40px auto;
+    background: #ffffff;
+    padding: 50px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+h2 {
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 15px;
+    margin-top: 40px;
+    margin-bottom: 30px;
+    color: var(--primary-color);
+}
+
+h3 {
+    color: var(--secondary-color);
+    margin-top: 30px;
+}
+
+/* 桌面端优化：屏幕够宽时，选项横向排列 */
+@media (min-width: 768px) {
+    .options-group {
+        flex-direction: row; /* 横向排列 */
+        flex-wrap: wrap;
+    }
+    .options-group label {
+        flex: 1; /* 宽度均分 */
+        justify-content: center;
+    }
+}

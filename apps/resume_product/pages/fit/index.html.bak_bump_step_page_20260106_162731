@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Resume Product - Fit</title>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script type="module">
+    import { bootStepPage } from "/apps/resume_product/pages/_step_page.js?v=3";
+    import { loadDB, setActive } from "/core/storage/resume_db.js";
+    import { mountStepForm } from "/core/ui/step_form_v0_2.js?v=2";
+
+    bootStepPage({ title:"Resume Product — Fit", stepId:"fit", writeFnName:"writeFitDummy" });
+
+    mountStepForm({
+      title: "岗位匹配（最小版）",
+      desc: "说明：输入后将自动保存（不跳页）。进入下一步仍可用上方“写入/保存并进入下一步”。",
+      fields: [
+        { id: "fit_note", label: "匹配备注", type: "textarea", rows: 10, placeholder: "例如：更偏好什么类型岗位 / 不想做什么 / 关键筛选条件...", key: "note" },
+      ],
+      loadDB,
+      setActive,
+      writerName: "writeFitDummy",
+      setActiveMap: { fit_result_id: "RET_ID", fit_id: "RET_ID" },
+
+      // 回填：fit_results / fit 兼容
+      fillFromDB: (db) => {
+        const fid = db?.active?.fit_result_id || db?.active?.fit_id || null;
+        const row =
+          (fid && db?.fit_results?.[fid]) ? db.fit_results[fid] :
+          (fid && db?.fit?.[fid]) ? db.fit[fid] :
+          null;
+        const p = row?.payload || row || {};
+        return { note: p?.note || "" };
+      },
+    });
+  </script>
+</body>
+</html>

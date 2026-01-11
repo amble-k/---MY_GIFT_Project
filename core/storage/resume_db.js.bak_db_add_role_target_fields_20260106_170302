@@ -1,0 +1,189 @@
+// /core/storage/resume_db.js
+// Resume Product — DB single source of truth (v0.1.1 audited)
+// Goals:
+// 1) One storage key, with legacy-key compatibility
+// 2) setActive = merge-only (never clears unspecified fields)
+// 3) write-audit log to detect who overwrote active
+
+const STORAGE_KEY = "RESUME_DB_V1";
+const LEGACY_KEYS = ["RESUME_DB_V1", "RESUME_DB"]; // 兼容历史 key（若存在）
+const WRITE_LOG_KEY = "RESUME_WRITE_LOG_V1";
+const MAX_LOG = 200;
+
+function iso() {
+  return new Date().toISOString();
+}
+
+function deepClone(x) {
+  return x ? JSON.parse(JSON.stringify(x)) : x;
+}
+
+function defaultDB() {
+  return {
+    version: "1",
+    updated_at: iso(),
+    migration_log: [],
+    export_ready: false, // ✅ 补齐
+    active: {
+      session_id: null,
+      scenario_id: null,
+      fact_profile_id: null,
+      resume_version_id: null,
+      target_profile_id: null,
+      claimed_kash_id: null,
+      resume_v2_id: null,
+
+      assessment_id: null,
+      assessment_profile_id: null,
+      fit_result_id: null,
+      resume_v3_id: null,
+      plan_90d_id: null,
+    },
+    sessions: {},
+    fact_profiles: {},
+    target_profiles: {},
+    claimed_kash: {},
+    assessments: {},
+    assessment_profiles: {},
+    fit_results: {},
+    recommendations: {},
+    resume_versions: {},
+    resume_v2: {},
+    resume_v3: {},
+    plan_90d: {},
+  };
+}
+
+function appendWriteLog(entry) {
+  try {
+    const raw = localStorage.getItem(WRITE_LOG_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    arr.push(entry);
+    while (arr.length > MAX_LOG) arr.shift();
+    localStorage.setItem(WRITE_LOG_KEY, JSON.stringify(arr));
+  } catch {
+    // ignore
+  }
+}
+
+function resolveExistingKey() {
+  for (const k of LEGACY_KEYS) {
+    if (localStorage.getItem(k)) return k;
+  }
+  return STORAGE_KEY;
+}
+
+export function loadDB() {
+  const key = resolveExistingKey();
+  const raw = localStorage.getItem(key);
+  if (!raw) {
+    const db = defaultDB();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+    return db;
+  }
+
+  try {
+    const db = JSON.parse(raw);
+
+    // 最小补全（防旧结构缺字段）
+    const base = defaultDB();
+    const merged = { ...base, ...db };
+    merged.active = { ...base.active, ...(db.active || {}) };
+
+    merged.updated_at = merged.updated_at || iso();
+
+    // 若从 legacy key 读到，顺手写回标准 key，避免 split-brain
+    if (key !== STORAGE_KEY) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+    }
+
+    return merged;
+  } catch {
+    const db = defaultDB();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+    return db;
+  }
+}
+
+export function saveDB(db) {
+  const next = db || defaultDB();
+  next.updated_at = iso();
+
+  // 防自毁：禁止把“已有数据的 DB”覆盖成空库
+  try {
+    const prevRaw = localStorage.getItem(STORAGE_KEY);
+    if (prevRaw) {
+      const prev = JSON.parse(prevRaw);
+      const prevSessions = Object.keys(prev.sessions || {}).length;
+      const nextSessions = Object.keys(next.sessions || {}).length;
+
+      // 如果之前有 session，但这次要写成 0，判定为异常覆盖，拒绝写入
+      if (prevSessions > 0 && nextSessions === 0) {
+        console.error("[resume_db] BLOCKED overwrite to empty DB", {
+          prev_updated_at: prev.updated_at,
+          next_updated_at: next.updated_at,
+          prev_active: prev.active,
+          next_active: next.active,
+        });
+        appendWriteLog({
+          t: iso(),
+          op: "BLOCKED_saveDB_empty_overwrite",
+          prev_active: deepClone(prev.active),
+          next_active: deepClone(next.active),
+          stack: new Error().stack?.split("\n").slice(0, 8).join("\n"),
+        });
+        return prev; // 返回旧 DB，不写入
+      }
+    }
+  } catch (e) {
+    console.warn("[resume_db] overwrite-guard check failed", e);
+  }
+
+  appendWriteLog({
+    t: next.updated_at,
+    op: "saveDB",
+    active: deepClone(next.active),
+  });
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  return next;
+}
+
+export function setActive(db, patch = {}) {
+  const next = db || loadDB();
+  next.active = next.active || {};
+
+  const before = deepClone(next.active);
+
+  // merge-only：只更新 patch 中出现的 key
+  for (const [k, v] of Object.entries(patch)) {
+  // 关键：忽略 null/undefined，避免页面把默认值整包写进来导致“清空里程碑”
+  if (v === null || v === undefined) continue;
+  next.active[k] = v;
+}
+
+  const after = deepClone(next.active);
+
+  appendWriteLog({
+    t: iso(),
+    op: "setActive",
+    patch: deepClone(patch),
+    before,
+    after,
+    // 轻量 stack，方便定位“哪个页面/调用链”
+    stack: new Error().stack?.split("\n").slice(0, 6).join("\n"),
+  });
+
+  saveDB(next);
+  return next.active;
+}
+
+// 可选：你需要时手动查看审计日志
+export function readWriteLog() {
+  try {
+    const raw = localStorage.getItem(WRITE_LOG_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}

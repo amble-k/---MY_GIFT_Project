@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Resume Product - Fact</title>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script type="module">
+    import { bootStepPage } from "/apps/resume_product/pages/_step_page.js";
+    import { loadDB } from "/core/storage/resume_db.js";
+    // 用 bootStepPage 先渲染“通用头部/状态/按钮”
+    bootStepPage({ title:"Resume Product — Fact", stepId:"fact", writeFnName:"writeFactProfileDummy" });
+
+    // 在通用页面基础上，插入一个最小表单，并把 payload 写到 window.__FACT_PAYLOAD__
+    const app = document.getElementById("app");
+
+    const box = document.createElement("div");
+    box.style.cssText = "margin-top:12px;padding:12px;border:1px solid #eee;border-radius:10px;background:#fff;";
+    box.innerHTML = `
+      <h2 style="margin:0 0 8px 0;font-size:16px;">事实信息（最小版）</h2>
+
+      <div style="display:grid;grid-template-columns:120px 1fr;gap:8px;align-items:center;">
+        <label>姓名</label><input id="fp_name" style="padding:8px;" placeholder="如：王小明" />
+        <label>目标岗位</label><input id="fp_title" style="padding:8px;" placeholder="如：后端工程师/产品经理" />
+        <label>城市</label><input id="fp_city" style="padding:8px;" placeholder="如：上海" />
+        <label>电话</label><input id="fp_phone" style="padding:8px;" placeholder="如：138xxxx" />
+        <label>邮箱</label><input id="fp_email" style="padding:8px;" placeholder="如：xxx@xx.com" />
+        <label style="align-self:start;">个人简介</label>
+        <textarea id="fp_summary" rows="4" style="padding:8px;resize:vertical;" placeholder="用 1-2 句总结你的优势与方向"></textarea>
+        <label>技能（逗号分隔）</label><input id="fp_skills" style="padding:8px;" placeholder="如：PRD, 用户研究, JavaScript" />
+        <label>学校</label><input id="fp_school" style="padding:8px;" placeholder="如：复旦大学" />
+        <label>专业</label><input id="fp_major" style="padding:8px;" placeholder="如：计算机科学与技术" />
+        <label>学历</label><input id="fp_degree" style="padding:8px;" placeholder="如：本科/硕士" />
+        <label>公司</label><input id="fp_company" style="padding:8px;" placeholder="如：某科技公司" />
+        <label>职位</label><input id="fp_role" style="padding:8px;" placeholder="如：产品经理/前端工程师" />
+        <label>时间</label><input id="fp_range" style="padding:8px;" placeholder="如：2022-06 ~ 2025-12" />
+        <label>项目名称</label><input id="fp_project_name" style="padding:8px;" placeholder="如：MY GIFT v4.1" />
+        <label style="align-self:start;">项目描述</label>
+        <textarea id="fp_project_desc" rows="3" style="padding:8px;resize:vertical;" placeholder="一句话说明你做了什么、产出什么"></textarea>
+        </div>
+
+      <div style="margin-top:10px;color:#666;font-size:12px;">
+        说明：这里只是 v0.1 最小字段，后续会扩展工作/项目/教育/技能。
+      </div>
+    `;
+    app.prepend(box);
+
+  function setVal(id, v) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.value = (v ?? "").toString();
+}
+
+function fillFromDBIfAny() {
+  const db = loadDB();
+  const fpId = db?.active?.fact_profile_id;
+  const fp = fpId ? db?.fact_profiles?.[fpId] : null;
+  if (!fp) return;
+
+  // basic
+  setVal("fp_name", fp?.basic?.name);
+  setVal("fp_title", fp?.basic?.title);
+  setVal("fp_city", fp?.basic?.city);
+  setVal("fp_phone", fp?.basic?.phone);
+  setVal("fp_email", fp?.basic?.email);
+
+  // summary / skills
+  setVal("fp_summary", fp?.summary);
+  setVal("fp_skills", Array.isArray(fp?.skills) ? fp.skills.join(", ") : "");
+
+  // education（v0.1 先回填第 1 条）
+  const edu0 = Array.isArray(fp?.education) ? fp.education[0] : null;
+  setVal("fp_school", edu0?.school);
+  setVal("fp_major", edu0?.major);
+  setVal("fp_degree", edu0?.degree);
+
+  // experience（v0.1 先回填第 1 条）
+  const exp0 = Array.isArray(fp?.experience) ? fp.experience[0] : null;
+  setVal("fp_company", exp0?.company);
+  setVal("fp_role", exp0?.role);
+  setVal("fp_range", exp0?.range);
+
+  // projects（v0.1 先回填第 1 条）
+  const prj0 = Array.isArray(fp?.projects) ? fp.projects[0] : null;
+  setVal("fp_project_name", prj0?.name);
+  setVal("fp_project_desc", prj0?.desc);
+}
+
+// ✅ 先回填，再同步 payload（避免回填后 payload 还是旧值）
+fillFromDBIfAny();
+window.__FACT_PAYLOAD__ = buildPayload();
+
+   function val(id) {
+  return (document.getElementById(id)?.value || "").trim();
+}
+
+function buildPayload() {
+  const school = val("fp_school");
+  const major = val("fp_major");
+  const degree = val("fp_degree");
+
+  const education = (!school && !major && !degree)
+    ? []
+    : [{ school, major, degree }];
+
+  const company = val("fp_company");
+  const role = val("fp_role");
+  const range = val("fp_range");
+
+  const experience = (!company && !role && !range)
+    ? []
+    : [{ company, role, range }];
+
+  const projectName = val("fp_project_name");
+  const projectDesc = val("fp_project_desc");
+
+  const projects = (!projectName && !projectDesc)
+    ? []
+    : [{ name: projectName, desc: projectDesc }];
+
+  const skills = (document.getElementById("fp_skills")?.value || "")
+    .split(",")
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  return {
+    basic: {
+      name: val("fp_name"),
+      title: val("fp_title"),
+      city: val("fp_city"),
+      phone: val("fp_phone"),
+      email: val("fp_email"),
+    },
+    summary: val("fp_summary"),
+    skills,
+    education,
+    experience,
+    projects,
+  };
+}
+ function setVal(id, v) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  // textarea / input 都用 value
+  el.value = (v == null) ? "" : String(v);
+}
+
+(function hydrateFromDB() {
+  const db = loadDB();
+  const fpId = db?.active?.fact_profile_id;
+  const payload = fpId ? db?.fact_profiles?.[fpId]?.payload : null;
+  if (!payload) return;
+
+  // basic
+  setVal("fp_name", payload?.basic?.name);
+  setVal("fp_title", payload?.basic?.title);
+  setVal("fp_city", payload?.basic?.city);
+  setVal("fp_phone", payload?.basic?.phone);
+  setVal("fp_email", payload?.basic?.email);
+
+  // summary
+  setVal("fp_summary", payload?.summary);
+
+  // skills
+  if (Array.isArray(payload?.skills)) {
+    setVal("fp_skills", payload.skills.join(", "));
+  }
+
+  // education (single)
+  const edu = Array.isArray(payload?.education) ? payload.education[0] : null;
+  if (edu) {
+    setVal("fp_school", edu.school);
+    setVal("fp_major", edu.major);
+    setVal("fp_degree", edu.degree);
+  }
+
+  // experience (single)
+  const exp = Array.isArray(payload?.experience) ? payload.experience[0] : null;
+  if (exp) {
+    setVal("fp_company", exp.company);
+    setVal("fp_role", exp.role);
+    setVal("fp_range", exp.range);
+  }
+
+  // projects (single)
+  const proj = Array.isArray(payload?.projects) ? payload.projects[0] : null;
+  if (proj) {
+    setVal("fp_project_name", proj.name);
+    setVal("fp_project_desc", proj.desc);
+  }
+})();
+    // 关键：提供给 _step_page.js 使用
+    window.__FACT_PAYLOAD__ = buildPayload();
+
+    // 输入变化就更新 payload
+    box.addEventListener("input", () => {
+      window.__FACT_PAYLOAD__ = buildPayload();
+    });
+  </script>
+</body>
+</html>

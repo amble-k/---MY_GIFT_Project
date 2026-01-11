@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MY GIFT 天赋特质结构解析报告</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        #gapRadarChart {
+    height: 300px !important;
+}
+        body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #f4f6f8; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 900px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); overflow: hidden; min-height: 800px;}
+        
+        /* 头部 */
+        .header { text-align: center; padding: 40px 20px; background: linear-gradient(135deg, #1B2A41 0%, #2E4A62 100%); color: white; }
+        .header h1 { margin: 0; font-size: 24px; }
+        
+        /* 导航 Tab */
+        .tabs { display: flex; flex-wrap: wrap; justify-content: center; background: #fff; border-bottom: 1px solid #eee; padding: 10px; gap: 10px;}
+        .tab-btn { padding: 8px 20px; border: 1px solid #ddd; border-radius: 20px; background: #fff; cursor: pointer; color: #666; font-size: 14px; transition: all 0.2s; }
+        .tab-btn.active { background: #2E4A62; color: #fff; border-color: #2E4A62; font-weight: bold; }
+        
+        /* 内容区域 */
+        .tab-content { display: none; padding: 30px; animation: fadeIn 0.3s; }
+        .tab-content.active { display: block; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* 图表容器 */
+        .chart-box { position: relative; height: 300px; width: 100%; margin: 20px auto; }
+        
+        /* 模块标题 */
+        .module-title { border-left: 5px solid #4EA5A6; padding-left: 15px; margin-bottom: 25px; color: #1B2A41; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>MY GIFT 天赋特质结构解析报告</h1>
+        <p style="opacity: 0.8; font-size: 14px; margin-top: 10px;">解码你的内在驱动力与潜能结构</p>
+    </div>
+
+    <div class="tabs" id="tab-nav">
+        <button class="tab-btn" onclick="switchTab('m')">1. 动机 M</button>
+        <button class="tab-btn" onclick="switchTab('t')">2. 特质 T</button>
+        <button class="tab-btn" onclick="switchTab('v')">3. 价值观 V</button>
+        <button class="tab-btn" onclick="switchTab('r')">4. 现实 R</button>
+        <button class="tab-btn" onclick="switchTab('gap')">5. 差距 Δ</button>
+        <button class="tab-btn" onclick="switchTab('synthesis')">6. 综合总结</button>
+        <button class="tab-btn" onclick="switchTab('iceberg')">7. 冰山全景</button>
+    </div>
+    <!-- 综合 Summary 顶部总览 -->
+    <div id="summary-content"></div>
+    
+    <div id="tab-m" class="tab-content">
+        <h2 class="module-title">核心动机 (Motivation)</h2>
+        <div id="m-content">
+            </div>
+    </div>
+
+    <div id="tab-t" class="tab-content">
+        <h2 class="module-title">性格特质 (Traits)</h2>
+        <div class="chart-box">
+            <canvas id="bigFiveRadarChart"></canvas>
+        </div>
+        <div id="t-content">
+            </div>
+    </div>
+
+    <div id="tab-v" class="tab-content">
+        <h2 class="module-title">理想价值观 (Values)</h2>
+        <div class="chart-box">
+            <canvas id="vBarChart"></canvas>
+        </div>
+        <div id="v-content"></div>
+    </div>
+
+    <div id="tab-r" class="tab-content">
+        <h2 class="module-title">现实满意度 (Reality)</h2>
+        <div class="chart-box">
+            <canvas id="rBarChart"></canvas>
+        </div>
+        <div id="r-content"></div>
+    </div>
+
+    <div id="tab-gap" class="tab-content">
+        <h2 class="module-title">理想与现实差距 (Gap Analysis)</h2>
+        <div class="chart-box">
+            <canvas id="gapRadarChart" height="300"></canvas>
+        </div>
+        <div id="gap-text-analysis"></div>
+        <div id="gap-content"></div>
+    </div>
+
+    <div id="tab-synthesis" class="tab-content">
+  <h2 class="module-title">综合诊断与行动建议</h2>
+
+  <!-- 1. 冰山总图（缩略版） -->
+  <div class="chart-box" style="max-width:420px;margin-bottom:24px;">
+    <canvas id="synIcebergChart" height="260"></canvas>
+  </div>
+
+  <!-- 2. 模式类型标题行 -->
+  <p id="synthesis-mode-line"
+     style="font-size:14px;color:#555;margin:0 0 24px;">
+    模式类型（<span id="synthesis-mode-label">加载中…</span>）
+  </p>
+
+  <!-- 3. 结构化总结内容 -->
+  <div id="synthesis-content"></div>
+  <!-- KASH 起点建议卡片容器 -->
+<div id="kash-entry-area" style="margin-top:16px;"></div>
+</div>
+    
+    <div id="tab-iceberg" class="tab-content">
+        <h2 class="module-title">冰山结构全景图</h2>
+        <div style="width: 100%; height: 500px; background: #fff; border-radius: 8px;">
+            <canvas id="icebergChart"></canvas>
+        </div>
+    </div>
+
+</div>
+
+<script type="module" src="/report_renderer.js"></script>
+
+<script>
+    // 简单的 Tab 切换逻辑 (全局函数，方便 HTML 调用)
+    function switchTab(tabName) {
+        // 1. 隐藏所有内容
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        
+        // 2. 显示目标内容
+        const target = document.getElementById('tab-' + tabName);
+        if (target) target.classList.add('active');
+        
+        // 3. 按钮高亮
+        // 简单粗暴地根据顺序或文字匹配，这里简化处理
+        const btns = document.querySelectorAll('.tab-btn');
+        // 根据 tabName 映射索引 (m->0, t->1 ...)
+        const map = {'m':0, 't':1, 'v':2, 'r':3, 'gap':4, 'synthesis':5, 'iceberg':6};
+        if (btns[map[tabName]]) btns[map[tabName]].classList.add('active');
+
+        // 4. 更新 URL，方便刷新后还在这一页
+        const url = new URL(window.location);
+        url.searchParams.set('tab', tabName);
+        window.history.pushState({}, '', url);
+    }
+
+    // 初始化：读取 URL 参数并切换
+    window.onload = function() {
+        const params = new URLSearchParams(window.location.search);
+        const tab = params.get('tab') || 'm';
+        switchTab(tab);
+    };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+    // 导出 PDF 的逻辑
+    async function exportPDF() {
+        const { jsPDF } = window.jspdf;
+        const content = document.body; // 或者指定具体的报告容器 ID
+        const btn = document.getElementById('exportBtn');
+        
+        // 导出前隐藏按钮
+        if(btn) btn.style.display = 'none';
+
+        const canvas = await html2canvas(content, {
+            scale: 2, // 提高清晰度
+            useCORS: true
+        });
+
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const imgProps = pdf.getImageProperties(imgData);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save('MY_GIFT_深度解析报告.pdf');
+
+        // 恢复按钮
+        if(btn) btn.style.display = 'block';
+    }
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<button id="exportBtn" onclick="exportPDF()" style="
+    position: fixed; 
+    top: 20px; 
+    right: 20px; 
+    z-index: 9999;
+    padding: 12px 24px; 
+    background: #2c3e50; 
+    color: white; 
+    border: none; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    font-family: sans-serif;">
+    📥 下载报告 (PDF)
+</button>
+
+<script>
+    async function exportPDF() {
+        const btn = document.getElementById('exportBtn');
+        // 1. 导出前先隐藏按钮，不然按钮也会被印在 PDF 里
+        btn.style.display = 'none';
+        
+        // 提示用户稍等
+        const originalText = btn.innerText;
+        
+        try {
+            const { jsPDF } = window.jspdf;
+            // 捕捉整个网页内容
+            const canvas = await html2canvas(document.body, {
+                scale: 2, // 清晰度 2 倍
+                useCORS: true,
+                logging: false
+            });
+
+            // 计算 A4 纸比例
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+            // 生成 PDF
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            pdf.save('MY_GIFT_深度解析报告.pdf');
+            
+        } catch (err) {
+            console.error("PDF 生成失败:", err);
+            alert("导出失败，建议使用浏览器自带的'打印->另存为PDF'功能");
+        } finally {
+            // 恢复按钮显示
+            btn.style.display = 'block';
+        }
+    }
+</script>
+</body>
+</html>

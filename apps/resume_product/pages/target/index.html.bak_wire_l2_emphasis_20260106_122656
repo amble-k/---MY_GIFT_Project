@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Resume Product - Target</title>
+</head>
+<body>
+<datalist id="target_goal_suggest">
+  <option value="产品经理"></option>
+  <option value="增长产品经理"></option>
+  <option value="B端产品经理"></option>
+  <option value="产品负责人"></option>
+  <option value="咨询经理"></option>
+  <option value="数据分析师"></option>
+  <option value="前端工程师"></option>
+  <option value="后端工程师"></option>
+  <option value="测试工程师"></option>
+  <option value="运营"></option>
+  <option value="用户运营"></option>
+  <option value="UI/UX设计师"></option>
+</datalist>
+
+  <div id="app"></div>
+
+  <script type="module">
+    import { bootStepPage } from "/apps/resume_product/pages/_step_page.js?v=3";
+    import { loadDB, setActive } from "/core/storage/resume_db.js";
+    import { mountStepForm } from "/core/ui/step_form_v0_2.js?v=2";
+
+    // 通用壳（按钮会读 window.__STEP_PAYLOAD__；target 也兼容 window.__TARGET_PAYLOAD__）
+    bootStepPage({ title:"Resume Product — Target", stepId:"target", writeFnName:"writeTargetProfileDummy" });
+
+    mountStepForm({
+      appId: "app",
+      title: "目标（最小版）",
+      desc: "说明：输入后将自动保存（不跳页）。进入下一步仍可用上方“写入/保存并进入下一步”。",
+      fields: [
+        { id: "t_goal",  label: "目标岗位/方向", type: "input",    key: "goal",  placeholder: "如：咨询经理 / 产品负责人" },
+        { id: "t_ind",   label: "目标行业",     type: "input",    key: "industry", placeholder: "如：咨询 / 金融 / 互联网" },
+      ],
+      loadDB,
+      setActive,
+      writerName: "writeTargetProfileDummy",
+      setActiveMap: { target_profile_id: "RET_ID" },
+
+      // 回填：优先 target_profiles，其次 targets（兼容旧表）
+      fillFromDB: (db) => {
+        const tid = db?.active?.target_profile_id || db?.active?.target_id || null;
+        const row =
+          (tid && db?.target_profiles?.[tid]) ? db.target_profiles[tid] :
+          (tid && db?.targets?.[tid]) ? db.targets[tid] :
+          null;
+
+        const p = row?.payload || row?._raw || row || {};
+        return {
+          goal: p.goal || p.title || "",
+          industry: p.industry || "",
+          note: p.note || "",
+        };
+      },
+
+      // 关键：target 额外同步 __TARGET_PAYLOAD__，兼容你现有 _step_page.js 口径
+      buildPayload: () => {
+        const v = (id) => (document.getElementById(id)?.value || "").toString();
+        const payload = {
+          goal: v("t_goal").trim(),
+          industry: v("t_ind").trim(),
+          note: v("t_note"),
+            emphasis: (Array.isArray(window.__STEP_PAYLOAD__?.emphasis) ? window.__STEP_PAYLOAD__.emphasis : []),
+        };
+        window.__TARGET_PAYLOAD__ = payload;
+        return payload;
+      },
+    });
+
+      // L2_EMPHASIS_PANEL_V0_2_4_05: 目标岗位定向增强（先做最小可用：手动勾选 → 写入 __STEP_PAYLOAD__.emphasis）
+      const L2_OPTIONS = [
+        "业务理解/行业洞察",
+        "需求分析与PRD",
+        "数据分析与指标体系",
+        "跨部门协同推进",
+        "项目管理与交付",
+        "增长/转化优化",
+        "用户研究与体验",
+        "成本/效率优化",
+        "ToB方案/客户沟通",
+        "技术理解/与研发共创",
+      ];
+
+      function ensureL2Panel() {
+        const app = document.getElementById("app");
+        if (!app) return;
+        if (document.getElementById("l2_emphasis_panel")) return;
+
+        const wrap = document.createElement("div");
+        wrap.id = "l2_emphasis_panel";
+        wrap.style.cssText = "margin-top:12px;padding:12px;border:1px solid #eee;border-radius:10px;background:#fff;";
+
+        wrap.innerHTML = `
+          <h2 style="margin:0 0 8px 0;font-size:16px;">强化选项（L2）</h2>
+          <div style="color:#666;font-size:12px;margin-bottom:10px;">
+            勾选你希望在简历里重点强调的能力信号（后续会按目标岗位自动推荐）。
+          </div>
+          <div id="l2_emphasis_grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
+        `;
+
+        if (app.children && app.children.length > 0) app.children[0].after(wrap);
+        else app.appendChild(wrap);
+
+        const grid = wrap.querySelector("#l2_emphasis_grid");
+        for (const opt of L2_OPTIONS) {
+          const row = document.createElement("label");
+          row.style.cssText = "display:flex;gap:8px;align-items:flex-start;padding:8px;border:1px solid #eee;border-radius:10px;background:#fafafa;cursor:pointer;";
+          row.innerHTML = `
+            <input type="checkbox" data-l2="emphasis" value="${opt}" style="margin-top:2px;"/>
+            <span style="font-size:13px;line-height:1.4;">${opt}</span>
+          `;
+          grid.appendChild(row);
+        }
+      }
+
+      function readL2Selected() {
+        return Array.from(document.querySelectorAll('input[type="checkbox"][data-l2="emphasis"]:checked'))
+          .map(x => (x.value || "").toString())
+          .filter(Boolean);
+      }
+
+      function writeL2ToPayload() {
+        const p = (window.__STEP_PAYLOAD__ && typeof window.__STEP_PAYLOAD__ === "object") ? window.__STEP_PAYLOAD__ : {};
+        p.emphasis = readL2Selected();
+        window.__STEP_PAYLOAD__ = p;
+
+        if (window.__TARGET_PAYLOAD__ && typeof window.__TARGET_PAYLOAD__ === "object") {
+          window.__TARGET_PAYLOAD__.emphasis = p.emphasis;
+        }
+      }
+
+      function fillL2FromPayload() {
+        const p = (window.__STEP_PAYLOAD__ && typeof window.__STEP_PAYLOAD__ === "object") ? window.__STEP_PAYLOAD__ : {};
+        const arr = Array.isArray(p.emphasis) ? p.emphasis : [];
+        const set = new Set(arr);
+        for (const el of document.querySelectorAll('input[type="checkbox"][data-l2="emphasis"]')) {
+          el.checked = set.has(el.value);
+        }
+      }
+
+      setTimeout(() => {
+        ensureL2Panel();
+        fillL2FromPayload();
+
+        document.addEventListener("change", (e) => {
+          const t = e.target;
+          if (t && t.matches && t.matches('input[type="checkbox"][data-l2="emphasis"]')) {
+            writeL2ToPayload();
+          }
+        });
+      }, 0);
+
+
+  
+    // v0.2.4-03 target datalist: add suggestions for t_goal (input-first)
+    setTimeout(()=>{
+      try{
+        const el = document.getElementById("t_goal");
+        if (el) el.setAttribute("list","target_goal_suggest");
+      }catch(e){}
+    }, 0);
+
+</script>
+</body>
+</html>

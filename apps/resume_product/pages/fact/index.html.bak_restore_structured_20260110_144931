@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Resume Product - Fact</title>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script type="module">
+    import { bootStepPage } from "/apps/resume_product/pages/_step_page.js?v=20260109_1619";
+    import { loadDB, saveDB, setActive } from "/core/storage/resume_db.js";
+    import { makeEmptyFactV03, normalizeFactV03, validateFactV03 } from "/apps/resume_product/contracts/fact_runtime.v0_3_0.js?v=20260109_1619";
+
+    const LOCALE = "zh-CN";
+
+    // 顶部壳：按钮逻辑在 _step_page.js（写入/保存、下一步、回入口、清空）
+    bootStepPage({ title:"Resume Product — Fact", stepId:"fact", writeFnName:"writeFactProfileDummy" });
+
+    const toLines = (s) => String(s || "")
+      .split(/\n+/)
+      .map(x => x.trim())
+      .filter(Boolean);
+
+    const toSkillItems = (s) => {
+      const arr = String(s || "")
+        .split(/[,，\n]/)
+        .map(x => x.trim())
+        .filter(Boolean);
+      // 先都归为 tool，后续 L2/L3 再分类
+      return arr.map(name => ({ name, category: "tool" }));
+    };
+
+    const toIntOrNull = (s) => {
+      const n = parseInt(String(s || "").trim(), 10);
+      return Number.isFinite(n) ? n : null;
+    };
+    console.log("[FACT] mounted pure-input fact page (v0.3). active=", loadDB()?.active);
+  </script>
+</body>
+</html>

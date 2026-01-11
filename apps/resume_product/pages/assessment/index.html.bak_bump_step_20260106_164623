@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Resume Product - Assessment</title>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script type="module">
+    import { bootStepPage } from "/apps/resume_product/pages/_step_page.js?v=9999";
+    import { loadDB, setActive } from "/core/storage/resume_db.js";
+    import { mountStepForm } from "/core/ui/step_form_v0_2.js?v=2";
+
+    bootStepPage({ title:"Resume Product — Assessment", stepId:"assessment", writeFnName:"writeAssessmentDummy" });
+
+    mountStepForm({
+      title: "自我评估（最小版）",
+      desc: "说明：输入后将自动保存（不跳页）。进入下一步仍可用上方“写入/保存并进入下一步”。",
+      fields: [
+        {
+          id: "ass_note",
+          label: "自我优势 / 偏好 / 想强调的点",
+          type: "textarea",
+          rows: 8,
+          placeholder: "例如：我更擅长… / 我希望突出… / 我不想写…",
+          key: "note",
+        },
+      ],
+      loadDB,
+      setActive,
+      writerName: "writeAssessmentDummy",
+      setActiveMap: { assessment_id: "RET_ID" },
+
+      // 回填：优先 active.assessment_id
+      fillFromDB: (db) => {
+        const aid = db?.active?.assessment_id || null;
+        const row = (aid && db?.assessments?.[aid]) ? db.assessments[aid] : null;
+        const p = row?.payload || row || {};
+        return { note: p?.note || "" };
+      },
+    });
+  </script>
+</body>
+</html>

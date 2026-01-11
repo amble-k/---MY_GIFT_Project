@@ -1,0 +1,8 @@
+<!doctype html><html lang="zh-CN"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Resume Product - Export</title></head>
+<body><div id="app"></div>
+<script type="module">
+  import { bootStepPage } from "/apps/resume_product/pages/_step_page.js?v=2";
+  bootStepPage({ title:"Export（导出）", stepId:"export", writeFnName:"writeExportReadyDummy" });
+</script></body></html>

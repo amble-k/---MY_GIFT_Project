@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Resume Product - Resume V3</title>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script type="module">
+    import { bootStepPage } from "/apps/resume_product/pages/_step_page.js?v=9999";
+    import { loadDB, setActive } from "/core/storage/resume_db.js";
+    import { mountStepForm } from "/core/ui/step_form_v0_2.js?v=2";
+
+    // 通用壳（按钮会读 window.__STEP_PAYLOAD__）
+    bootStepPage({ title:"Resume Product — Resume V3", stepId:"resume_v3", writeFnName:"writeResumeV3Dummy" });
+
+    // ===== V3: step_form_v0_2（可编辑 + 回填 + 自动保存）=====
+    mountStepForm({
+      title: "Resume V3（可编辑）",
+      desc: "说明：优先回填 V3 旧稿；否则回填 V2；再否则回填 V1 BASE。",
+      fields: [
+        {
+          id: "rv3_content",
+          key: "content",
+          label: "V3 文本",
+          type: "textarea",
+          rows: 18,
+          placeholder: "这里是 V3 文本（可直接编辑）",
+        },
+      ],
+      loadDB,
+      setActive,
+      writerName: "writeResumeV3Dummy",
+      setActiveMap: { resume_v3_id: "RET_ID" },
+
+          fillFromDB: (db) => {
+          // 1) V3
+          const rv3Id = db?.active?.resume_v3_id || null;
+          if (rv3Id) {
+            const row1 = db?.resume_v3s?.[rv3Id];
+            const row2 = db?.resume_versions?.[rv3Id];
+            const c =
+              (row1?.content ?? row1?.payload?.content) ||
+              (row2?.content ?? row2?.payload?.content) ||
+              "";
+            if (String(c).trim()) return { content: String(c) };
+          }
+
+          // 2) V2
+          const rv2Id = db?.active?.resume_v2_id || null;
+          if (rv2Id) {
+            const row3 = db?.resume_v2s?.[rv2Id];
+            const row4 = db?.resume_versions?.[rv2Id];
+            const c =
+              (row3?.content ?? row3?.payload?.content) ||
+              (row4?.content ?? row4?.payload?.content) ||
+              "";
+            if (String(c).trim()) return { content: String(c) };
+          }
+
+          // 3) V1 BASE
+          const rv1Id = db?.active?.resume_version_id || null;
+          const rowV1 = rv1Id ? db?.resume_versions?.[rv1Id] : null;
+          const c5 = (rowV1?.content ?? rowV1?.payload?.content ?? "").toString();
+          return { content: c5 };
+        },
+   });
+  </script>
+</body>
+</html>

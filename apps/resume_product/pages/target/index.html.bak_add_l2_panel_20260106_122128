@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Resume Product - Target</title>
+</head>
+<body>
+<datalist id="target_goal_suggest">
+  <option value="产品经理"></option>
+  <option value="增长产品经理"></option>
+  <option value="B端产品经理"></option>
+  <option value="产品负责人"></option>
+  <option value="咨询经理"></option>
+  <option value="数据分析师"></option>
+  <option value="前端工程师"></option>
+  <option value="后端工程师"></option>
+  <option value="测试工程师"></option>
+  <option value="运营"></option>
+  <option value="用户运营"></option>
+  <option value="UI/UX设计师"></option>
+</datalist>
+
+  <div id="app"></div>
+
+  <script type="module">
+    import { bootStepPage } from "/apps/resume_product/pages/_step_page.js?v=3";
+    import { loadDB, setActive } from "/core/storage/resume_db.js";
+    import { mountStepForm } from "/core/ui/step_form_v0_2.js?v=2";
+
+    // 通用壳（按钮会读 window.__STEP_PAYLOAD__；target 也兼容 window.__TARGET_PAYLOAD__）
+    bootStepPage({ title:"Resume Product — Target", stepId:"target", writeFnName:"writeTargetProfileDummy" });
+
+    mountStepForm({
+      appId: "app",
+      title: "目标（最小版）",
+      desc: "说明：输入后将自动保存（不跳页）。进入下一步仍可用上方“写入/保存并进入下一步”。",
+      fields: [
+        { id: "t_goal",  label: "目标岗位/方向", type: "input",    key: "goal",  placeholder: "如：咨询经理 / 产品负责人" },
+        { id: "t_ind",   label: "目标行业",     type: "input",    key: "industry", placeholder: "如：咨询 / 金融 / 互联网" },
+      ],
+      loadDB,
+      setActive,
+      writerName: "writeTargetProfileDummy",
+      setActiveMap: { target_profile_id: "RET_ID" },
+
+      // 回填：优先 target_profiles，其次 targets（兼容旧表）
+      fillFromDB: (db) => {
+        const tid = db?.active?.target_profile_id || db?.active?.target_id || null;
+        const row =
+          (tid && db?.target_profiles?.[tid]) ? db.target_profiles[tid] :
+          (tid && db?.targets?.[tid]) ? db.targets[tid] :
+          null;
+
+        const p = row?.payload || row?._raw || row || {};
+        return {
+          goal: p.goal || p.title || "",
+          industry: p.industry || "",
+          note: p.note || "",
+        };
+      },
+
+      // 关键：target 额外同步 __TARGET_PAYLOAD__，兼容你现有 _step_page.js 口径
+      buildPayload: () => {
+        const v = (id) => (document.getElementById(id)?.value || "").toString();
+        const payload = {
+          goal: v("t_goal").trim(),
+          industry: v("t_ind").trim(),
+          note: v("t_note"),
+            emphasis: em,
+        };
+        window.__TARGET_PAYLOAD__ = payload;
+        return payload;
+      },
+    });
+  
+    // v0.2.4-03 target datalist: add suggestions for t_goal (input-first)
+    setTimeout(()=>{
+      try{
+        const el = document.getElementById("t_goal");
+        if (el) el.setAttribute("list","target_goal_suggest");
+      }catch(e){}
+    }, 0);
+
+</script>
+</body>
+</html>

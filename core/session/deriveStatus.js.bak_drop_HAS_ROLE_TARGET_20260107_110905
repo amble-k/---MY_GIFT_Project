@@ -1,0 +1,116 @@
+// Resume Product v0.1 — Single Source of Truth status machine
+
+import { StepId, STEP_ORDER } from "./step_ids.js?v=20260106_172219";
+import { ErrorCode, makeError } from "../guardrails/errors.js";
+
+function hasId(db, dict, id) {
+  return !!(id && db && db[dict] && db[dict][id]);
+}
+
+export function deriveStatus(db, session_id = null) {
+  try {
+    const sid = session_id || db?.active?.session_id || null;
+
+    // 1) Session 必须存在
+    if (!sid || !hasId(db, "sessions", sid)) {
+      return {
+        state: StepId.entry,
+        milestones: { HAS_SESSION: false },
+        active_ids: { session_id: null },
+        required_step: StepId.entry,
+        error: makeError(ErrorCode.SESSION_NOT_FOUND, "Session not found", StepId.entry),
+      };
+    }
+
+    const active = db.active || {};
+    const s = db.sessions[sid] || {};
+
+    // 2) v0.1 里程碑（先只判断“有没有”）
+    const milestones = {
+      HAS_SESSION: true,
+     HAS_SCENARIO: !!(db?.active?.scenario_id || db?.active?.scenario_profile_id || s?.scenario_id || s?.scenario_profile_id), // v0.1：active 优先，兼容旧 session 字段
+      HAS_FACT: !!active.fact_profile_id && hasId(db, "fact_profiles", active.fact_profile_id),
+        HAS_RESUME_V1: !!active.resume_version_id && hasId(db, "resume_versions", active.resume_version_id),
+        HAS_ROLE_TARGET: !!active.role_target_id && (db?.role_targets?.[active.role_target_id] != null),
+        HAS_TARGET:
+        !!active.target_profile_id && hasId(db, "target_profiles", active.target_profile_id),
+      HAS_ROLE: !!s.role_id, // v0.1 先约定挂在 session 上
+      HAS_CLAIMED_KASH:
+        !!active.claimed_kash_id && hasId(db, "claimed_kash", active.claimed_kash_id),
+
+      // v0.1 占位（后续迭代再填）
+     HAS_RESUME_V2:
+      !!(active.resume_v2_id && (db?.resume_v2s?.[active.resume_v2_id] || db?.resume_v2_versions?.[active.resume_v2_id] || db?.resume_versions?.[active.resume_v2_id])),
+      HAS_ASSESSMENT: !!active.assessment_id && hasId(db, "assessments", active.assessment_id),
+      HAS_FIT: !!active.fit_result_id && hasId(db, "fit_results", active.fit_result_id),
+      HAS_RESUME_V3: !!active.resume_v3_id && hasId(db, "resume_v3", active.resume_v3_id),
+    HAS_PLAN_90D: !!active.plan_90d_id && hasId(db, "plan_90ds", active.plan_90d_id),
+
+// ✅ Export 完成态：只认 true（避免 undefined/空值误判）
+HAS_EXPORT_READY: db?.export_ready === true,
+
+// ✅ 兼容字段：你现在已经加了 EXPORT_GENERATED，就保留为同义标记
+EXPORT_GENERATED: db?.export_ready === true,
+    };
+
+    // 3) 缺失判断：按固定顺序找第一个缺失步骤
+    const stepMissing = (step) => {
+      switch (step) {
+        case StepId.entry:
+          return false;
+        case StepId.scenario:
+          return !milestones.HAS_SCENARIO;
+        case StepId.fact:
+          return !milestones.HAS_FACT;
+        case StepId.resume_v1:
+          return !milestones.HAS_RESUME_V1;
+        case StepId.target:
+          return !milestones.HAS_TARGET;
+        case StepId.role_profile:
+          return !milestones.HAS_ROLE;
+        case StepId.claimed_kash:
+          return !milestones.HAS_CLAIMED_KASH;
+        case StepId.resume_v2:
+          return !milestones.HAS_RESUME_V2;
+        case StepId.assessment:
+          return !milestones.HAS_ASSESSMENT;
+        case StepId.fit:
+          return !milestones.HAS_FIT;
+        case StepId.resume_v3:
+          return !milestones.HAS_RESUME_V3;
+        case StepId.plan_90d:
+          return !milestones.HAS_PLAN_90D;
+            case StepId.export:
+      return false; // ✅ export 永远可进入，不作为 required_step 门槛
+        default:
+          return true;
+      }
+    };
+
+    let state = StepId.export;
+    for (const step of STEP_ORDER) {
+      if (stepMissing(step)) {
+        state = step;
+        break;
+      }
+    }
+
+   return {
+  state,
+  milestones,
+  active_ids: { ...active, session_id: sid },
+  required_step: state,
+  error: state === StepId.export ? null : makeError(ErrorCode.STEP_REQUIRED, "Step required", state),
+};
+  } catch (e) {
+    return {
+      state: StepId.entry,
+      milestones: {},
+      active_ids: {},
+      required_step: StepId.entry,
+      error: makeError(ErrorCode.INTERNAL_ERROR, "Internal error", StepId.entry, {
+        message: String(e),
+      }),
+    };
+  }
+}

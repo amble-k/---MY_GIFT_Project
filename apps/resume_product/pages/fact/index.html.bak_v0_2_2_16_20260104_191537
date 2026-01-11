@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Resume Product - Fact</title>
+</head>
+<body>
+  <div id="app"></div>
+  <div id="fact_spec_preview"></div>
+
+  <script type="module">
+    import { bootStepPage } from "/apps/resume_product/pages/_step_page.js?v=3";
+    import { loadDB, setActive } from "/core/storage/resume_db.js";
+    import { mountStepForm } from "/core/ui/step_form_v0_2.js?v=2";
+    
+    import { adaptFactPayloadToInput_v0_2_2 } from "/apps/resume_product/contracts/legacy_adapter.fact_to_input.v0_2_2.js";
+    import { mapInputToResumeDoc_v0_2_2 } from "/apps/resume_product/contracts/mapping_rules.v0_2_2.js";
+    import { validateResumeDoc_v0_2_2 } from "/apps/resume_product/contracts/resume_model.v0_2_2.js";
+    import { THEME_PROFESSIONAL_CLEAN_V0_2_2 } from "/apps/resume_product/render/themes/theme_professional_clean.v0_2_2.js";
+    import { renderResumeHtml_v0_2_2 } from "/apps/resume_product/render/renderer_core.v0_2_2.js";
+    import { OUTPUT_SPEC_PRO_CLEAN_V0_2_2 } from "/apps/resume_product/contracts/output_spec.professional_clean.v0_2_2.js";
+import { FACT_RESUME_SPEC_V0_2_1, validateFactResumeData_v0_2_1 } from "./fact_template.resume.v0_2_1.js";
+
+    // 通用壳（按钮会读 window.__STEP_PAYLOAD__；fact 也兼容 window.__FACT_PAYLOAD__）
+    bootStepPage({ title:"Resume Product — Fact", stepId:"fact", writeFnName:"writeFactProfileDummy" });
+
+    // v0.2 统一表单 + 回填 + payload 同步 + 自动保存
+ mountStepForm({
+  appId: "app",
+  title: "事实信息（最小版）",
+  desc: "说明：输入后将自动保存（不跳页）。进入下一步仍可用上方“写入/保存并进入下一步”。",
+
+  // ✅ UI字段（保持你现在页面看到的那一套：姓名/目标岗位/城市/电话/邮箱/个人简介/技能/学校/专业/学历/公司/职位/时间/项目名/项目描述）
+  fields: [
+    { id: "fp_name",    label: "姓名",       type: "input",    placeholder: "如：王小明" },
+    { id: "fp_target",  label: "目标岗位位", type: "input",    placeholder: "如：后端工程师/产品经理" },
+    { id: "fp_city",    label: "城市",       type: "input",    placeholder: "如：上海" },
+    { id: "fp_phone",   label: "电话",       type: "input",    placeholder: "如：138xxxx" },
+    { id: "fp_email",   label: "邮箱",       type: "input",    placeholder: "如：xxx@xx.com" },
+
+    { id: "fp_summary", label: "个人简介",   type: "textarea", rows: 4, placeholder: "用 1-2 句总结你的优势与方向" },
+    { id: "fp_skills",  label: "技能（逗号分隔）", type: "input", placeholder: "如：PRD, 用户研究, JavaScript" },
+
+    { id: "ed_school",  label: "学校",       type: "input",    placeholder: "如：复旦大学" },
+    { id: "ed_major",   label: "专业",       type: "input",    placeholder: "如：计算机科学与技术" },
+    { id: "ed_degree",  label: "学历",       type: "input",    placeholder: "如：本科/硕士" },
+
+    { id: "ex_company", label: "公司",       type: "input",    placeholder: "如：某科技公司" },
+    { id: "ex_title",   label: "职位",       type: "input",    placeholder: "如：产品经理/前端工程师" },
+    { id: "ex_period",  label: "时间",       type: "input",    placeholder: "如：2022-06 ~ 2025-12" },
+
+    { id: "pj_name",    label: "项目名称",   type: "input",    placeholder: "如：MY GIFT v4.1" },
+    { id: "pj_desc",    label: "项目描述",   type: "textarea", rows: 3, placeholder: "一句话说明你做了什么、产出什么" },
+  ],
+
+  loadDB,
+  setActive,
+  writerName: "writeFactProfileDummy",
+  setActiveMap: { fact_profile_id: "RET_ID" },
+
+  // ✅ 回填：按 DB 真实结构读（basic/summary/skills/education/experience/projects）
+  fillFromDB: (db) => {
+    const fpId = db?.active?.fact_profile_id || null;
+    const row = fpId ? db?.fact_profiles?.[fpId] : null;
+    const p = row?.payload || row || {};
+
+    const basic = p.basic || {};
+    const edu0 = Array.isArray(p.education) ? (p.education[0] || {}) : {};
+    const ex0  = Array.isArray(p.experience) ? (p.experience[0] || {}) : {};
+    const pj0  = Array.isArray(p.projects) ? (p.projects[0] || {}) : {};
+
+    return {
+      fp_name:   basic.name || "",
+      fp_target: basic.target || basic.title || "",
+      fp_city:   basic.city || "",
+      fp_phone:  basic.phone || "",
+      fp_email:  basic.email || "",
+
+      fp_summary: p.summary || "",
+      fp_skills:  Array.isArray(p.skills) ? p.skills.join(", ") : (p.skills || ""),
+
+      ed_school: edu0.school || "",
+      ed_major:  edu0.major || "",
+      ed_degree: edu0.degree || "",
+
+      ex_company: ex0.company || "",
+      ex_title:   ex0.title || "",
+      ex_period:  ex0.period || "",
+
+      pj_name: pj0.name || "",
+      pj_desc: pj0.desc || "",
+    };
+  },
+
+  // ✅ 构建 payload：写回 DB 的同一结构（这一步决定“预览/下载有没有内容”）
+  buildPayload: () => {
+    const v = (id) => (document.getElementById(id)?.value || "").toString().trim();
+
+    const skillsStr = v("fp_skills");
+    const skills = skillsStr
+      ? skillsStr.split(/[,，\n]/).map(s => s.trim()).filter(Boolean)
+      : [];
+
+    const payload = {
+      basic: {
+        name: v("fp_name"),
+        target: v("fp_target"),
+        city: v("fp_city"),
+        phone: v("fp_phone"),
+        email: v("fp_email"),
+      },
+      summary: v("fp_summary"),
+      skills,
+
+      education: [{
+        school: v("ed_school"),
+        major:  v("ed_major"),
+        degree: v("ed_degree"),
+      }],
+
+      experience: [{
+        company: v("ex_company"),
+        title:   v("ex_title"),
+        period:  v("ex_period"),
+      }],
+
+      projects: [{
+        name: v("pj_name"),
+        desc: v("pj_desc"),
+      }],
+    };
+
+    // ✅ 兼容 _step_page.js 的 Fact 保存逻辑
+    window.__FACT_PAYLOAD__ = payload;
+
+    return payload; // mountStepForm 会同步到 window.__STEP_PAYLOAD__
+  },
+});
+/* [DISABLED] legacy log: TEMPLATE_SPEC_VERSION */
+/* [DISABLED] legacy log: TEMPLATE_VALIDATE_EMPTY */
+// v0.2-03: template-driven skeleton render (non-invasive)
+const preview = document.getElementById("fact_spec_preview");
+if (preview) {
+  preview.innerHTML = `
+    <div style="margin:16px 0;padding:14px;border:1px solid #eee;border-radius:12px;">
+      <div style="font-weight:700;margin-bottom:8px;">
+        FACT 模板预览（spec ${FACT_RESUME_SPEC_V0_2_1?.meta?.spec_version}）
+      </div>
+      <div id="fact_spec_sections"></div>
+    </div>
+  `;
+
+  const secWrap = document.getElementById("fact_spec_sections");
+  const sections = FACT_RESUME_SPEC_V0_2_1?.sections || [];
+
+  secWrap.innerHTML = sections.map(sec => {
+    const title = (sec.title && (sec.title.zh || sec.title.ja)) || sec.id;
+    const blocks = Array.isArray(sec.blocks) ? sec.blocks : [];
+    const blockList = blocks.map(b => {
+      return `<li style="margin:4px 0;">
+        <code>${b.id}</code> — <b>${b.type}</b>
+      </li>`;
+    }).join("");
+
+    return `
+      <div style="margin:10px 0;padding:10px;border:1px dashed #ddd;border-radius:10px;">
+        <div style="font-weight:600;margin-bottom:6px;">${title} <span style="opacity:.6">(${sec.id})</span></div>
+        <ul style="margin:0;padding-left:18px;">${blockList}</ul>
+      </div>
+    `;
+  }).join("");
+}
+
+
+
+// v0.2.2-14-fix-B2: force preview container + dom-driven live render
+function __factDOMPayload__() {
+  const v = (id) => (document.getElementById(id)?.value || "").toString().trim();
+  const skillsStr = v("fp_skills");
+  const skills = skillsStr ? skillsStr.split(/[,，\n]/).map(s=>s.trim()).filter(Boolean) : [];
+  return {
+    basic: {
+      name: v("fp_name"),
+      target: v("fp_target"),
+      city: v("fp_city"),
+      phone: v("fp_phone"),
+      email: v("fp_email"),
+    },
+    summary: v("fp_summary"),
+    skills,
+    education: [{ school: v("ed_school"), major: v("ed_major"), degree: v("ed_degree") }],
+    experience: [{ company: v("ex_company"), title: v("ex_title"), period: v("ex_period") }],
+    projects: [{ name: v("pj_name"), desc: v("pj_desc") }],
+  };
+}
+
+function __ensurePreviewHost__() {
+  let host = document.getElementById("resume_preview_v0_2_2_host");
+  if (host) return host;
+
+  const app = document.getElementById("app");
+  host = document.createElement("div");
+  host.id = "resume_preview_v0_2_2_host";
+
+  // 视觉锚点：红框 + 自动滚动（确保你一定能看到）
+  host.style.margin = "18px auto 0";
+  host.style.maxWidth = "920px";
+  host.style.padding = "0 12px 24px";
+
+  if (app && app.parentNode) {
+    app.parentNode.insertBefore(host, app.nextSibling);
+  } else {
+    document.body.appendChild(host);
+  }  return host;
+}
+
+let __previewTimer__ = null;
+function __renderPreviewV0_2_2__() {
+  const host = __ensurePreviewHost__();
+
+  const fact = __factDOMPayload__();
+  window.__FACT_PAYLOAD__ = fact;
+
+  const input = adaptFactPayloadToInput_v0_2_2(fact);
+  const doc = mapInputToResumeDoc_v0_2_2(input, { locale: "zh-CN", theme: "professional_clean" });
+  const v = validateResumeDoc_v0_2_2(doc);
+
+  const html = renderResumeHtml_v0_2_2(doc, THEME_PROFESSIONAL_CLEAN_V0_2_2, OUTPUT_SPEC_PRO_CLEAN_V0_2_2);
+  const gate = v.ok ? "" : `
+    <div style="margin:12px auto 0;max-width:820px;padding:10px 12px;border:1px solid #f3d6d6;background:#fff7f7;border-radius:12px;font-size:12px;line-height:1.5;">
+      <b>完整性提示（Gate）</b><br/>
+      ${(v.errors||[]).map(e=>`• ${e}`).join("<br/>")}
+    </div>
+  `;
+
+  host.innerHTML = `
+    <div style="margin:0 auto;max-width:920px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin:0 0 10px 0;padding:10px 12px;border:1px solid #e9e9e9;border-radius:14px;background:#fff;">
+        <div style="font-weight:800;font-size:13px;">预览（Professional Clean v0.2.2）</div>
+        <div style="font-size:12px;color:rgba(0,0,0,0.55);">输入更新将自动刷新</div>
+      </div>
+      ${html}
+      ${gate}
+    </div>
+  `;
+}
+
+function __scheduleRender__() {
+  if (__previewTimer__) clearTimeout(__previewTimer__);
+  __previewTimer__ = setTimeout(__renderPreviewV0_2_2__, 80);
+}
+
+console.log("[FACT][PREVIEW_FIX_B2] live preview enabled (DOM -> adapter -> mapping -> render)");
+__renderPreviewV0_2_2__();
+
+const appEl = document.getElementById("app");
+if (appEl) {
+  appEl.addEventListener("input", __scheduleRender__, true);
+  appEl.addEventListener("change", __scheduleRender__, true);
+}
+
+</script>
+
+</body>
+</html>

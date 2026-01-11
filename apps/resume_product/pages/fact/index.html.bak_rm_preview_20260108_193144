@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Resume Product - Fact</title>
+</head>
+<body>
+  <div id="app"></div>
+  <div id="fact_spec_preview"></div>
+
+  <script type="module">
+    import { bootStepPage } from "/apps/resume_product/pages/_step_page.js?v=9999";
+    import { loadDB, setActive } from "/core/storage/resume_db.js";
+    import { mountStepForm } from "/core/ui/step_form_v0_2.js?v=2";
+    
+    
+    
+    import { mountFactStructuredForm_v0_2_3 } from "/apps/resume_product/features/fact_form/fact_form_structured_v0_2_3.js";
+import { enableFactPreview_v0_2_3 } from "/apps/resume_product/features/fact_preview/fact_preview_v0_2_3.js";
+import { adaptFactPayloadToInput_v0_2_2 } from "/apps/resume_product/contracts/legacy_adapter.fact_to_input.v0_2_2.js";
+    import { mapInputToResumeDoc_v0_2_2 } from "/apps/resume_product/contracts/mapping_rules.v0_2_2.js";
+    import { validateResumeDoc_v0_2_2 } from "/apps/resume_product/contracts/resume_model.v0_2_2.js";
+    import { THEME_PROFESSIONAL_CLEAN_V0_2_2 } from "/apps/resume_product/render/themes/theme_professional_clean.v0_2_2.js";
+    import { renderResumeHtml_v0_2_2 } from "/apps/resume_product/render/renderer_core.v0_2_2.js";
+    import { OUTPUT_SPEC_PRO_CLEAN_V0_2_2 } from "/apps/resume_product/contracts/output_spec.professional_clean.v0_2_2.js";
+import { FACT_RESUME_SPEC_V0_2_1, validateFactResumeData_v0_2_1 } from "./fact_template.resume.v0_2_1.js";
+
+  import { adaptLegacyFactToV03, validateFactV03 } from "/apps/resume_product/contracts/fact_runtime.v0_3_0.js?v=3";
+    // 通用壳（按钮会读 window.__STEP_PAYLOAD__；fact 也兼容 window.__FACT_PAYLOAD__）
+    bootStepPage({ title:"Resume Product — Fact", stepId:"fact", writeFnName:"writeFactProfileDummy" });
+
+    // v0.2 统一表单 + 回填 + payload 同步 + 自动保存
+ mountStepForm({
+  appId: "app",
+  title: "事实信息（最小版）",
+  desc: "说明：输入后将自动保存（不跳页）。进入下一步仍可用上方“写入/保存并进入下一步”。",
+
+  // ✅ UI字段（保持你现在页面看到的那一套：姓名/目标岗位/城市/电话/邮箱/个人简介/技能/学校/专业/学历/公司/职位/时间/项目名/项目描述）
+  fields: [
+    { id: "fp_name",    label: "姓名",       type: "input",    placeholder: "如：王小明" },
+    { id: "fp_target",  label: "目标岗位", type: "input",    placeholder: "如：后端工程师/产品经理" },
+    { id: "fp_city",    label: "城市",       type: "input",    placeholder: "如：上海" },
+    { id: "fp_phone",   label: "电话",       type: "input",    placeholder: "如：138xxxx" },
+    { id: "fp_email",   label: "邮箱",       type: "input",    placeholder: "如：xxx@xx.com" },
+
+    { id: "fp_summary", label: "个人简介",   type: "textarea", rows: 4, placeholder: "用 1-2 句总结你的优势与方向" },
+    { id: "fp_skills",  label: "技能（逗号分隔）", type: "input", placeholder: "如：PRD, 用户研究, JavaScript" },
+
+
+    // —— 行录入（推荐）：一行一条记录（时间｜职位/项目职位｜职责｜成果）——
+    { id: "ex_rows", label: "工作经历（每行一条：时间｜职位(可写公司/职位)｜职责｜成果）", type: "textarea", rows: 5,
+      placeholder: "例：2022-06~2025-12 | 某公司/产品经理 | 负责需求到上线与跨部门推进 | 转化率+3.2pp（8周）\n例：2020-01~2022-05 | 产品经理 | 搭建指标体系与看板 | 周报产出时间-60%" },
+
+    { id: "pj_rows", label: "项目经历（每行一条：时间｜项目职位(主导/参与+项目名)｜职责｜成果）", type: "textarea", rows: 5,
+      placeholder: "例：2024-01~2024-06 | 主导 增长实验平台 | 搭建实验流程与指标口径 | 支持50+实验\n例：2023-03~2023-10 | 参与 埋点治理 | 梳理口径与补齐埋点 | 数据一致性提升" },
+
+    { id: "cert_rows", label: "证书（每行一条：时间｜证书名｜机构）", type: "textarea", rows: 3,
+      placeholder: "例：2024 | PMP | PMI\n例：2023-06 | AWS SAA | Amazon" },
+
+    { id: "tr_rows", label: "培训经历（每行一条：时间｜机构｜内容）", type: "textarea", rows: 3,
+      placeholder: "例：2023-08 | XX机构 | SQL/指标体系/可视化\n例：2022 Q4 | 公司内训 | 需求管理与沟通" },
+
+
+    { id: "ed_school",  label: "学校",       type: "input",    placeholder: "如：复旦大学" },
+    { id: "ed_major",   label: "专业",       type: "input",    placeholder: "如：计算机科学与技术" },
+    { id: "ed_degree",  label: "学历",       type: "input",    placeholder: "如：本科/硕士" },
+
+    { id: "ex_company", label: "工作经历｜公司",       type: "input",    placeholder: "如：某科技公司" },
+    { id: "ex_title",   label: "工作经历｜职位",       type: "input",    placeholder: "如：产品经理/前端工程师" },
+    { id: "ex_period",  label: "工作经历｜起止时间",       type: "input",    placeholder: "如：2022-06 ~ 2025-12" },
+
+    { id: "ex_resp", label: "工作经历｜主要工作内容（每行一条，写2-3条）", type: "textarea", rows: 4, placeholder: "例：主导A/B实验体系落地，提升转化率+3.2pp（8周）\n例：优化埋点与看板口径，周报产出时间-60%\n例：推动跨部门排期上线，关键链路故障率下降30%" },
+
+    { id: "ex_achv", label: "工作经历｜成果/业绩（每行一条，写1-3条，尽量量化）", type: "textarea", rows: 4, placeholder: "例：转化率+3.2pp（8周）\n例：DAU+20%（Q2）\n例：故障率下降30%" },
+
+    { id: "pj_name",    label: "项目经历｜项目名称",   type: "input",    placeholder: "如：MY GIFT v4.1" },
+    { id: "pj_role", label: "项目经历｜角色", type: "select", options: ["主导", "参与"], placeholder: "" },
+    { id: "pj_period", label: "项目经历｜起止时间", type: "input", placeholder: "如：2024-01 ~ 2024-06" },
+    { id: "pj_desc",    label: "项目经历｜项目简述（1句）",   type: "textarea", rows: 3, placeholder: "一句话说明你做了什么、产出什么" },
+
+    // —— 证书 ——
+    { id: "cert_name", label: "证书｜名称", type: "input", placeholder: "如：PMP / AWS SAA" },
+    { id: "cert_issuer", label: "证书｜颁发机构", type: "input", placeholder: "如：PMI / AWS" },
+    { id: "cert_date", label: "证书｜获得时间", type: "input", placeholder: "如：2024 / 2024-06" },
+
+    // —— 培训 ——
+    { id: "tr_name", label: "培训｜课程名称", type: "input", placeholder: "如：数据分析训练营" },
+    { id: "tr_org", label: "培训｜机构", type: "input", placeholder: "如：XX机构/公司内训" },
+    { id: "tr_period", label: "培训｜时间", type: "input", placeholder: "如：2023-08 / 2023 Q3" },
+    { id: "tr_content", label: "培训｜内容", type: "textarea", rows: 3, placeholder: "如：SQL、指标体系、可视化" },
+
+    { id: "pj_work", label: "项目经历｜项目工作（每行一条，写2-3条）", type: "textarea", rows: 4, placeholder: "例：搭建增长实验平台，支持50+实验并沉淀方法论\n例：重构漏斗分析链路，定位转化瓶颈并优化\n例：制定指标口径与看板，推动周迭代闭环" },
+
+    { id: "pj_achv", label: "项目经历｜项目成果（每行一条，写1-3条，尽量量化）", type: "textarea", rows: 4, placeholder: "例：支持50+实验，周迭代节奏稳定\n例：转化提升+1.8pp\n例：成本下降-15%" },
+  ],
+
+  loadDB,
+  setActive,
+  writerName: "writeFactProfileDummy",
+  setActiveMap: { fact_profile_id: "RET_ID" },
+
+  // ✅ 回填：按 DB 真实结构读（basic/summary/skills/education/experience/projects）
+  fillFromDB: (db) => {
+    const fpId = db?.active?.fact_profile_id || null;
+    const row = fpId ? db?.fact_profiles?.[fpId] : null;
+    const p = row?.payload || row || {};
+
+    const basic = p.basic || {};
+    const edu0 = Array.isArray(p.education) ? (p.education[0] || {}) : {};
+    const ex0  = Array.isArray(p.experience) ? (p.experience[0] || {}) : {};
+    const pj0  = Array.isArray(p.projects) ? (p.projects[0] || {}) : {};
+
+    return {
+      fp_name:   basic.name || "",
+      fp_target: basic.target || basic.title || "",
+      fp_city:   basic.city || "",
+      fp_phone:  basic.phone || "",
+      fp_email:  basic.email || "",
+
+      fp_summary: p.summary || "",
+      fp_skill_tags:  Array.isArray(p.skills) ? p.skills.join(", ") : (p.skills || ""),
+
+      ed_school: edu0.school || "",
+      ed_major:  edu0.major || "",
+      ed_degree: edu0.degree || "",
+
+      ex_company: ex0.company || "",
+      ex_title:   ex0.title || "",
+      ex_period: ex0.period || "",
+
+      ex_bullets: Array.isArray(ex0.bullets) ? ex0.bullets.join("\n") : (ex0.bullets || ""),
+
+      pj_name: pj0.name || "",
+      pj_desc: pj0.desc || "",
+      pj_bullets: Array.isArray(pj0.bullets) ? pj0.bullets.join("\n") : (pj0.bullets || ""),
+    };
+  },
+
+  // ✅ 构建 payload：写回 DB 的同一结构（这一步决定“预览/下载有没有内容”）
+  buildPayload: () => {
+    const v = (id) => (document.getElementById(id)?.value || "").toString().trim();
+
+    
+
+    
+
+    // [v0.2.3-08] structured form host
+    (function(){
+      const app=document.getElementById("app");
+      const host=document.createElement("div");
+      host.id="fact_structured_host";
+      host.style.maxWidth="920px";
+      host.style.margin="16px auto 0";
+      host.style.padding="0 12px";
+      if(app && app.parentNode) app.parentNode.insertBefore(host, app.nextSibling);
+      else document.body.appendChild(host);
+    })();
+
+    mountFactStructuredForm_v0_2_3({ hostId: "fact_structured_host" });
+
+    // [v0.2.3-08] hide legacy form (keep for rollback)
+    setTimeout(()=>{
+      try{
+        const app=document.getElementById("app");
+        if(!app) return;
+        // mountStepForm 会把表单塞在 app 内，结构化表单在 app 之后
+        // app.style.display = "none"; // disabled: keep step shell visible
+      }catch(e){}
+    }, 0);
+
+    // hide legacy form without hiding step shell
+    setTimeout(()=>{
+      try{
+        const app=document.getElementById("app");
+        if(!app) return;
+        const legacyInput = app.querySelector("#fp_name");
+        if(!legacyInput) return;
+        let node = legacyInput;
+        // hide the top-level child under #app that contains legacy inputs
+        while(node && node.parentElement && node.parentElement !== app){ node = node.parentElement; }
+        if(node && node.parentElement === app){ node.style.display = "none"; }
+      }catch(e){}
+    }, 0);
+enableFactPreview_v0_2_3({ appId: "app", locale: "zh-CN", theme: "professional_clean" });
+const skillsStr = v("fp_skills");
+    const skills = skillsStr
+      ? skillsStr.split(/[,，\n]/).map(s => s.trim()).filter(Boolean)
+      : [];
+
+    const payload = {
+      basic: {
+        name: v("fp_name"),
+        targetRole: v("fp_target"),
+        city: v("fp_city"),
+        phone: v("fp_phone"),
+        email: v("fp_email"),
+      },
+      summary: v("fp_summary"),
+      skill_tags: skills,
+
+      certifications: [{ name: v("cert_name"), issuer: v("cert_issuer"), date: v("cert_date"), credential_url: null }],
+
+      trainings: [{ name: v("tr_name"), org: v("tr_org"), date_or_period: v("tr_period"), content: v("tr_content"), outcome: null }],
+
+      education_items: [{
+        school: v("ed_school"),
+        major:  v("ed_major"),
+        degree: v("ed_degree"),
+      }],
+
+      experience_items: [{
+        company: v("ex_company"),
+        title:   v("ex_title"),
+        period:  v("ex_period"),
+      }],
+
+      projects: [{
+        name: v("pj_name"),
+        desc: v("pj_desc"),
+      }],
+    };
+
+    // ✅ 兼容 _step_page.js 的 Fact 保存逻辑
+    window.__FACT_PAYLOAD__ = payload;
+
+    return payload; // mountStepForm 会同步到 window.__STEP_PAYLOAD__
+  },
+});
+/* [DISABLED] legacy log: TEMPLATE_SPEC_VERSION */
+/* [DISABLED] legacy log: TEMPLATE_VALIDATE_EMPTY */
+// v0.2-03: template-driven skeleton render (non-invasive)
+const preview = document.getElementById("fact_spec_preview");
+if (preview) {
+  preview.innerHTML = `
+    <div style="margin:16px 0;padding:14px;border:1px solid #eee;border-radius:12px;">
+      <div style="font-weight:700;margin-bottom:8px;">
+        FACT 模板预览（spec ${FACT_RESUME_SPEC_V0_2_1?.meta?.spec_version}）
+      </div>
+      <div id="fact_spec_sections"></div>
+    </div>
+  `;
+
+  const secWrap = document.getElementById("fact_spec_sections");
+  const sections = FACT_RESUME_SPEC_V0_2_1?.sections || [];
+
+  secWrap.innerHTML = sections.map(sec => {
+    const title = (sec.title && (sec.title.zh || sec.title.ja)) || sec.id;
+    const blocks = Array.isArray(sec.blocks) ? sec.blocks : [];
+    const blockList = blocks.map(b => {
+      return `<li style="margin:4px 0;">
+        <code>${b.id}</code> — <b>${b.type}</b>
+      </li>`;
+    }).join("");
+
+    return `
+      <div style="margin:10px 0;padding:10px;border:1px dashed #ddd;border-radius:10px;">
+        <div style="font-weight:600;margin-bottom:6px;">${title} <span style="opacity:.6">(${sec.id})</span></div>
+        <ul style="margin:0;padding-left:18px;">${blockList}</ul>
+      </div>
+    `;
+  }).join("");
+}
+
+
+
+/* [REMOVED] inline preview logic moved to /features/fact_preview/fact_preview_v0_2_2.js */
+
+  // BIND_FACT_V03_RUNTIME: unify fact payload to v0.3 for writers
+  try {
+    const legacy = (window.__FACT_PAYLOAD__ && typeof window.__FACT_PAYLOAD__ === "object")
+      ? window.__FACT_PAYLOAD__
+      : (window.__FACT_LEGACY__ && typeof window.__FACT_LEGACY__ === "object" ? window.__FACT_LEGACY__ : {});
+    const v03 = adaptLegacyFactToV03(legacy, { locale: "zh-CN" });
+    window.__FACT_PAYLOAD__ = v03; // <-- _step_page.js will pick this up
+  } catch (e) {
+    console.warn("[FACT][BIND_V03] failed", e);
+  }
+
+</script>
+
+</body>
+</html>

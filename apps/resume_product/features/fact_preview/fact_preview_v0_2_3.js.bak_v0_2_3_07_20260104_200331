@@ -1,0 +1,140 @@
+/**
+ * FACT Preview (v0.2.3)
+ * DOM -> InputPayload@0.2.3 -> mapping_rules.v0_2_3 -> ResumeDoc -> output_spec.v0_2_3 -> renderer
+ */
+
+import { mapInputToResumeDoc_v0_2_3 } from "/apps/resume_product/contracts/mapping_rules.v0_2_3.js";
+import { OUTPUT_SPEC_PRO_CLEAN_V0_2_3 } from "/apps/resume_product/contracts/output_spec.professional_clean.v0_2_3.js";
+import { THEME_PROFESSIONAL_CLEAN_V0_2_2 } from "/apps/resume_product/render/themes/theme_professional_clean.v0_2_2.js";
+import { renderResumeHtml_v0_2_2 } from "/apps/resume_product/render/renderer_core.v0_2_2.js";
+
+function s(v){ return (v==null?"":String(v)).trim(); }
+function v(id){ return s(document.getElementById(id)?.value); }
+function splitLines(txt){ return s(txt) ? s(txt).split(/\n/g).map(x=>x.trim()).filter(Boolean) : []; }
+function splitSkills(txt){ return s(txt) ? s(txt).split(/[,，\n]/g).map(x=>x.trim()).filter(Boolean) : []; }
+
+function buildInputPayload_v0_2_3(){
+  // basic
+  const basic = {
+    name: v("fp_name"),
+    targetRole: v("fp_target"),
+    city: v("fp_city"),
+    phone: v("fp_phone"),
+    email: v("fp_email"),
+    links: [],
+  };
+
+  // skills/impact（impact 暂沿用 summary 关键词推断：先留空也没关系）
+  const skill_tags = splitSkills(v("fp_skills"));
+  const impact_tags = []; // v0.2.3 先不强依赖（后续做多选）
+
+  // experience (单条：按你当前页面字段)
+  const experience_items = [{
+    company: v("ex_company"),
+    title: v("ex_title"),
+    period_text: v("ex_period"),
+    responsibility_bullets: splitLines(v("ex_resp")),
+    achievement_bullets: splitLines(v("ex_achv")),
+  }];
+
+  // projects
+  const project_items = [{
+    name: v("pj_name"),
+    role_in_project: v("pj_role") || "参与",
+    period_text: v("pj_period"),
+    summary: v("pj_desc"),
+    work_bullets: splitLines(v("pj_work")),
+    achievement_bullets: splitLines(v("pj_achv")),
+    stack_tags: [],
+    link: null,
+    type_tag: "",
+  }];
+
+  // education
+  const education_items = [{
+    school: v("ed_school"),
+    major: v("ed_major"),
+    degree: v("ed_degree"),
+  }];
+
+  // certifications / trainings
+  const cert_name = v("cert_name");
+  const certifications = cert_name ? [{
+    name: cert_name,
+    issuer: v("cert_issuer"),
+    date: v("cert_date"),
+    credential_url: null
+  }] : [];
+
+  const tr_name = v("tr_name");
+  const trainings = tr_name ? [{
+    name: tr_name,
+    org: v("tr_org"),
+    date_or_period: v("tr_period"),
+    content: v("tr_content"),
+    outcome: null
+  }] : [];
+
+  return {
+    basic,
+    skill_tags,
+    impact_tags,
+    experience_items,
+    project_items,
+    education_items,
+    certifications,
+    trainings,
+  };
+}
+
+function ensureHost(appId){
+  let host = document.getElementById("resume_preview_v0_2_3_host");
+  if (host) return host;
+
+  const app = document.getElementById(appId || "app");
+  host = document.createElement("div");
+  host.id = "resume_preview_v0_2_3_host";
+  host.style.margin = "18px auto 0";
+  host.style.maxWidth = "920px";
+  host.style.padding = "0 12px 24px";
+
+  if (app && app.parentNode) app.parentNode.insertBefore(host, app.nextSibling);
+  else document.body.appendChild(host);
+
+  return host;
+}
+
+let timer = null;
+function schedule(fn, ms=80){ if (timer) clearTimeout(timer); timer = setTimeout(fn, ms); }
+
+export function enableFactPreview_v0_2_3({ appId="app", locale="zh-CN", theme="professional_clean" } = {}){
+  const host = ensureHost(appId);
+
+  function render(){
+    const input = buildInputPayload_v0_2_3();
+    // 给页面其它按钮/调试用
+    window.__INPUT_PAYLOAD_V0_2_3__ = input;
+
+    const doc = mapInputToResumeDoc_v0_2_3(input, { locale, theme });
+    const body = renderResumeHtml_v0_2_2(doc, THEME_PROFESSIONAL_CLEAN_V0_2_2, OUTPUT_SPEC_PRO_CLEAN_V0_2_3);
+
+    host.innerHTML = `
+      <div style="margin:0 auto;max-width:920px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin:0 0 10px 0;padding:10px 12px;border:1px solid #e9e9e9;border-radius:14px;background:#fff;">
+          <div style="font-weight:800;font-size:13px;">预览（Professional Clean v0.2.3）</div>
+          <div style="font-size:12px;color:rgba(0,0,0,0.55);">字段已对齐：工作经历/项目经历/证书/培训</div>
+        </div>
+        ${body}
+      </div>
+    `;
+  }
+
+  console.log("[FACT][PREVIEW_MODULE_V0_2_3] enabled");
+  render();
+
+  const appEl = document.getElementById(appId);
+  if (appEl){
+    appEl.addEventListener("input", ()=>schedule(render), true);
+    appEl.addEventListener("change", ()=>schedule(render), true);
+  }
+}

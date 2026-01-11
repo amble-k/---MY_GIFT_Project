@@ -1,0 +1,14 @@
+# MY_GIFT_Project 开发说明（本地）
+
+## Resume Product (Iteration 0) 已实现页面清单（routes -> files）
+
+- /resume                -> apps/resume_product/pages/entry/index.html
+- /resume/scenario        -> apps/resume_product/pages/scenario/index.html
+- /resume/fact            -> apps/resume_product/pages/fact/index.html
+- /resume/resume/v1       -> apps/resume_product/pages/resume/v1/index.html
+- /resume/target          -> apps/resume_product/pages/target/index.html
+- /resume/role            -> apps/resume_product/pages/role/index.html
+- /resume/kash            -> apps/resume_product/pages/kash/index.html
+- /resume/resume/v2       -> apps/resume_product/pages/resume/v2/index.html
+
+（未实现的 route 目前仍回退到 apps/resume_product/resume.html，后续迭代会逐步替换）

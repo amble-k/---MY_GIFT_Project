@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Resume Product - Health</title>
+</head>
+<body>
+  <pre id="out" style="white-space:pre-wrap;word-break:break-word;background:#111;color:#0f0;padding:12px;border-radius:10px;"></pre>
+
+  <script type="module">
+    const out = document.getElementById("out");
+    const p = (k, v) => {
+      out.textContent += `${k}: ${typeof v === "string" ? v : JSON.stringify(v, null, 2)}\n\n`;
+    };
+
+    // ✅ 只做 hash 修正（不做 replace/redirect）
+    if (!location.hash || location.hash === "#") location.hash = "#/health";
+
+    // 1) location
+    p("href", location.href);
+    p("pathname", location.pathname);
+    p("search", location.search);
+    p("hash", location.hash);
+
+    (async () => {
+      try {
+        const { loadDB } = await import("/core/storage/resume_db.js");
+        const { deriveStatus } = await import("/core/session/deriveStatus.js");
+
+        const db = loadDB();
+        const st = deriveStatus(db);
+
+        // 2) status
+        p("state", st?.state);
+        p("required_step", st?.required_step);
+
+        // 3) milestones / ids
+        p("milestones", st?.milestones);
+        p("active_ids", st?.active_ids);
+
+        // 4) export flags（便于你看“是否导出就绪”）
+        p("export_ready", !!db?.export_ready);
+        p("export_snapshot", db?.export_snapshot ? {
+          created_at: db.export_snapshot.created_at,
+          source: db.export_snapshot.source,
+          meta: db.export_snapshot.meta,
+        } : null);
+
+      } catch (e) {
+        p("ERROR", e?.stack || e?.message || String(e));
+      }
+    })();
+  </script>
+</body>
+</html>

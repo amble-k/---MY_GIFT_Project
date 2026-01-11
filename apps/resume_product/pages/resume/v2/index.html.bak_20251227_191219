@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Resume Product - Resume V2</title>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script type="module">
+    import { bootStepPage } from "/apps/resume_product/pages/_step_page.js?v=2";
+    import { loadDB } from "/core/storage/resume_db.js";
+
+    // 通用头部/状态/按钮（“写入/保存并进入下一步”会读取 window.__STEP_PAYLOAD__）
+    bootStepPage({ title:"Resume Product — Resume V2", stepId:"resume_v2", writeFnName:"writeResumeV2Dummy" });
+
+    const app = document.getElementById("app");
+
+    // ===== V2：唯一表单（只创建一次）=====
+    const box = document.createElement("div");
+    box.style.cssText = "margin-top:12px;padding:12px;border:1px solid #eee;border-radius:10px;background:#fff;";
+    box.innerHTML = `
+      <h2 style="margin:0 0 8px 0;font-size:16px;">Resume V2（可编辑）</h2>
+      <div style="color:#666;font-size:12px;margin-bottom:8px;">
+        说明：优先回填已保存的 V2；否则回填 V1(BASE) 作为初稿。编辑后点“写入/保存并进入下一步”。
+      </div>
+      <textarea id="rv2_content" rows="18"
+        style="width:100%;padding:10px;box-sizing:border-box;resize:vertical;border:1px solid #ddd;border-radius:10px;line-height:1.6;"
+        placeholder="这里是 V2 文本（可直接编辑）"></textarea>
+    `;
+    app.prepend(box);
+
+    const ta = document.getElementById("rv2_content");
+
+    function pickSeed(db) {
+      // 1) 优先：active.resume_v2_id 对应的旧稿
+      const rv2Id = db?.active?.resume_v2_id || null;
+      if (rv2Id) {
+        const c1 = db?.resume_v2s?.[rv2Id]?.content;
+        const c2 = db?.resume_versions?.[rv2Id]?.content;
+        if (c1 && c1.trim()) return c1;
+        if (c2 && c2.trim()) return c2;
+      }
+
+      // 2) 兜底：V1(BASE)
+      const rv1Id = db?.active?.resume_version_id || null;
+      const c3 = rv1Id ? db?.resume_versions?.[rv1Id]?.content : "";
+      if (c3 && c3.trim()) return c3;
+
+      return "";
+    }
+
+    function syncPayload() {
+      window.__STEP_PAYLOAD__ = { content: (ta?.value || "").toString() };
+    }
+
+    // init fill + payload
+    const db0 = loadDB();
+    ta.value = pickSeed(db0);
+    syncPayload();
+
+    box.addEventListener("input", syncPayload);
+  </script>
+</body>
+</html>

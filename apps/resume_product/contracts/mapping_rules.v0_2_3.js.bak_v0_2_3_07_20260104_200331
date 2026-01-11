@@ -1,0 +1,283 @@
+/**
+ * Resume Product - Mapping Rules
+ * v0.2.3
+ *
+ * 目标：
+ * - 输入：InputPayload@0.2.3（含工作经历/项目经历/证书/培训）
+ * - 输出：ResumeDoc（供 renderer 消费）
+ *
+ * 核心对齐：
+ * - 工作经历：时间、公司、职位、主要工作内容（responsibility_bullets）、成果（achievement_bullets）
+ * - 项目经历：主导/参与、项目时间、项目名称、项目工作（work_bullets）、简述（summary）、项目成果（achievement_bullets）
+ */
+
+export const MAPPING_RULES_V0_2_3 = Object.freeze({
+  meta: {
+    product: "Resume Product",
+    contract: "mapping_rules",
+    version: "0.2.3",
+  },
+
+  templates: {
+    // Summary（保底）
+    RULE_SUMMARY_001: "面向{targetRole}方向，具备{skillsTop}等核心能力，长期关注{impactTop}。",
+    RULE_SUMMARY_002: "擅长{respTop}与跨团队协作，推动{impactTop}相关目标落地。",
+
+    // Experience（保底）
+    RULE_EXP_001: "负责{respTop}，围绕{impactTop}制定方案并推动落地。",
+
+    // Project（保底）
+    RULE_PJ_001: "项目聚焦{pjType}场景，围绕{impactTop}目标完成从方案到交付。",
+  },
+});
+
+/* ----------------- helpers ----------------- */
+function s(v) { return (v == null ? "" : String(v)).trim(); }
+function esc(v) { return s(v); }
+function uniq(arr) {
+  const out = [];
+  const seen = new Set();
+  for (const x of arr || []) {
+    const t = s(x);
+    if (!t) continue;
+    if (seen.has(t)) continue;
+    seen.add(t);
+    out.push(t);
+  }
+  return out;
+}
+function pickTop(arr, n) { return uniq(arr).slice(0, n); }
+function joinCN(arr) { return (arr || []).filter(Boolean).join("、"); }
+function bullet(text, rule_id, from) {
+  return { text: s(text), rule_id, from: Array.isArray(from) ? from : [] };
+}
+function applyTpl(tpl, vars) {
+  let out = tpl;
+  for (const [k, v] of Object.entries(vars || {})) out = out.replaceAll(`{${k}}`, s(v));
+  return out;
+}
+function formatPeriod(item) {
+  // 支持 period_text 或 period.start/end
+  const pt = s(item?.period_text);
+  if (pt) return pt;
+  const st = s(item?.period?.start);
+  const ed = s(item?.period?.end);
+  if (st && ed) return `${st} ~ ${ed}`;
+  if (st) return `${st} ~`;
+  if (ed) return `~ ${ed}`;
+  return "";
+}
+function fmtContactLine(basic) {
+  const city = s(basic?.city);
+  const phone = s(basic?.phone);
+  const email = s(basic?.email);
+  const parts = [];
+  if (city) parts.push(city);
+  if (phone) parts.push(phone);
+  if (email) parts.push(email);
+  return parts.join(" · ");
+}
+function normalizeBullets(lines, maxN) {
+  const arr = Array.isArray(lines) ? lines : (s(lines) ? s(lines).split(/\n/g) : []);
+  return uniq(arr).slice(0, maxN || 6);
+}
+function roleTag(role) {
+  const r = s(role).toLowerCase();
+  if (r === "lead" || r === "owner" || r === "主导") return "主导";
+  if (r === "participant" || r === "参与") return "参与";
+  return role ? s(role) : "";
+}
+
+/**
+ * mapInputToResumeDoc_v0_2_3
+ * - 输入：InputPayload@0.2.3
+ * - 输出：ResumeDoc（当前 renderer 已消费：header/summary/skills/experience/projects/education）
+ *   certifications/trainings 先写入 doc，renderer 下一步实现 rows。
+ */
+export function mapInputToResumeDoc_v0_2_3(input, { locale="zh-CN", theme="professional_clean" } = {}) {
+  const basic = input?.basic || {};
+  const targetRole = s(basic?.targetRole);
+  const name = s(basic?.name);
+
+  const impactTop = pickTop(input?.impact_tags || [], 2);
+  const skillsTop = pickTop(input?.skill_tags || [], 3);
+
+  // Header
+  const header = {
+    name,
+    titleLine: targetRole,
+    contactLine: fmtContactLine(basic),
+    links: Array.isArray(basic?.links) ? basic.links : [],
+  };
+
+  // Summary（如果用户给了 summary_keywords，也可以补充；这里先保底2条）
+  const summary = {
+    bullets: [
+      bullet(
+        applyTpl(MAPPING_RULES_V0_2_3.templates.RULE_SUMMARY_001, {
+          targetRole: targetRole || "目标岗位",
+          skillsTop: joinCN(skillsTop) || "核心技能",
+          impactTop: joinCN(impactTop) || "关键业务目标",
+        }),
+        "RULE_SUMMARY_001",
+        ["basic.targetRole", "skill_tags", "impact_tags"]
+      ),
+      bullet(
+        applyTpl(MAPPING_RULES_V0_2_3.templates.RULE_SUMMARY_002, {
+          respTop: "需求分析/协作推进",
+          impactTop: joinCN(impactTop) || "关键业务目标",
+        }),
+        "RULE_SUMMARY_002",
+        ["impact_tags"]
+      ),
+    ],
+  };
+
+  // Skills
+  const skills = {
+    groups: [
+      { label: "核心技能", items: pickTop(input?.skill_tags || [], 12) },
+    ],
+  };
+
+  // Experience（支持职责/成果分离 → 合并到 bullets（先职责后成果））
+  const experience = [];
+  const expItems = Array.isArray(input?.experience_items) ? input.experience_items : [];
+  for (const [i, ex] of expItems.slice(0, 6).entries()) {
+    const company = s(ex?.company);
+    const role = s(ex?.title);
+    const period = formatPeriod(ex);
+
+    const resp = normalizeBullets(ex?.responsibility_bullets, 4);
+    const achv = normalizeBullets(ex?.achievement_bullets, 4);
+
+    const bullets = [];
+    // 先职责
+    for (const t of resp) bullets.push(bullet(t, "RULE_FREE_RESP", [`experience_items[${i}].responsibility_bullets`]));
+    // 再成果
+    for (const t of achv) bullets.push(bullet(t, "RULE_FREE_ACHV", [`experience_items[${i}].achievement_bullets`]));
+
+    // 保底：如果都没有，就用模板生成1条（避免空白）
+    if (!bullets.length) {
+      const respTop = pickTop(ex?.responsibility_tags || [], 2);
+      bullets.push(
+        bullet(
+          applyTpl(MAPPING_RULES_V0_2_3.templates.RULE_EXP_001, {
+            respTop: joinCN(respTop) || "关键职责",
+            impactTop: joinCN(impactTop) || "关键目标",
+          }),
+          "RULE_EXP_001",
+          [`experience_items[${i}]`]
+        )
+      );
+    }
+
+    if (company || role || period || bullets.length) {
+      experience.push({
+        company,
+        role,
+        period,
+        bullets,
+        highlights: [],
+      });
+    }
+  }
+
+  // Projects（支持：主导/参与、时间、简述、工作、成果）
+  const projects = [];
+  const pjItems = Array.isArray(input?.project_items) ? input.project_items : [];
+  for (const [i, pj] of pjItems.slice(0, 6).entries()) {
+    const name = s(pj?.name);
+    const rtag = roleTag(pj?.role_in_project);
+    const period = formatPeriod(pj);
+    const summary1 = s(pj?.summary);
+
+    const work = normalizeBullets(pj?.work_bullets, 4);
+    const achv = normalizeBullets(pj?.achievement_bullets, 4);
+
+    const bullets = [];
+    // 先项目工作
+    for (const t of work) bullets.push(bullet(t, "RULE_FREE_PJ_WORK", [`project_items[${i}].work_bullets`]));
+    // 再项目成果
+    for (const t of achv) bullets.push(bullet(t, "RULE_FREE_PJ_ACHV", [`project_items[${i}].achievement_bullets`]));
+
+    // 保底：如果都没有，就用模板生成1条
+    if (!bullets.length) {
+      const pjType = s(pj?.type_tag) || "项目";
+      bullets.push(
+        bullet(
+          applyTpl(MAPPING_RULES_V0_2_3.templates.RULE_PJ_001, {
+            pjType,
+            impactTop: joinCN(impactTop) || "关键目标",
+          }),
+          "RULE_PJ_001",
+          [`project_items[${i}]`]
+        )
+      );
+    }
+
+    const stack = Array.isArray(pj?.stack_tags) ? pickTop(pj.stack_tags, 8) : [];
+    const taglineParts = [];
+    if (rtag) taglineParts.push(rtag);
+    if (period) taglineParts.push(period);
+    const tagline = taglineParts.join(" · ");
+
+    projects.push({
+      name,
+      tagline: summary1 ? (tagline ? `${tagline} · ${summary1}` : summary1) : tagline,
+      bullets,
+      stack,
+      link: pj?.link || null,
+    });
+  }
+
+  // Education（沿用旧结构：最多2条）
+  const education = [];
+  const eduItems = Array.isArray(input?.education_items) ? input.education_items : [];
+  for (const e of eduItems.slice(0, 2)) {
+    if (s(e?.school) || s(e?.major) || s(e?.degree)) {
+      education.push({
+        school: s(e?.school),
+        major: s(e?.major),
+        degree: s(e?.degree),
+        extra: null,
+      });
+    }
+  }
+
+  // Certifications / Trainings（写入 doc，renderer 下一步实现 rows）
+  const certifications = Array.isArray(input?.certifications) ? input.certifications.map(c => ({
+    name: s(c?.name),
+    issuer: s(c?.issuer),
+    date: s(c?.date),
+    credential_url: c?.credential_url || null,
+  })) : [];
+
+  const trainings = Array.isArray(input?.trainings) ? input.trainings.map(t => ({
+    name: s(t?.name),
+    org: s(t?.org),
+    date_or_period: s(t?.date_or_period),
+    content: s(t?.content),
+    outcome: t?.outcome ? s(t?.outcome) : null,
+  })) : [];
+
+  // trace（rule_ids）
+  const rule_ids = uniq([
+    ...summary.bullets.map(b => b.rule_id),
+    ...experience.flatMap(e => (e.bullets || []).map(b => b.rule_id)),
+    ...projects.flatMap(p => (p.bullets || []).map(b => b.rule_id)),
+  ]);
+
+  return {
+    meta: { doc_version: "0.2.3", locale, theme, updated_at: new Date().toISOString() },
+    header,
+    summary,
+    skills,
+    experience,
+    projects,
+    education,
+    certifications,
+    trainings,
+    trace: { source_ids: [], rule_ids },
+  };
+}

@@ -1,0 +1,33 @@
+Resume Product v0.1 — SMOKE / 回归清单（SSOT）
+
+入口与隔离
+[ ] 仅以 /apps/resume_product/index.html 作为入口（SSOT）
+[ ] /resume 与 /report（或原产品）路由互不干扰
+[ ] localStorage key 命名空间为 RESUME_*（不读取 MYGIFT_*）
+
+L1 基础简历（Baseline）
+[ ] L1-1 创建 session
+[ ] L1-2 scenario 选择可保存
+[ ] L1-3 fact 表单：可保存；刷新/重进可回填
+[ ] L1-4 resume v1：可生成；预览区显示 content；可下载 TXT
+
+L2 定向简历（Targeted）
+[ ] L2-1 target 保存
+[ ] L2-2 role insights 页面可进入
+[ ] L2-3 kash 勾选/文本保存
+[ ] L2-4 resume v2 可生成/预览
+
+L3 验证简历（Verified）
+[ ] L3-1 assessment 入口可进入
+[ ] L3-2 assessment 作答可保存
+[ ] L3-3 fit 结果页可进入
+[ ] L3-4 resume v3 可生成/预览
+[ ] L3-5 90 天计划页可进入
+
+导出
+[ ] export 页：无内容时提示“先生成 v1”
+[ ] export 页：有内容时可下载；并写入 export_ready / export_snapshot（可追溯）
+
+Debug / Health（仅 debug=1）
+[ ] /apps/resume_product/index.html?debug=1#/resume 显示 Health Check（debug）
+[ ] Health 页显示：href/pathname/hash/required_step/state/milestones/active_ids/PAGE_FILE

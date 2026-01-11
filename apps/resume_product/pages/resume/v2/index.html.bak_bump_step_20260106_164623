@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Resume Product - Resume V2</title>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script type="module">
+    import { bootStepPage } from "/apps/resume_product/pages/_step_page.js?v=9999";
+    import { loadDB, setActive } from "/core/storage/resume_db.js";
+    import { mountStepForm } from "/core/ui/step_form_v0_2.js?v=2";
+
+    // 通用壳
+    bootStepPage({ title:"Resume Product — Resume V2", stepId:"resume_v2", writeFnName:"writeResumeV2Dummy" });
+
+    // V2：一个可编辑大文本框（回填顺序：V2旧稿 > V1 BASE）
+    mountStepForm({
+      appId: "app",
+      title: "Resume V2（可编辑）",
+      desc: "说明：优先回填 V2 旧稿；否则回填 V1 生成的 BASE 文本。输入后自动保存（不跳页）。",
+      fields: [
+        { id: "rv2_content", label: "正文", type: "textarea", key: "content", rows: 18, placeholder: "这里是 V2 文本（可直接编辑）" },
+      ],
+      loadDB,
+      setActive,
+      writerName: "writeResumeV2Dummy",
+      setActiveMap: { resume_v2_id: "RET_ID" },
+
+         fillFromDB: (db) => {
+          // 先找 V2
+          const rv2Id = db?.active?.resume_v2_id || null;
+          if (rv2Id) {
+            const row1 = db?.resume_v2s?.[rv2Id];
+            const row2 = db?.resume_v2_versions?.[rv2Id];
+            const row3 = db?.resume_versions?.[rv2Id];
+
+            const content =
+              (row1?.content ?? row1?.payload?.content) ||
+              (row2?.content ?? row2?.payload?.content) ||
+              (row3?.content ?? row3?.payload?.content) ||
+              "";
+
+            if (String(content).trim()) return { content: String(content) };
+          }
+
+          // 再用 V1 BASE
+          const rv1Id = db?.active?.resume_version_id || null;
+          const rowV1 = rv1Id ? db?.resume_versions?.[rv1Id] : null;
+          const c4 = (rowV1?.content ?? rowV1?.payload?.content ?? "").toString();
+          return { content: c4 };
+        },
+        
+      // 关键：同步 __STEP_PAYLOAD__
+      buildPayload: () => {
+        const content = (document.getElementById("rv2_content")?.value || "").toString();
+        return { content };
+      },
+    });
+  </script>
+</body>
+</html>

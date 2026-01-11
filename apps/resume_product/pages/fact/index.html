@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Resume Product - Fact</title>
+</head>
+<body>
+  <!-- 顶部壳：_step_page.js 会把按钮挂在 #app 内 -->
+  <div id="app"></div>
+
+  <!-- 结构化录入表单挂载点 -->
+  <div id="fact_structured_host"></div>
+
+  <script type="module">
+    import { bootStepPage } from "/apps/resume_product/pages/_step_page.js?v=9999";
+    import { mountFactStructuredForm_v0_2_3 } from "/apps/resume_product/features/fact_form/fact_form_structured_v0_2_3.js";
+
+    // 顶部壳（写入/保存、下一步、回入口、清空）
+    bootStepPage({ title:"Resume Product — Fact", stepId:"fact", writeFnName:"writeFactProfileDummy" });
+
+    // 结构化录入（内部会同步 window.__FACT_PAYLOAD__ / window.__STEP_PAYLOAD__）
+    mountFactStructuredForm_v0_2_3({ hostId: "fact_structured_host" });
+
+    console.log("[FACT] restore structured form mounted");
+  </script>
+</body>
+</html>

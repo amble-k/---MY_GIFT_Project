@@ -1,0 +1,160 @@
+/**
+ * Legacy Adapter: FACT payload (text-input) -> InputPayload (v0.2.2)
+ * v0.2.2
+ *
+ * 说明：
+ * - 这是过渡层，只为兼容你现有 FACT 页面（多文字输入）。
+ * - 最终你会用 input_spec.v0_2_2.js 的多选项 UI 直接产出 InputPayload；
+ *   但在那之前，所有输出链路先统一走 InputPayload + ResumeDoc 合同。
+ */
+
+export const LEGACY_ADAPTER_FACT_TO_INPUT_V0_2_2 = Object.freeze({
+  meta: {
+    product: "Resume Product",
+    contract: "legacy_adapter",
+    version: "0.2.2",
+    from: "fact_payload_text_v0_x",
+    to: "InputPayload@0.2.2",
+  },
+});
+
+function s(v) { return (v == null ? "" : String(v)).trim(); }
+function arr(v) { return Array.isArray(v) ? v : (s(v) ? [s(v)] : []); }
+
+function inferRoleLevel(targetRole) {
+  const t = s(targetRole);
+  if (!t) return "mid";
+  if (/实习|intern/i.test(t)) return "intern";
+  if (/高级|资深|专家|senior|staff/i.test(t)) return "senior";
+  if (/主管|经理|lead|manager/i.test(t)) return "lead";
+  return "mid";
+}
+
+function inferRoleFamily(targetRole) {
+  const t = s(targetRole);
+  if (/产品|PM|产品经理/i.test(t)) return "pm";
+  if (/前端|后端|全栈|开发|工程师|SWE|developer/i.test(t)) return "dev";
+  if (/数据|BI|分析|算法|AI|ML/i.test(t)) return "data";
+  if (/设计|UX|UI/i.test(t)) return "design";
+  if (/运营/i.test(t)) return "ops";
+  if (/销售/i.test(t)) return "sales";
+  if (/市场|营销/i.test(t)) return "marketing";
+  return "other";
+}
+
+function inferImpactTags(text) {
+  const t = s(text);
+  const tags = [];
+  const map = [
+    ["增长", /增长|拉新|获客/i],
+    ["转化", /转化|漏斗|下单/i],
+    ["留存", /留存|复购|活跃/i],
+    ["降本", /降本|成本/i],
+    ["提效", /提效|效率|自动化/i],
+    ["稳定性", /稳定|故障|SLA|可用性/i],
+    ["体验", /体验|NPS|满意度/i],
+    ["营收", /营收|收入|GMV/i],
+    ["风控", /风控|风险/i],
+    ["合规", /合规|审计/i],
+  ];
+  for (const [tag, re] of map) if (re.test(t)) tags.push(tag);
+  // 保底：至少给 2 个（便于 mapping 生成 summary）
+  if (tags.length === 0) return ["提效", "增长"];
+  if (tags.length === 1) return [tags[0], "提效"];
+  return tags.slice(0, 3);
+}
+
+function normalizeSkills(skills) {
+  // 旧 payload 可能是 array 或 string（逗号/换行分隔）
+  let items = [];
+  if (Array.isArray(skills)) items = skills;
+  else if (s(skills)) items = s(skills).split(/[,，\n]/g);
+
+  const out = [];
+  const seen = new Set();
+  for (const it of items) {
+    const t = s(it);
+    if (!t) continue;
+    if (seen.has(t)) continue;
+    seen.add(t);
+    out.push(t);
+  }
+  return out.slice(0, 18);
+}
+
+function inferProjectType(name, desc) {
+  const t = (s(name) + " " + s(desc)).toLowerCase();
+  if (/增长|growth/.test(t)) return "增长";
+  if (/数据|bi|analysis|etl/.test(t)) return "数据";
+  if (/ai|ml|模型|llm/.test(t)) return "AI";
+  if (/平台|platform/.test(t)) return "平台";
+  if (/工具|tooling|工具链/.test(t)) return "工具链";
+  if (/商业化|营收|gmv/.test(t)) return "商业化";
+  return "B2B"; // 保底：偏“专业叙述”更稳
+}
+
+/**
+ * adaptFactPayloadToInput_v0_2_2
+ * - 输入：旧 FACT payload（你当前页面 buildPayload 写入 DB 的结构）
+ * - 输出：InputPayload@0.2.2
+ */
+export function adaptFactPayloadToInput_v0_2_2(factPayload) {
+  const p = factPayload || {};
+  const basic0 = p.basic || {};
+  const targetRole = s(basic0.target || basic0.title || "");
+
+  const edu0 = Array.isArray(p.education) ? (p.education[0] || {}) : {};
+  const ex0  = Array.isArray(p.experience) ? (p.experience[0] || {}) : {};
+  const pj0  = Array.isArray(p.projects) ? (p.projects[0] || {}) : {};
+
+  const skills = normalizeSkills(p.skills);
+
+  const summaryText = s(p.summary);
+  const impact_tags = inferImpactTags(summaryText + " " + s(pj0.desc) + " " + s(ex0.title));
+
+  const input = {
+    basic: {
+      name: s(basic0.name),
+      targetRole,
+      city: s(basic0.city),
+      phone: s(basic0.phone),
+      email: s(basic0.email),
+    },
+
+    role_level: inferRoleLevel(targetRole),
+    resume_language: "zh-CN",
+    target_role_family: inferRoleFamily(targetRole),
+
+    summary_keywords: summaryText ? summaryText.slice(0, 30) : "",
+    impact_tags,
+
+    skill_tags: skills,
+
+    experience_items: [{
+      company: s(ex0.company),
+      title: s(ex0.title),
+      period: s(ex0.period),
+      free_bullets: Array.isArray(ex0.bullets) ? ex0.bullets : [],
+      responsibility_tags: [], // 旧表单没有多选职责，先留空
+      impact_tags: [],         // 旧表单没有多选成果方向，先留空（summary 的 impact_tags 已能支撑生成）
+      metrics_hint: "",        // 旧表单没有专门字段，先留空
+    }],
+
+    project_items: [{
+      name: s(pj0.name),
+      type_tag: inferProjectType(pj0.name, pj0.desc),
+      free_bullets: Array.isArray(pj0.bullets) ? pj0.bullets : [],
+      stack_tags: [],          // 旧表单没有 stack 多选，先留空
+      impact_tags: [],         // 同上
+      metrics_hint: "",        // 同上
+    }],
+
+    education_items: [{
+      school: s(edu0.school),
+      major: s(edu0.major),
+      degree: s(edu0.degree),
+    }],
+  };
+
+  return input;
+}
