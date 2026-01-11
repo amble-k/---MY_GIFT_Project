@@ -24,3 +24,6 @@ archive/_bak_untracked_*/
 
 # === MY GIFT: ignore root archives moved from diagnostics ===
 archive/_root_archive_*/
+
+# === MY GIFT: ignore paused snapshot archives ===
+archive/_paused_snapshots_*/
