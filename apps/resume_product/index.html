@@ -3,41 +3,28 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Resume Product Router</title>
+  <title>Resume Product (Paused)</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans SC",Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         background:#fafafa;color:#111;margin:0}
+    .wrap{max-width:760px;margin:48px auto;padding:0 18px}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:18px 18px 14px;box-shadow:0 2px 10px rgba(0,0,0,.04)}
+    h1{font-size:18px;margin:0 0 10px}
+    p{font-size:14px;line-height:1.8;margin:8px 0;color:#374151}
+    a{color:#2563eb;text-decoration:none}
+    .muted{color:#6b7280;font-size:12px;margin-top:10px}
+    code{background:#f3f4f6;padding:2px 6px;border-radius:6px}
+  </style>
 </head>
 <body>
-  <pre id="log" style="padding:12px;white-space:pre-wrap;word-break:break-word;background:#111;color:#0f0;border-radius:10px;">
-[router] booting...
-  </pre>
-
-  <script type="module">
-    const logEl = document.getElementById("log");
-    const log = (msg, obj) => {
-      const line = obj ? (msg + " " + JSON.stringify(obj, null, 2)) : msg;
-      logEl.textContent += "\n" + line;
-      console.log(line);
-    };
-
-    window.addEventListener("error", (e) => log("[error] " + (e?.message || e)));
-    window.addEventListener("unhandledrejection", (e) => log("[rejection] " + (e?.reason?.message || e?.reason || e)));
-
-    import { dispatch, getRoute } from "/apps/resume_product/router_runtime.js?v=3";
-
-    // 默认给一个可推进的 route（避免停在 Hub 空白）
-    if (!location.hash || location.hash === "#") {
-      location.hash = "#/resume";
-    }
-
-    const run = () => {
-      log("[router] pathname=" + location.pathname + " hash=" + location.hash + " route=" + getRoute());
-      const r = dispatch();
-      log("[dispatch return]", r);
-    };
-
-    window.addEventListener("hashchange", run);
-    window.addEventListener("pageshow", run);
-    run();
-  </script>
-  <script type="module" src="/apps/resume_product/app_boot.js?v=3"></script>
+  <div class="wrap">
+    <div class="card">
+      <h1>简历生成产品已暂停（Paused）</h1>
+      <p>当前开发主线已切换到：<strong>测评分析 → KASH → 职业发展建议</strong>。</p>
+      <p>简历产品代码已保留在 <code>/apps/resume_product/</code>，只是暂时冻结入口，避免误触发路由/状态机。</p>
+      <p>返回主入口：<a href="/index.html">/index.html</a></p>
+      <div class="muted">如果将来要恢复：把备份文件拷回 <code>apps/resume_product/index.html</code> 即可。</div>
+    </div>
+  </div>
 </body>
 </html>

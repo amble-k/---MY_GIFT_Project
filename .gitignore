@@ -4,3 +4,7 @@ snapshots/
 diagnostics/
 output/
 *.zip
+
+# local pause backups (do not commit)
+apps/resume_product/*.bak_paused_*
+snapshots/_paused_resume/
