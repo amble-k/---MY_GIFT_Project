@@ -9,6 +9,7 @@ import M_QUESTIONS from '../data/questions_m.js';
 import T_QUESTIONS from '../data/questions_t.js';
 import V_QUESTIONS from '../data/questions_v.js';
 import R_QUESTIONS from '../data/questions_r.js';
+import { JOB_MODELS_V0_1 } from '/data/job_models_v0_1.js';
 
 // v5 问卷（只用于记录 & 未来升级用）
 import M_QUESTIONS_V5 from '../data/questions_m_v5.js';
@@ -2557,13 +2558,132 @@ const questionnaire_meta_v5 = {
 }
 
 
+
+// =========================
+// 6.x Fit 报告（岗位适配度）v0.1
+// - 目标：免费阶段快速给出“岗位适合度结论 + 下一步引导”
+// - 说明：此版本允许输入极少，confidence 会相应降低
+// =========================
+export function calculateFitReportV01(payload = {}) {
+  const job_key = (payload && (payload.job_key || payload.jobKey)) || '';
+  const raw = (payload && payload.raw) || null;
+
+  // 取岗位模型（job_models_v0_1.js 已在文件顶部 import）
+  const job = (JOB_MODELS_V0_1 && JOB_MODELS_V0_1.models && job_key)
+    ? (JOB_MODELS_V0_1.models[job_key] || null)
+    : null;
+
+  const job_label = (job && (job.label || job.title)) || job_key || '';
+
+  // 可选：如果传入 raw（测评原始答题），我们就复用你现有的 calculateReport 得到 kash_start 等信号
+  let reportFromAssessment = null;
+  let has_assessment = false;
+
+  try {
+    if (raw && typeof raw === 'object') {
+      reportFromAssessment = calculateReport(raw);
+      has_assessment = true;
+    }
+  } catch (e) {
+    // ignore
+  }
+
+  // kash_start：优先取用户测评结果；没有的话给一个保守默认
+  const kash_start =
+    (reportFromAssessment && reportFromAssessment.synthesis && reportFromAssessment.synthesis.kash_start) ||
+    (reportFromAssessment && reportFromAssessment.patterns && reportFromAssessment.patterns.kash_start) ||
+    (job && (job.kash_start || job.kashStart)) ||
+    'H';
+
+  const kash_rule =
+    (reportFromAssessment && reportFromAssessment.patterns && reportFromAssessment.patterns.kash_rule) ||
+    'K0_default_habit';
+
+  // 置信度：输入越少越低（先给一个可用的刻度）
+  const confidence = has_assessment ? 0.65 : 0.45;
+
+  // v0.1：先返回结构化报告（评分与理由目前是“占位 + 可迭代”）
+  // 后续我们会把：岗位KASH vs 用户KASH、技能/经验、差距Top项，接入到 fit_engine_v0_2
+  const out = {
+    meta: {
+      schema: "MY_GIFT_FIT_REPORT_V0_1",
+      version: "0.1.0",
+      locale: (JOB_MODELS_V0_1 && JOB_MODELS_V0_1.meta && JOB_MODELS_V0_1.meta.locale) || "ja-JP",
+      created_at: "2026-01-11",
+      source: {
+        job_model_version: "JOB_MODELS_V0_1",
+        engine: "fit_engine_v0_1"
+      }
+    },
+    inputs: {
+      job_key,
+      job_label,
+      user_profile_ref: {
+        has_assessment,
+        has_fact_profile: false,
+        has_resume: false
+      }
+    },
+    synthesis: {
+      fit_grade: "B",
+      fit_score: 0.72,
+      confidence,
+      kash_start,
+      kash_rule,
+      top_reasons: [
+        { key: "strength_match", title: "強みが職務要件と重なる（暫定）", weight: 0.34 },
+        { key: "habit_risk", title: "習慣・継続の設計がボトルネック（暫定）", weight: 0.22 }
+      ],
+      warnings: [
+        { key: "low_input", title: "入力が少ないため精度は参考値", level: "info" }
+      ]
+    },
+    fit: {
+      job: {
+        key: job_key,
+        kash_profile: (job && (job.kash_profile || job.kash)) || { K: [], A: [], S: [], H: [] }
+      },
+      user: {
+        kash_profile: { K: [], A: [], S: [], H: [] }
+      },
+      match: {
+        kash_gap_summary: { K: 0.2, A: 0.35, S: 0.25, H: 0.45 },
+        suggested_actions: {
+          now_7d: [
+            { title: "1日15分の習慣設計", why: "Hのギャップが大きい", metric: "7日連続の実行" }
+          ],
+          next_30d: [
+            { title: "職務タスクの分解と週次レビュー", why: "H→Sへの接続", metric: "週1レビュー×4回" }
+          ],
+          next_90d: [
+            { title: "成果事例（STAR）を3本作成", why: "Sの可視化", metric: "STAR 3本完成" }
+          ]
+        }
+      }
+    },
+    upgrade: {
+      cta: [
+        { key: "do_assessment", label: "適性測評で精度を上げる", target: "assessment" },
+        { key: "add_fact_profile", label: "経験入力で職務適合を深掘り", target: "fact" },
+        { key: "target_role", label: "志望職種を設定して精密対標", target: "role_target" }
+      ]
+    }
+  };
+
+  return out;
+}
+
+
 // ========== 调试辅助：把 calculateReport 和 diagnostics 暴露到全局命名空间 ==========
 
 if (typeof window !== 'undefined') {
   window.MY_GIFT = window.MY_GIFT || {};
+window.MY_GIFT.JOB_MODELS_V0_1 = JOB_MODELS_V0_1;
+window.MY_GIFT.getJobModelV01 = (key) => (JOB_MODELS_V0_1?.models?.[key] || null);
 
   // 让我们能在控制台调用：MY_GIFT.calculateReport(raw)
   window.MY_GIFT.calculateReport = calculateReport;
+  window.MY_GIFT.calculateFitReportV01 = calculateFitReportV01;
 
   // 报告结构自检工具
   window.MY_GIFT.diagnostics = function (report) {
