@@ -21,3 +21,6 @@ archive/_bak_tracked_*/
 
 # === MY GIFT: ignore untracked backup archives ===
 archive/_bak_untracked_*/
+
+# === MY GIFT: ignore root archives moved from diagnostics ===
+archive/_root_archive_*/
