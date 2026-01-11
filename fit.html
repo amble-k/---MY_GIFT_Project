@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MY GIFT - Fit (Free)</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body { padding: 16px; }
+    .card { max-width: 860px; margin: 0 auto; padding: 16px; border: 1px solid #ddd; border-radius: 12px; }
+    .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    select, button { padding: 10px 12px; font-size: 14px; }
+    button { cursor: pointer; }
+    .muted { opacity: .75; font-size: 13px; }
+    .hr { height: 1px; background: #eee; margin: 14px 0; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>無料：職務適合度（Fit）</h2>
+    <div class="muted">入力最小で「参考値の適合度レポート」を生成します。精密化は後で（測評・経験入力・志望職種設定）。</div>
+    <div class="hr"></div>
+
+    <div class="row">
+      <label for="jobSelect">職種を選択：</label>
+      <select id="jobSelect"></select>
+      <button id="btnGo">レポート生成</button>
+    </div>
+
+    <div class="hr"></div>
+    <div class="muted">
+      保存キー：localStorage <code>myGiftFitReportV01</code><br/>
+      生成後：<code>fit_report.html</code> に遷移します
+    </div>
+  </div>
+
+  <script type="module" src="/js/fit_entry.js"></script>
+</body>
+</html>
