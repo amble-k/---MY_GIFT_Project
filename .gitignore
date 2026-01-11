@@ -8,3 +8,10 @@ output/
 # local pause backups (do not commit)
 apps/resume_product/*.bak_paused_*
 snapshots/_paused_resume/
+
+# === MY GIFT: ignore generated / local artifacts (root hygiene) ===
+.DS_Store
+snapshots/
+diagnostics/_root_archive_*/
+tmp_resume_preview*.html
+_dir_tree_*.txt
