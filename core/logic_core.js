@@ -2574,6 +2574,22 @@ export function calculateFitReportV01(payload = {}) {
     : null;
 
   const job_label = (job && (job.label || job.title)) || job_key || '';
+  // locale: prefer payload.locale; fallback localStorage; default zh-CN
+  let locale = (payload && (payload.locale || payload.lang)) || "zh-CN";
+  try {
+    if (typeof localStorage !== "undefined") {
+      locale = locale || localStorage.getItem("MYGIFT_LOCALE") || "zh-CN";
+    }
+  } catch (e) {}
+
+  function _pick(map, lc) {
+    if (!map) return "";
+    return map[lc] || map["zh-CN"] || map["en-US"] || map["ja-JP"] || "";
+  }
+
+  // localize job_label if job.label_i18n exists
+  const job_label_i18n = job && job.label_i18n ? _pick(job.label_i18n, locale) : "";
+
 
   // 可选：如果传入 raw（测评原始答题），我们就复用你现有的 calculateReport 得到 kash_start 等信号
   let reportFromAssessment = null;
@@ -2602,7 +2618,15 @@ export function calculateFitReportV01(payload = {}) {
   // 置信度：输入越少越低（先给一个可用的刻度）
   const confidence = has_assessment ? 0.65 : 0.45;
 
+
   // v0.1：先返回结构化报告（评分与理由目前是“占位 + 可迭代”）
+
+  // --- DEMO scoring (v0.1): so users can SEE changes when switching job ---
+  // Later (v0.2+) we will replace this with: job KASH vs user KASH + evidence-based scoring.
+  const demoScores = { office_admin: 0.68, sales: 0.61, software_engineer: 0.75 };
+  const fit_score = (job_key in demoScores) ? demoScores[job_key] : 0.66;
+  const fit_grade = (fit_score >= 0.80) ? "A" : (fit_score >= 0.65) ? "B" : (fit_score >= 0.50) ? "C" : "D";
+
   // 后续我们会把：岗位KASH vs 用户KASH、技能/经验、差距Top项，接入到 fit_engine_v0_2
   const out = {
     meta: {
@@ -2617,7 +2641,7 @@ export function calculateFitReportV01(payload = {}) {
     },
     inputs: {
       job_key,
-      job_label,
+      job_label: (job_label_i18n || job_label),
       user_profile_ref: {
         has_assessment,
         has_fact_profile: false,
@@ -2625,17 +2649,17 @@ export function calculateFitReportV01(payload = {}) {
       }
     },
     synthesis: {
-      fit_grade: "B",
-      fit_score: 0.72,
+      fit_grade,
+      fit_score,
       confidence,
       kash_start,
       kash_rule,
       top_reasons: [
-        { key: "strength_match", title: "強みが職務要件と重なる（暫定）", weight: 0.34 },
-        { key: "habit_risk", title: "習慣・継続の設計がボトルネック（暫定）", weight: 0.22 }
+        { key: "strength_match", title: _pick({ "zh-CN":"你的优势与岗位要点重合（示例）", "en-US":"Your strengths overlap the role (demo)", "ja-JP":"強みが職務要件と重なる（暫定）" }, locale), weight: 0.34 },
+        { key: "habit_risk", title: _pick({ "zh-CN":"习惯/持续性可能是瓶颈（示例）", "en-US":"Habits/consistency may be a bottleneck (demo)", "ja-JP":"習慣・継続の設計がボトルネック（暫定）" }, locale), weight: 0.22 }
       ],
       warnings: [
-        { key: "low_input", title: "入力が少ないため精度は参考値", level: "info" }
+        { key: "low_input", title: _pick({ "zh-CN":"输入较少，结果仅供参考", "en-US":"Low input; results are indicative only", "ja-JP":"入力が少ないため精度は参考値" }, locale), level: "info" }
       ]
     },
     fit: {
@@ -2663,9 +2687,9 @@ export function calculateFitReportV01(payload = {}) {
     },
     upgrade: {
       cta: [
-        { key: "do_assessment", label: "適性測評で精度を上げる", target: "assessment" },
-        { key: "add_fact_profile", label: "経験入力で職務適合を深掘り", target: "fact" },
-        { key: "target_role", label: "志望職種を設定して精密対標", target: "role_target" }
+        { key: "do_assessment", label: _pick({ "zh-CN":"做一次测评，提高评估精度", "en-US":"Take assessment to improve confidence", "ja-JP":"適性測評で精度を上げる" }, locale), target: "assessment" },
+        { key: "add_fact_profile", label: _pick({ "zh-CN":"补充经历信息，深挖匹配点", "en-US":"Add experience to deepen fit", "ja-JP":"経験入力で職務適合を深掘り" }, locale), target: "fact" },
+        { key: "target_role", label: _pick({ "zh-CN":"设置目标岗位，做精密对标", "en-US":"Set target role for deeper match", "ja-JP":"志望職種を設定して精密対標" }, locale), target: "role_target" }
       ]
     }
   };

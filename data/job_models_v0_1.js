@@ -9,7 +9,8 @@ export const JOB_MODELS_V0_1 = {
       "Job model is a calculable target vector for KASH + optional A_sub facets.",
       "Targets are 0-100, weights sum to 1.0.",
       "must_have / nice_to_have are simple gate expressions (string), evaluated later."
-    ]
+    ],
+    "updated_at": "2026-01-12"
   },
   "enums": {
     "kash_keys": [
@@ -49,8 +50,8 @@ export const JOB_MODELS_V0_1 = {
       "high-pressure"
     ]
   },
-  "models": [
-    {
+  "models": {
+    "office_admin": {
       "job_id": "jp_office_admin_001",
       "job_title_ja": "一般事務（バックオフィス）",
       "job_title_en": "Office Administrator",
@@ -104,9 +105,23 @@ export const JOB_MODELS_V0_1 = {
         "ミスを減らすために普段している工夫は？",
         "締切が重なった時の優先順位の付け方は？",
         "依頼が曖昧な場合、どう確認する？"
-      ]
+      ],
+      "key": "office_admin",
+      "label": "事務職（例）",
+      "kash_profile": {
+        "K": [],
+        "A": [],
+        "S": [],
+        "H": []
+      },
+      "kash_start": "H",
+      "label_i18n": {
+        "zh-CN": "文职/行政（示例）",
+        "en-US": "Office Admin (demo)",
+        "ja-JP": "事務職（例）"
+      }
     },
-    {
+    "sales": {
       "job_id": "jp_sales_001",
       "job_title_ja": "法人営業（新規・既存）",
       "job_title_en": "B2B Sales",
@@ -161,9 +176,23 @@ export const JOB_MODELS_V0_1 = {
         "断られた後、次の一手をどう設計する？",
         "顧客課題を引き出す質問の組み立て方は？",
         "社内（技術/運用）を巻き込む時の進め方は？"
-      ]
+      ],
+      "key": "sales",
+      "label": "営業職（例）",
+      "kash_profile": {
+        "K": [],
+        "A": [],
+        "S": [],
+        "H": []
+      },
+      "kash_start": "H",
+      "label_i18n": {
+        "zh-CN": "销售（示例）",
+        "en-US": "Sales (demo)",
+        "ja-JP": "営業職（例）"
+      }
     },
-    {
+    "software_engineer": {
       "job_id": "jp_pm_001",
       "job_title_ja": "プロジェクトマネージャー",
       "job_title_en": "Project Manager",
@@ -218,8 +247,22 @@ export const JOB_MODELS_V0_1 = {
         "要件が曖昧なとき、どう切り分けて合意を作る？",
         "遅延の兆候をどう検知し、どう手を打つ？",
         "利害が割れた場で、どう意思決定を前に進める？"
-      ]
+      ],
+      "key": "software_engineer",
+      "label": "ソフトウェアエンジニア（例）",
+      "kash_profile": {
+        "K": [],
+        "A": [],
+        "S": [],
+        "H": []
+      },
+      "kash_start": "H",
+      "label_i18n": {
+        "zh-CN": "软件工程师（示例）",
+        "en-US": "Software Engineer (demo)",
+        "ja-JP": "ソフトウェアエンジニア（例）"
+      }
     }
-  ]
+  }
 };
 export default JOB_MODELS_V0_1;

@@ -27,3 +27,6 @@ archive/_root_archive_*/
 
 # === MY GIFT: ignore paused snapshot archives ===
 archive/_paused_snapshots_*/
+
+# === MY GIFT: local fix archives (do not track) ===
+archive/_fix_*/
