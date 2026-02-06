@@ -30,3 +30,12 @@ archive/_paused_snapshots_*/
 
 # === MY GIFT: local fix archives (do not track) ===
 archive/_fix_*/
+
+# ---- MYGIFT local triage / archives ----
+_triage/
+archive/
+**/_archive/
+**/*.bak_*
+**/*.save
+**/*.tmp
+**/index.html.__tmp__
