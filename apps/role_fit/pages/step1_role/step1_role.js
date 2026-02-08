@@ -199,7 +199,15 @@ function renderPreview(){
       const fam = jobFamily.value;
 
       let text = "";
-      if (c) text += "公司类别：<b>" + (companyCat.options[companyCat.selectedIndex]?.text || "") + "</b><br>";
+      if (c){
+        let cLabel = (companyCat.options[companyCat.selectedIndex]?.text || "");
+        const isOther = (String(c)==="other");
+        if (isOther){
+          const cc = (document.getElementById("companyCustom")?.value || "").trim();
+          if (cc) cLabel = cc; // 用自定义内容替代“其他”
+        }
+        text += "公司类别：<b>" + cLabel + "</b><br>";
+      }
       if (fam) text += "岗位大类：<b>" + (jobFamily.options[jobFamily.selectedIndex]?.text || "") + "</b><br>";
 
       if (fam === "other"){
@@ -284,13 +292,25 @@ function renderPreview(){
     }
 
     backBtn.addEventListener("click", ()=>history.back());
-    companyCat.addEventListener("change", renderPreview);
+    companyCat.addEventListener("change", ()=>{ toggleCompanyCustom(); renderPreview(); });
     jobFamily.addEventListener("change", ()=>{
       populateJobsByFamily(jobFamily.value);
       toggleCustom();
     });
     
-    function toggleCustomJob(){
+    
+  // ---- company category: "other" -> show custom input ----
+  function toggleCompanyCustom(){
+    const row = document.getElementById("companyCustomRow");
+    const inp = document.getElementById("companyCustom");
+    if (!row || !inp) return;
+
+    const isOther = (String(companyCat && companyCat.value || "") === "other");
+    row.classList.toggle("hide", !isOther);
+    if (!isOther) inp.value = "";
+  }
+
+function toggleCustomJob(){
       const row = document.getElementById("jobCustomRow");
       const inp = document.getElementById("jobCustomTitle");
       if (!row || !inp) return;
@@ -311,6 +331,7 @@ function renderPreview(){
 
     jobCustomTitle.addEventListener("input", renderPreview);
     otherNote.addEventListener("input", renderPreview);
+      document.getElementById("companyCustom")?.addEventListener("input", renderPreview);
 
     nextBtn.addEventListener("click", ()=>{
       const s = save();
