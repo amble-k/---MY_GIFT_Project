@@ -25,7 +25,31 @@
         return String(k||"");
       }
     }
+
 const KEY = "ROLE_FIT_STEP1_ROLE_V3";
+const KEY_SUG = "ROLE_FIT_SUGGESTIONS_V0_1";
+
+// ---- suggestions pool (append-only, de-dup by fingerprint) ----
+function _rf_hash(str){
+  let h = 5381;
+  const s = String(str || "");
+  for (let i=0;i<s.length;i++){
+    h = ((h << 5) + h) + s.charCodeAt(i);
+    h = h >>> 0;
+  }
+  return "h" + h.toString(16);
+}
+
+function pushSuggestion(rec){
+  try{
+    const arr = JSON.parse(localStorage.getItem(KEY_SUG) || "[]");
+    const fp = rec.fingerprint || "";
+    if (fp && Array.isArray(arr) && arr.some(x => x && x.fingerprint === fp)) return;
+    arr.push(rec);
+    localStorage.setItem(KEY_SUG, JSON.stringify(arr));
+  }catch(e){}
+}
+
 
     // 仅用于“当前岗位库只有英文/只有3条”的兜底显示
     const FALLBACK_ZH = {  "office_admin": "行政/综合支持",
@@ -60,6 +84,17 @@ const KEY = "ROLE_FIT_STEP1_ROLE_V3";
       return [];
     }
     const models = normModels();
+
+const companyCat   = document.getElementById("companyCat");
+const jobFamily    = document.getElementById("jobFamily");
+const jobKeyRow    = document.getElementById("jobKeyRow");
+const jobKey       = document.getElementById("jobKey");
+const otherNote    = document.getElementById("otherNote");
+const previewBox   = document.getElementById("previewBox");
+const backBtn      = document.getElementById("backBtn");
+const nextBtn      = document.getElementById("nextBtn");
+const jobCustomTitle = document.getElementById("jobCustomTitle");
+
 
     function getKey(m, idx){
       return m?.key || m?.preset_key || m?.id || String(idx);
@@ -154,9 +189,10 @@ const KEY = "ROLE_FIT_STEP1_ROLE_V3";
         const fam = familyToId(getFamily(m));
         if (!fid) return; // 未选大类不展示
         if (fid === "other"){
-          // 选“其他”时不让选细分
-          return;
-        }
+  // 大类=其他：不展示细分 items，但仍要让下面的 "__custom__" 选项追加生效
+  //（不要 return）
+}
+
         // 没有 family 的岗位：暂时都挂到“engineering”会更乱，所以我们不自动塞进任何大类
         // 只有 family 能对应上时才展示
         if (fam && fam === fid){
@@ -176,7 +212,8 @@ const KEY = "ROLE_FIT_STEP1_ROLE_V3";
       items.forEach(it=>{
         jobKey.appendChild(new Option(it.label || (typeof FALLBACK_ZH==="object" ? (FALLBACK_ZH[String(it.key)]||"") : "") || __ROLEFIT_labelOfJobModel__(it.key) || it.key, it.key));
       });
-    
+
+        // allow custom role name (jobKey-level custom)
         jobKey.appendChild(new Option("其他（自定义）", "__custom__"));
 }
 
@@ -184,59 +221,61 @@ const KEY = "ROLE_FIT_STEP1_ROLE_V3";
   // IMPORTANT: family decides option set; do not inject stray else
   const fam = String(jobFamily.value || "");
   populateJobsByFamily(fam);
-
-  // family=other -> force jobKey to __custom__
-  if (fam === "other"){
-    try{ jobKey.value = "__custom__"; }catch(e){}
-  }
-
   toggleCustomJob();
   renderPreview();
 }
 
 function renderPreview(){
-      const c = companyCat.value;
-      const fam = jobFamily.value;
+  const c = companyCat.value;
+  const fam = jobFamily.value;
 
-      let text = "";
-      if (c){
-        let cLabel = (companyCat.options[companyCat.selectedIndex]?.text || "");
-        const isOther = (String(c)==="other");
-        if (isOther){
-          const cc = (document.getElementById("companyCustom")?.value || "").trim();
-          if (cc) cLabel = cc; // 用自定义内容替代“其他”
-        }
-        text += "公司类别：<b>" + cLabel + "</b><br>";
-      }
-      if (fam) text += "岗位大类：<b>" + (jobFamily.options[jobFamily.selectedIndex]?.text || "") + "</b><br>";
+  let text = "";
 
-      if (fam === "other"){
-        const t = jobCustomTitle.value.trim();
-        if (t) text += "自定义岗位：<b>" + t + "</b><br>";
-      } else {
-        const jk = jobKey.value;
-        if (jk){
-          const m = findJob(jk);
-          const label = jobKey.options[jobKey.selectedIndex]?.text || "";
-          text += "细分岗位：<b>" + label + "</b><br>";
-          // 内置标准只做只读提示，增强信任，不让用户写
-          const jd = (m?.jd_text || m?.jd || m?.description || "").toString().trim();
-          if (jd){
-            text += "<span style='color:rgba(14,18,32,.55)'>内置要点：</span>" + jd.slice(0, 80) + (jd.length>80?"…":"") + "<br>";
-          }
-        }
-      }
-
-      const note = otherNote.value.trim();
-      if (note){
-        text += "<span style='color:rgba(14,18,32,.55)'>岗位/公司描述补充（可选）</span>" + note.replaceAll("\n","<br>");
-      }
-
-      previewBox.style.display = (text ? "block" : "none");
-      previewBox.innerHTML = text;
+  if (c){
+    let cLabel = (companyCat.options[companyCat.selectedIndex]?.text || "");
+    if (String(c) === "other"){
+      const cc = (document.getElementById("companyCustom")?.value || "").trim();
+      if (cc) cLabel = cc;
     }
+    text += "公司类别：<b>" + cLabel + "</b><br>";
+  }
 
-    function save(){
+  if (fam){
+    text += "目标岗位大类：<b>" + (jobFamily.options[jobFamily.selectedIndex]?.text || "") + "</b><br>";
+  }
+
+  if (String(fam) === "other"){
+    const t = (document.getElementById("jobFamilyCustomTitle")?.value || "").trim();
+    if (t) text += "目标岗位：<b>" + t + "</b><br>";
+  }
+
+  const jk = (jobKey && jobKey.value) ? String(jobKey.value) : "";
+  if (jk){
+    const label = (jk === "__custom__")
+      ? ((document.getElementById("jobCustomTitle")?.value || "").trim() || "其他（自定义）")
+      : (jobKey.options[jobKey.selectedIndex]?.text || "");
+
+    text += "细分岗位：<b>" + label + "</b><br>";
+
+    if (jk !== "__custom__"){
+      const m = findJob(jk);
+      const jd = (m?.jd_text || m?.jd || m?.description || "").toString().trim();
+      if (jd){
+        text += "<span style='color:rgba(14,18,32,.55)'>内置要点：</span>" + jd.slice(0, 80) + (jd.length > 80 ? "…" : "") + "<br>";
+      }
+    }
+  }
+
+  const note = otherNote.value.trim();
+  if (note){
+    text += "<span style='color:rgba(14,18,32,.55)'>岗位/公司描述补充（可选）</span>" + note.replaceAll("\n","<br>");
+  }
+
+  previewBox.style.display = (text ? "block" : "none");
+  previewBox.innerHTML = text;
+}
+
+function save(){
       const company_category = companyCat.value;
       const job_family = jobFamily.value;
       const other_note = otherNote.value.trim();
@@ -246,30 +285,85 @@ function renderPreview(){
 
       let job_key = "";
       let job_label = "";
-      let job_custom_title = "";
+      let job_custom_title = "";     // 目标岗位自定义文本（当 job_family=other 时必填）
+      let job_family_text = "";      // 目标岗位文本镜像（用于后台增量/建议）
+      let job_text = "";             // 细分岗位自定义文本（当 job_key=__custom__ 时）
 
       if (job_family === "other"){
-        job_custom_title = jobCustomTitle.value.trim();
-        if (!job_custom_title) return {ok:false, msg:"请填写自定义岗位名"};
+        job_custom_title = (document.getElementById("jobFamilyCustomTitle")?.value || "").trim();
+        if (!job_custom_title) return {ok:false, msg:"请填写目标岗位名称"};
+        job_family_text = job_custom_title;
+
+        // 细分岗位在 fam=other 下允许选择（可选）
+        const jk2 = (jobKey && jobKey.value) ? String(jobKey.value) : "";
+        if (jk2){
+          job_key = jk2;
+          if (jk2 === "__custom__"){
+            job_text = (document.getElementById("jobCustomTitle")?.value || "").trim();
+            job_label = job_text || "其他（自定义）";
+          } else {
+            job_label = (jobKey.options && jobKey.selectedIndex >= 0) ? (jobKey.options[jobKey.selectedIndex]?.text || "") : "";
+          }
+        }
       } else {
         job_key = jobKey.value;
-        job_label = (jobKey.value==="__custom__" ? (document.getElementById("jobCustomTitle")?.value||"") : (jobKey.options[jobKey.selectedIndex]?.text||""));
         if (!job_key) return {ok:false, msg:"请先选择细分岗位"};
+
+        if (String(job_key) === "__custom__"){
+          job_text = (document.getElementById("jobCustomTitle")?.value || "").trim();
+          if (!job_text) return {ok:false, msg:"请填写细分岗位名称"};
+          job_label = job_text;
+        } else {
+          job_label = (jobKey.options && jobKey.selectedIndex >= 0) ? (jobKey.options[jobKey.selectedIndex]?.text || "") : "";
+        }
       }
 
-      const m = job_key ? findJob(job_key) : null;
+      const m = (job_key && job_key !== "__custom__") ? findJob(job_key) : null;
 
-      const payload = {
+const payload = {
         company_category,
         job_family,
-        job_key,
+          job_family_text,
+job_key,
         job_label,
+          job_text,
         job_custom_title,
-        other_note,
+other_note,
         job_model: m || null,
         ts: Date.now()
       };
-      localStorage.setItem(KEY, JSON.stringify(payload));
+      
+        // ---- suggestions pool (only when user typed something) ----
+        try{
+          const company_text = (document.getElementById("companyCustom")?.value || "").trim();
+          const job_family_text = (document.getElementById("jobFamilyCustomTitle")?.value || "").trim();
+          const job_custom_text = (document.getElementById("jobCustomTitle")?.value || "").trim();
+
+          const hasAny = !!(company_text || job_family_text || job_custom_text);
+          if (hasAny){
+            const fingerprint = _rf_hash([
+              company_category, company_text,
+              job_family, job_family_text,
+              job_key, job_custom_text,
+              other_note
+            ].join("|"));
+
+            pushSuggestion({
+              ts: Date.now(),
+              source: "role_fit_step1",
+              company_category_key: company_category,
+              company_category_text: company_text,
+              job_family_key: job_family,
+              job_family_text: job_family_text,
+              job_key: job_key,
+              job_key_text: (job_key==="__custom__" ? job_custom_text : job_label),
+              context_note: other_note,
+              fingerprint: fingerprint
+            });
+          }
+        }catch(e){}
+
+        localStorage.setItem(KEY, JSON.stringify(payload));
       return {ok:true, payload};
     }
 
@@ -285,21 +379,65 @@ function renderPreview(){
           populateJobsByFamily(j.job_family);
           setTimeout(()=>{ jobKey.value = j.job_key || ""; renderPreview(); }, 0);
         } else {
-          jobCustomTitle.value = j.job_custom_title || "";
-          renderPreview();
-        }
+  const inp = document.getElementById("jobFamilyCustomTitle");
+  if (inp) inp.value = j.job_custom_title || "";
+  renderPreview();
+}
       }catch(e){}
     }
 
     backBtn.addEventListener("click", ()=>history.back());
+
+// export suggestions (for curation)
+document.getElementById("exportSugBtn")?.addEventListener("click", ()=>{
+  try{
+    const raw = localStorage.getItem(KEY_SUG) || "[]";
+    const ymd = new Date().toISOString().slice(0,10).replaceAll("-","");
+    const blob = new Blob([raw], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `role_fit_suggestions_${ymd}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 500);
+  }catch(e){
+    alert("导出失败：请查看控制台");
+    console.error(e);
+  }
+});
     companyCat.addEventListener("change", ()=>{ toggleCompanyCustom(); renderPreview(); });
     jobFamily.addEventListener("change", ()=>{
-      populateJobsByFamily(jobFamily.value);
-      toggleCustom();
-    });
-    
-    
-  // ---- company category: "other" -> show custom input ----
+  // 目标岗位大类=other 时：显示目标岗位输入框，并隐藏细分岗位
+  try{ toggleJobFamilyCustom(); }catch(e){}
+  // 原有：根据大类刷新细分岗位 + 预览
+  toggleCustom();
+});
+
+  // ---- job family: "other" -> show target role custom input; hide jobKeyRow ----
+  function toggleJobFamilyCustom(){
+  const fam = String(jobFamily && jobFamily.value || "");
+  const isOtherFam = (fam === "other");
+
+  const famRow = document.getElementById("jobFamilyCustomRow");
+  const famInp = document.getElementById("jobFamilyCustomTitle");
+  // 关键：细分岗位永远保留，不再隐藏 jobKeyRow
+  // const keyRow = document.getElementById("jobKeyRow");
+
+  // show/hide only the target-role custom row
+  if (famRow) famRow.classList.toggle("hide", !isOtherFam);
+
+  // switching away: clear target-role custom input
+  if (!isOtherFam && famInp) famInp.value = "";
+
+  // 注意：不再清空 jobKey，不再影响细分岗位选择
+  // if (isOtherFam){ try{ if (jobKey) jobKey.value = ""; }catch(e){} }
+
+  try{ toggleCustomJob(); }catch(e){}
+}
+
+// ---- company category: "other" -> show custom input ----
   function toggleCompanyCustom(){
     const row = document.getElementById("companyCustomRow");
     const inp = document.getElementById("companyCustom");
@@ -316,13 +454,15 @@ function toggleCustomJob(){
       if (!row || !inp) return;
 
       const v = String(jobKey && jobKey.value || "");
-      const label = String(jobKey && jobKey.options && jobKey.selectedIndex >= 0 ? (jobKey.options[jobKey.selectedIndex]?.text || "") : "");
+      
+        const fam = String(jobFamily && jobFamily.value || "");
+const label = String(jobKey && jobKey.options && jobKey.selectedIndex >= 0 ? (jobKey.options[jobKey.selectedIndex]?.text || "") : "");
 
       // show input when user chooses any "custom/other" option (value or label)
       const isCustom =
-        (v === "__custom__") ||
-        (v === "other") ||
-        (label.includes("自定义"));
+          (v === "__custom__") ||
+          (v === "other") ||
+          (label.includes("自定义"));
 
       row.classList.toggle("hide", !isCustom);
       if (!isCustom) inp.value = "";
@@ -330,7 +470,8 @@ function toggleCustomJob(){
     jobKey.addEventListener("change", function(){ toggleCustomJob(); renderPreview(); });
 
     jobCustomTitle.addEventListener("input", renderPreview);
-    otherNote.addEventListener("input", renderPreview);
+otherNote.addEventListener("input", renderPreview);
+document.getElementById("jobFamilyCustomTitle")?.addEventListener("input", renderPreview);
       document.getElementById("companyCustom")?.addEventListener("input", renderPreview);
 
     nextBtn.addEventListener("click", ()=>{
@@ -340,8 +481,30 @@ function toggleCustomJob(){
       location.href = "/apps/role_fit/pages/step0_profile/index.html";
     });
 
-    // init
+    // init (hard, observable)
     jobKey.innerHTML = ""; jobKey.appendChild(new Option("请选择", ""));
+
+    // expose for debugging (module scope -> window)
+    window.__ROLE_FIT_STEP1__ = {
+      toggleCompanyCustom,
+      toggleCustom,
+      toggleCustomJob,
+      renderPreview,
+      populateJobsByFamily,
+      save,
+      load
+    };
+
+    // run once even when localStorage is empty
+    toggleCompanyCustom();
+    populateJobsByFamily(jobFamily.value);
+    toggleCustom();
+    toggleCustomJob();
+    renderPreview();
+
+    // hydrate saved state (if any), then re-apply UI toggles
     load();
+    toggleCompanyCustom();
+    toggleCustomJob();
     renderPreview();
   

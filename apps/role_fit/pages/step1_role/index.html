@@ -77,6 +77,12 @@
         <div class="hint">先选大类，再选细分；找不到细分就选“其他（自定义）”。</div>
       </div>
 
+      <div class="row hide" id="jobFamilyCustomRow">
+        <label>目标岗位（自定义，必填）<span class="req">*</span></label>
+        <input id="jobFamilyCustomTitle" placeholder="请输入目标岗位名称（例如：综合管理/创业公司运营/ToB售前顾问/内容电商负责人…）">
+        <div class="hint">当“目标岗位大类”选择“其他（自定义）”时，请在这里填写目标岗位名称。</div>
+      </div>
+
       <div class="row" id="jobKeyRow">
         <label>细分岗位（必填）<span class="req">*</span></label>
         <select id="jobKey">
@@ -101,6 +107,7 @@
         <div class="mini">保存到本地浏览器（localStorage）。</div>
         <div style="display:flex;gap:10px;">
           <button class="btn2" id="backBtn" type="button">← 返回</button>
+            <button class="btn2" id="exportSugBtn" type="button">导出候选（JSON）</button>
           <button class="btn" id="nextBtn" type="button">下一步 →</button>
         </div>
       </div>
