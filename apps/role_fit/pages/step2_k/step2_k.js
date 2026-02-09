@@ -1,6 +1,28 @@
-import { suggestTags, K_TAGS } from "/apps/role_fit/data/role_fit_taxonomy_v0_1.js";
+import { loadTaxonomy } from "/apps/role_fit/core/data_loader.js";
 const KEY = "ROLE_FIT_STEP2_K_V1";
 const KEY_SUG = "ROLE_FIT_SUGGESTIONS_V0_1";
+
+let TAXONOMY = null;
+let K_TAGS = [];
+function suggestTags(text, tags){
+  const raw = String(text||"").toLowerCase();
+  const out = [];
+  (tags||[]).forEach(t=>{
+    if (!t) return;
+    const key = String(t.key||t.id||t.value||"").trim();
+    const label = String(t.label||t.name||"").trim();
+    const words = [key, label].filter(Boolean);
+    for (const w of words){
+      const ww = String(w).toLowerCase().trim();
+      if (ww && raw.includes(ww)){
+        out.push(key || label);
+        break;
+      }
+    }
+  });
+  // uniq
+  return Array.from(new Set(out)).filter(Boolean);
+}
 
 const eduLevel = document.getElementById("eduLevel");
 const eduLevelOtherRow = document.getElementById("eduLevelOtherRow");
@@ -225,10 +247,33 @@ nextBtn.addEventListener("click", ()=>{
   location.href = "/apps/role_fit/pages/step3_s/index.html";
 });
 
-if (!certList.querySelector(".item")) addListItem(certList, "");
-if (!trainList.querySelector(".item")) addListItem(trainList, "");
-toggleOther();
-load();
-renderPreview();
+// ---- init ----
+(async ()=>{
+  try{
+    TAXONOMY = await loadTaxonomy();
+    // Expect taxonomy json to include K tags; accept multiple shapes.
+    // If taxonomy is an array, treat it as tags directly.
+    // If object, try .K_TAGS or .k_tags or .tags.
+    if (Array.isArray(TAXONOMY)){
+      K_TAGS = TAXONOMY;
+    }else if (TAXONOMY && typeof TAXONOMY === "object"){
+      K_TAGS = TAXONOMY.K_TAGS || TAXONOMY.k_tags || TAXONOMY.tags || [];
+    }
+    console.log("[STEP2_K] taxonomy loaded", { k_tags_n: Array.isArray(K_TAGS)?K_TAGS.length:0 });
+  }catch(e){
+    console.error("[STEP2_K] loadTaxonomy failed", e);
+    TAXONOMY = null;
+    K_TAGS = [];
+  }
 
-window.__ROLE_FIT_STEP2_K__ = { save, load };
+
+  // original init (after taxonomy ready)
+  if (!certList.querySelector(".item")) addListItem(certList, "");
+  if (!trainList.querySelector(".item")) addListItem(trainList, "");
+  toggleOther();
+  load();
+  renderPreview();
+  
+  window.__ROLE_FIT_STEP2_K__ = { save, load };
+
+})();
