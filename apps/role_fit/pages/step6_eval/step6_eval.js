@@ -45,7 +45,7 @@ function safeJsonParse(s){
 function loadOne(key){
   return safeJsonParse(localStorage.getItem(key) || "null");
 }
-async function loadAny(keys){
+function loadAny(keys){
   for (const k of keys){
     const v = loadOne(k);
     if (v) return {key:k, data:v};
