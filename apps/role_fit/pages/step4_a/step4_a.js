@@ -50,7 +50,7 @@ function load(){
   }catch(e){}
 }
 
-backBtn.addEventListener("click", ()=>history.back());
+backBtn.addEventListener("click", ()=>{ location.href = "/apps/role_fit/pages/step3_s/index.html"; });
 aJson.addEventListener("input", render);
 
 stubBtn.addEventListener("click", ()=>{
