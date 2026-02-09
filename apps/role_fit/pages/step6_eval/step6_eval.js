@@ -68,6 +68,27 @@ async function loadDataSources(){
   }
 }
 
+function uniq(arr){
+  return Array.from(new Set((arr||[]).map(x=>String(x||"").trim()).filter(Boolean)));
+}
+function toSet(arr){
+  return new Set(uniq(arr));
+}
+function coverage(userTags, requiredTags){
+  const req = uniq(requiredTags);
+  if (!req.length) return { score: 0, detail:{ mode:"no_required", required:[], hit:[] } };
+  const u = toSet(userTags);
+  const hit = req.filter(t=>u.has(String(t)));
+  const score = hit.length / req.length;
+  return { score: clamp01(score), detail:{ mode:"coverage", required:req, hit } };
+}
+function findJobModel(jobModels, key){
+  const models = (jobModels && typeof jobModels==="object") ? (jobModels.models || jobModels) : null;
+  const k = String(key||"");
+  if (Array.isArray(models)) return models.find(m=>String(m?.key||m?.id||"")===k) || null;
+  return null;
+}
+
 function clamp01(x){
   const n = Number(x);
   if (!isFinite(n)) return 0;
@@ -195,8 +216,11 @@ function main(){
   const a = loadAny([KEY_A_V1, KEY_A_V01]).data;
   const h = loadAny([KEY_H_V1, KEY_H_V01]).data;
 
-  const K = scoreK(k);
-  const S = scoreS(s);
+    // K/S as coverage: user tags cover job required tags
+  const jobKey = step1?.job_key || step1?.payload?.job_key || "";
+  const jm = findJobModel(DATA_SOURCES?.jobModels, jobKey);
+  const K = coverage(k?.k_tags || k?.payload?.k_tags || [], jm?.required_k_tags || []);
+  const S = coverage(s?.s_tags || s?.payload?.s_tags || [], jm?.required_s_tags || []);
   const A = scoreA(a);
   const H = scoreH(h);
 
@@ -229,7 +253,7 @@ function main(){
       <div class="cardmini">
         <div class="k">K（知识）</div>
         <div class="v">${pct(K.score)}%</div>
-        <div class="h">证书:${K.detail?.certN||0} 培训:${K.detail?.trainN||0}</div>
+        <div class="h">覆盖:${(K.detail?.hit||[]).length}/${(K.detail?.required||[]).length}</div>
       </div>
       <div class="cardmini">
         <div class="k">S（技能）</div>
