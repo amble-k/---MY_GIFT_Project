@@ -1,5 +1,4 @@
-import { JOB_MODELS_V0_1 } from "/apps/role_fit/data/job_models_stub_v0_1.js";
-
+import { loadJobModels } from "/apps/role_fit/core/data_loader.js";
 const KEY = "ROLE_FIT_STEP1_ROLE_V3";
 const KEY_SUG = "ROLE_FIT_SUGGESTIONS_V0_1";
 
@@ -37,8 +36,7 @@ function pushSuggestion(rec){
   }catch(e){}
 }
 
-function normModels(){
-  const J = JOB_MODELS_V0_1;
+function normModels(J){
   if (!J) return [];
   if (Array.isArray(J)) return J;
   if (J && typeof J === "object"){
@@ -50,7 +48,7 @@ function normModels(){
   }
   return [];
 }
-const models = normModels();
+let models = [];
 
 function getKey(m, idx){
   return m?.key || m?.preset_key || m?.id || m?.__key || String(idx);
@@ -437,12 +435,24 @@ nextBtn?.addEventListener("click", ()=>{
 });
 
 // ---- init ----
-populateJobsByFamily(jobFamily.value);
-toggleCompanyCustom();
-toggleJobFamilyCustom();
-toggleCustomJob();
-load();
-renderPreview();
+(async ()=>{
+  try{
+    const J = await loadJobModels();
+    models = normModels(J);
+    console.log("[STEP1_ROLE] job_models loaded", { n: models.length, meta: J?.meta || null });
+  }catch(e){
+    console.error("[STEP1_ROLE] loadJobModels failed", e);
+    models = [];
+  }
+
+  // keep original init order
+  populateJobsByFamily(jobFamily.value);
+  toggleCompanyCustom();
+  toggleJobFamilyCustom();
+  toggleCustomJob();
+  load();
+  renderPreview();
+})();
 
 // ---- expose for debugging ----
 window.__ROLE_FIT_STEP1__ = {
