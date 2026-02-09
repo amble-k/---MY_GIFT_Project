@@ -172,13 +172,15 @@ function scoreH(hPayload){
   return {score:clamp01(m), detail:{mode:"avg_0_100"}};
 }
 
-function overall(A,K,S,H){
-  // 你的产品原则：A 是乘法主轴
-  // v0.1：Overall = A * (0.25 + 0.75*avg(K,S)) * (0.6 + 0.4*H)
-  const KS = (K + S) / 2;
-  const x1 = 0.25 + 0.75 * KS;
-  const x2 = 0.60 + 0.40 * H;
-  return clamp01(A * x1 * x2);
+function overall(A_fit, K_coverage, S_coverage, H_fit){
+  // Fixed interface (Phase2 → Phase3 scoring): A is multiplicative axis
+  // overall = (A_fit ^ alpha) * (wK*K_coverage + wS*S_coverage + wH*H_fit)
+  const alpha = 1.0;
+  const wK = 0.45, wS = 0.35, wH = 0.20;
+
+  const base = (wK * K_coverage) + (wS * S_coverage) + (wH * H_fit);
+  const axis = Math.pow(clamp01(A_fit), alpha);
+  return clamp01(axis * clamp01(base));
 }
 
 function pct(x){ return Math.round(clamp01(x)*100); }
@@ -217,7 +219,7 @@ function main(){
       <div class="cardmini">
         <div class="k">总胜任度</div>
         <div class="v">${pct(O)}%</div>
-        <div class="h">公式：A × f(K,S) × f(H)</div>
+        <div class="h">公式：A^α × (wK·K + wS·S + wH·H)</div>
       </div>
       <div class="cardmini">
         <div class="k">A（天赋/性格）</div>
