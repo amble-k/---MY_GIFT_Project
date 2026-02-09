@@ -1,39 +1,37 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>STEP1 · 目标岗位</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ROLE FIT · Step1 目标岗位</title>
   <style>
-    :root{--bg:#f7f8ff;--stroke:rgba(20,24,40,.10);--text:rgba(14,18,32,.92);--muted:rgba(14,18,32,.62);--muted2:rgba(14,18,32,.45);--brand:#4f6bff;}
-    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans SC","Noto Sans JP",system-ui,Segoe UI,Roboto,Helvetica,Arial;color:var(--text);
-      background:radial-gradient(900px 520px at 20% 10%, rgba(79,107,255,.12), transparent 60%),
-                 radial-gradient(800px 520px at 80% 20%, rgba(111,91,255,.10), transparent 58%),
-                 linear-gradient(180deg, #f7f8ff, #f3f6ff);
-    }
-    .shell{min-height:100vh;display:grid;place-items:center;padding:24px;}
-    .card{width:min(880px,100%);background:rgba(255,255,255,.78);border:1px solid var(--stroke);border-radius:22px;backdrop-filter:blur(10px);padding:22px;}
-    h1{margin:0 0 6px;font-size:22px;letter-spacing:-.01em;}
-    .sub{color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:16px;}
-    .row{display:flex;flex-direction:column;gap:6px;margin:12px 0;}
-    label{font-size:12px;color:var(--muted);}
-    select,input,textarea{padding:12px 12px;border:1px solid rgba(20,24,40,.14);border-radius:14px;background:#fff;font-size:14px;line-height:1.6;}
-    textarea{min-height:92px;resize:vertical;}
-    .hint{font-size:12px;color:var(--muted2);line-height:1.6;margin-top:8px}
-    .actions{display:flex;justify-content:space-between;align-items:center;margin-top:18px;gap:12px;}
-    .btn{border:none;border-radius:14px;padding:12px 16px;background:var(--brand);color:#fff;font-weight:600;cursor:pointer;}
-    .btn2{border:1px solid rgba(20,24,40,.14);border-radius:14px;padding:12px 16px;background:#fff;color:rgba(14,18,32,.80);cursor:pointer;}
-    .mini{font-size:12px;color:rgba(14,18,32,.45);}
+    :root{--bg:#f6f7fb;--card:#fff;--text:#0e1220;--muted:rgba(14,18,32,.6);--line:rgba(14,18,32,.08);}
+    body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP","Hiragino Sans","PingFang SC","Microsoft YaHei",sans-serif;color:var(--text);}
+    .wrap{max-width:780px;margin:0 auto;padding:18px;}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 6px 18px rgba(14,18,32,.05);}
+    h1{margin:0 0 14px 0;font-size:18px;}
+    .row{display:flex;flex-direction:column;gap:8px;margin:12px 0;}
+    label{font-size:13px;color:var(--muted);}
+    select,input,textarea{border:1px solid var(--line);border-radius:12px;padding:12px 12px;font-size:14px;background:#fff;outline:none;}
+    textarea{min-height:88px;resize:vertical;}
+    .hint{font-size:12px;color:var(--muted);margin-top:2px;}
+    .req{color:#d33;margin-left:4px;}
     .hide{display:none!important;}
-    .preview{margin-top:10px;padding:10px 12px;border:1px dashed rgba(20,24,40,.18);border-radius:14px;background:rgba(255,255,255,.55);font-size:12px;color:rgba(14,18,32,.70);line-height:1.7;}
-    .req{color:rgba(255,60,80,.85);font-weight:700;margin-left:6px}
+    .preview{margin-top:14px;border:1px dashed var(--line);border-radius:12px;padding:12px;color:var(--text);background:rgba(14,18,32,.02);}
+    .actions{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:16px;}
+    .mini{font-size:12px;color:var(--muted);}
+    .btn,.btn2{border:none;border-radius:12px;padding:10px 12px;font-size:14px;cursor:pointer;}
+    .btn{background:#111827;color:#fff;}
+    .btn2{background:rgba(14,18,32,.06);color:#111827;}
+    .btn3{background:rgba(14,18,32,.06);color:#111827;}
+    .btnrow{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
   </style>
 </head>
+
 <body>
-  <div class="shell">
+  <div class="wrap">
     <section class="card">
-      <h1>STEP1 · 目标岗位</h1>
-      <div class="sub">先选你要评估的目标岗位。找不到完全一致的岗位时，选择“其他（自定义）”并输入岗位名称即可。</div>
+      <h1>Step 1 · 目标岗位与公司语境</h1>
 
       <div class="row">
         <label>公司类别（必填）<span class="req">*</span></label>
@@ -50,13 +48,13 @@
           <option value="startup">创业公司</option>
           <option value="other">其他</option>
         </select>
+        <div class="hint">若选“其他”，请补充你的公司/行业语境（用于评估上下文）。</div>
       </div>
 
-        <div class="row hide" id="companyCustomRow">
-          <label>公司类别（其他）补充（必填）<span class="req">*</span></label>
-          <input id="companyCustom" placeholder="例如：SaaS / 制造业（汽车零部件）/ 医疗器械 / 教育（ToB）/ 政府委托项目…（用于定义岗位语境）">
-        </div>
-
+      <div class="row hide" id="companyCustomRow">
+        <label>公司类别（其他）补充（必填）<span class="req">*</span></label>
+        <input id="companyCustom" placeholder="例如：创投 / SaaS / 医疗器械 / 教育（ToB）/ 政府委托项目…" />
+      </div>
 
       <div class="row">
         <label>目标岗位大类（必填）<span class="req">*</span></label>
@@ -74,13 +72,13 @@
           <option value="consulting">咨询/研究</option>
           <option value="other">其他（自定义）</option>
         </select>
-        <div class="hint">先选大类，再选细分；找不到细分就选“其他（自定义）”。</div>
+        <div class="hint">先选大类；若你的目标岗位不在大类中，选“其他（自定义）”。</div>
       </div>
 
       <div class="row hide" id="jobFamilyCustomRow">
         <label>目标岗位（自定义，必填）<span class="req">*</span></label>
-        <input id="jobFamilyCustomTitle" placeholder="请输入目标岗位名称（例如：综合管理/创业公司运营/ToB售前顾问/内容电商负责人…）">
-        <div class="hint">当“目标岗位大类”选择“其他（自定义）”时，请在这里填写目标岗位名称。</div>
+        <input id="jobFamilyCustomTitle" placeholder="请输入目标岗位名称（例如：创业公司运营 / 综合管理 / ToB 售前顾问…）" />
+        <div class="hint">这用于定义“目标岗位”语义（不会替代细分岗位选择）。</div>
       </div>
 
       <div class="row" id="jobKeyRow">
@@ -88,26 +86,26 @@
         <select id="jobKey">
           <option value="">请选择</option>
         </select>
-        <div class="hint">细分岗位来自岗位库。岗位库未覆盖的情况，请在大类里选“其他（自定义）”。</div>
+        <div class="hint">细分岗位来自岗位库；找不到可选“其他（自定义）”。</div>
       </div>
 
       <div class="row hide" id="jobCustomRow">
-        <label>自定义岗位名（必填）<span class="req">*</span></label>
-        <input id="jobCustomTitle" placeholder="用于提升匹配准确度：例如公司类型/业务方向/产品阶段/目标用户/业务流程/关键协作对象/关键指标等。不要写个人（如////）。">
+        <label>细分岗位（自定义，必填）<span class="req">*</span></label>
+        <input id="jobCustomTitle" placeholder="例如：BP / 风控 / 运营增长 / 数据产品 / 售前解决方案…" />
       </div>
 
       <div class="row">
         <label>岗位/公司描述补充（可选）</label>
-        <textarea id="otherNote" placeholder="用于补充评估语境：公司业务类型/产品线/或ToC/行业场景/岗位层级（P/M/Senior）/职能边界（偏策略或偏执行）/团队规模（仅用于定义岗位上下文）。/偏好/限制（例如：、、、目标公司规模等）"></textarea>
+        <textarea id="otherNote" placeholder="补充语境：岗位层级、团队规模、偏策略/偏执行、关键协作对象、关键指标等（仅用于定义上下文）。"></textarea>
       </div>
 
       <div class="preview" id="previewBox" style="display:none"></div>
 
       <div class="actions">
         <div class="mini">保存到本地浏览器（localStorage）。</div>
-        <div style="display:flex;gap:10px;">
+        <div class="btnrow">
+          <button class="btn3" id="exportSugBtn" type="button">导出新增候选（JSON）</button>
           <button class="btn2" id="backBtn" type="button">← 返回</button>
-            <button class="btn2" id="exportSugBtn" type="button">导出候选（JSON）</button>
           <button class="btn" id="nextBtn" type="button">下一步 →</button>
         </div>
       </div>

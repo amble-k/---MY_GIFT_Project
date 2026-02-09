@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ROLE FIT - Step5 H（习惯）</title>
+  <style>
+    body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif;margin:0;background:#f6f7fb;color:#0e1220;}
+    .wrap{max-width:920px;margin:0 auto;padding:22px;}
+    .card{background:#fff;border-radius:16px;padding:18px 18px;box-shadow:0 8px 30px rgba(14,18,32,.06);}
+    .row{display:flex;flex-direction:column;gap:8px;margin:14px 0;}
+    .btn{background:#0e1220;color:#fff;border:0;border-radius:12px;padding:12px 14px;font-weight:700;cursor:pointer;}
+    .btn2{background:#fff;color:#0e1220;border:1px solid rgba(14,18,32,.18);border-radius:12px;padding:12px 14px;font-weight:700;cursor:pointer;}
+    .hint{font-size:12px;color:rgba(14,18,32,.55);line-height:1.6;}
+    textarea{width:100%;min-height:160px;border:1px solid rgba(14,18,32,.14);border-radius:12px;padding:12px;outline:none;}
+    .preview{margin-top:14px;border-top:1px dashed rgba(14,18,32,.18);padding-top:12px;font-size:14px;line-height:1.7}
+    code{background:rgba(14,18,32,.06);padding:2px 6px;border-radius:8px;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h2 style="margin:0 0 6px 0;">Step5 / H：习惯与行为方式（stub）</h2>
+      <div class="hint">
+        这一页先打通“保存管线”：把 H（习惯向量/测评结果）保存到 localStorage。<br/>
+        后续替换为真实习惯测评结果（或行为/习惯量表）。
+      </div>
+
+      <div class="row">
+        <label style="font-weight:700;">H_SCORE JSON（可先用 stub）</label>
+        <textarea id="hJson" placeholder='例如：{"work_style":{"planning":0.72,"execution":0.58,"stability":0.41},"ts":123}'></textarea>
+        <div class="hint">建议保留：work_style / habit_traits / ts。你未来可映射到岗位模型 H 维度。</div>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn2" id="backBtn" type="button">← 返回</button>
+        <button class="btn2" id="stubBtn" type="button">写入示例 H（stub）</button>
+        <button class="btn" id="nextBtn" type="button">下一步 →（去 Step6 评估）</button>
+      </div>
+
+      <div class="preview" id="previewBox" style="display:none"></div>
+    </div>
+  </div>
+
+  <script type="module" src="./step5_h.js"></script>
+</body>
+</html>

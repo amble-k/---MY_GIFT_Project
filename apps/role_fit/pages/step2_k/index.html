@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ROLE FIT · Step2 K（知识/背景）</title>
+  <style>
+    :root{--bg:#f6f7fb;--card:#fff;--text:#0e1220;--muted:rgba(14,18,32,.6);--line:rgba(14,18,32,.08);}
+    body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP","Hiragino Sans","PingFang SC","Microsoft YaHei",sans-serif;color:var(--text);}
+    .wrap{max-width:860px;margin:0 auto;padding:18px;}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 6px 18px rgba(14,18,32,.05);}
+    h1{margin:0 0 10px 0;font-size:18px;}
+    .sub{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px;}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    @media (max-width:760px){.grid{grid-template-columns:1fr;}}
+    .row{display:flex;flex-direction:column;gap:8px;margin:10px 0;}
+    label{font-size:13px;color:var(--muted);}
+    select,input,textarea{border:1px solid var(--line);border-radius:12px;padding:12px 12px;font-size:14px;background:#fff;outline:none;}
+    textarea{min-height:86px;resize:vertical;}
+    .hint{font-size:12px;color:var(--muted);margin-top:2px;}
+    .req{color:#d33;margin-left:4px;}
+    .hide{display:none!important;}
+    .preview{margin-top:14px;border:1px dashed var(--line);border-radius:12px;padding:12px;color:var(--text);background:rgba(14,18,32,.02);}
+    .actions{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:16px;}
+    .mini{font-size:12px;color:var(--muted);}
+    .btn,.btn2,.btn3{border:none;border-radius:12px;padding:10px 12px;font-size:14px;cursor:pointer;}
+    .btn{background:#111827;color:#fff;}
+    .btn2{background:rgba(14,18,32,.06);color:#111827;}
+    .btn3{background:rgba(14,18,32,.06);color:#111827;}
+    .btnrow{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
+    .list{border:1px solid var(--line);border-radius:12px;padding:10px;background:#fff;}
+    .item{display:flex;gap:10px;align-items:center;margin:8px 0;}
+    .item input{flex:1;}
+    .x{border:none;border-radius:10px;padding:8px 10px;background:rgba(14,18,32,.06);cursor:pointer;}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <section class="card">
+      <h1>Step 2 · K（知识/背景）</h1>
+      <div class="sub">
+        这是“可被培养/可被证明”的基础能力资产：学历/专业/证书/培训等。<br/>
+        规则：所有要素都应允许“其他自填”（测评除外）。
+      </div>
+
+      <div class="grid">
+        <div class="row">
+          <label>最高学历（必填）<span class="req">*</span></label>
+          <select id="eduLevel">
+            <option value="">请选择</option>
+            <option value="highschool">高中/中专</option>
+            <option value="associate">大专</option>
+            <option value="bachelor">本科</option>
+            <option value="master">硕士</option>
+            <option value="phd">博士</option>
+            <option value="other">其他</option>
+          </select>
+        </div>
+        <div class="row hide" id="eduLevelOtherRow">
+          <label>学历（其他）补充（必填）<span class="req">*</span></label>
+          <input id="eduLevelOther" placeholder="例如：MBA/EMBA/海外学位/在读…" />
+        </div>
+
+        <div class="row">
+          <label>第一专业（必填）<span class="req">*</span></label>
+          <select id="major1">
+            <option value="">请选择</option>
+            <option value="cs">计算机/软件</option>
+            <option value="ee">电子/通信</option>
+            <option value="math">数学/统计</option>
+            <option value="econ">经济/金融</option>
+            <option value="biz">工商管理</option>
+            <option value="design">设计/艺术</option>
+            <option value="lang">语言/文科</option>
+            <option value="other">其他</option>
+          </select>
+          <div class="hint">未来会与岗位模型的 K 要求做覆盖/差距对比。</div>
+        </div>
+        <div class="row hide" id="major1OtherRow">
+          <label>第一专业（其他）补充（必填）<span class="req">*</span></label>
+          <input id="major1Other" placeholder="例如：心理学/工业工程/生物医药…" />
+        </div>
+
+        <div class="row">
+          <label>第二专业（可选）</label>
+          <input id="major2" placeholder="例如：数据科学/市场营销/法学…" />
+        </div>
+
+        <div class="row">
+          <label>资格证书/执照（可选，多条）</label>
+          <div class="list" id="certList"></div>
+          <button class="btn2" id="addCertBtn" type="button">+ 添加证书</button>
+          <div class="hint">例如：PMP / CPA / 日语N1 / 教师资格证 / AWS…</div>
+        </div>
+
+        <div class="row">
+          <label>培训/课程（可选，多条）</label>
+          <div class="list" id="trainList"></div>
+          <button class="btn2" id="addTrainBtn" type="button">+ 添加培训</button>
+          <div class="hint">例如：数据分析Bootcamp / 管理培训 / 业务训练营…</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <label>补充说明（可选）</label>
+        <textarea id="note" placeholder="补充：学校/年份/成绩/研究方向/课程体系/作品集背景等（用于语境）。"></textarea>
+      </div>
+
+      <div class="preview" id="previewBox" style="display:none"></div>
+
+      <div class="actions">
+        <div class="mini">保存到本地浏览器（localStorage）。</div>
+        <div class="btnrow">
+          <button class="btn3" id="exportSugBtn" type="button">导出新增候选（JSON）</button>
+          <button class="btn2" id="backBtn" type="button">← 上一步</button>
+          <button class="btn" id="nextBtn" type="button">下一步 →（S 技能）</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="./step2_k.js"></script>
+</body>
+</html>
