@@ -46,7 +46,7 @@ function load(){
   }catch(e){}
 }
 
-backBtn.addEventListener("click", ()=>history.back());
+backBtn.addEventListener("click", ()=>{ location.href = "/apps/role_fit/pages/step4_a/index.html"; });
 hJson.addEventListener("input", render);
 
 stubBtn.addEventListener("click", ()=>{
