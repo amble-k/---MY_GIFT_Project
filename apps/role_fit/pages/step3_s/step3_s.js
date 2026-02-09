@@ -116,8 +116,7 @@ function save(){
     ...readList(practiceList),
     String(portfolio.value||"").trim(),
     String(note.value||"").trim()
-  ].filter(Boolean).join("
-");
+  ].filter(Boolean).join("\n");
   const s_tags = suggestTags(__s_raw, S_TAGS);
 
   const payload = {
