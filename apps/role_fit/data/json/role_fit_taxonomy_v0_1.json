@@ -1,0 +1,42 @@
+[
+  {
+    "key": "internet",
+    "label": "互联网/IT"
+  },
+  {
+    "key": "manufacturing",
+    "label": "制造业"
+  },
+  {
+    "key": "finance",
+    "label": "金融"
+  },
+  {
+    "key": "consulting",
+    "label": "咨询/专业服务"
+  },
+  {
+    "key": "retail",
+    "label": "零售/消费"
+  },
+  {
+    "key": "healthcare",
+    "label": "医疗/健康"
+  },
+  {
+    "key": "education",
+    "label": "教育"
+  },
+  {
+    "key": "public",
+    "label": "公共部门/事业单位"
+  },
+  {
+    "key": "startup",
+    "label": "创业公司"
+  },
+  {
+    "key": "other",
+    "label": "其他"
+  }
+]
