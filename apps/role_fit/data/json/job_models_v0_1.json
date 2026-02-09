@@ -9,8 +9,17 @@
       "title_zh": "产品经理",
       "family": "product",
       "jd_text": "负责需求分析、路线规划、跨团队协作与指标达成。",
-      "required_k_tags": [],
-      "required_s_tags": [],
+      "required_k_tags": [
+        "product_sense",
+        "project_mgmt",
+        "industry_domain"
+      ],
+      "required_s_tags": [
+        "writing",
+        "presentation",
+        "stakeholder_mgmt",
+        "problem_solving"
+      ],
       "required_h_dims": []
     },
     {
@@ -18,8 +27,17 @@
       "title_zh": "数据分析师",
       "family": "engineering",
       "jd_text": "指标体系、数据分析、洞察输出与业务决策支持。",
-      "required_k_tags": [],
-      "required_s_tags": [],
+      "required_k_tags": [
+        "data_analysis",
+        "sql",
+        "statistics",
+        "industry_domain"
+      ],
+      "required_s_tags": [
+        "data_viz",
+        "problem_solving",
+        "presentation"
+      ],
       "required_h_dims": []
     },
     {
@@ -27,8 +45,15 @@
       "title_zh": "软件工程师",
       "family": "engineering",
       "jd_text": "系统设计、编码、测试、上线与性能优化。",
-      "required_k_tags": [],
-      "required_s_tags": [],
+      "required_k_tags": [
+        "cs_basics",
+        "industry_domain"
+      ],
+      "required_s_tags": [
+        "coding",
+        "problem_solving",
+        "execution"
+      ],
       "required_h_dims": []
     },
     {
@@ -36,8 +61,16 @@
       "title_zh": "行政/综合支持",
       "family": "ops",
       "jd_text": "行政支持、流程协同、文档与资源管理。",
-      "required_k_tags": [],
-      "required_s_tags": [],
+      "required_k_tags": [
+        "project_mgmt",
+        "compliance"
+      ],
+      "required_s_tags": [
+        "writing",
+        "process_improve",
+        "execution",
+        "stakeholder_mgmt"
+      ],
       "required_h_dims": []
     }
   ]

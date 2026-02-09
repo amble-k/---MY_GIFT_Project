@@ -1,42 +1,148 @@
-[
-  {
-    "key": "internet",
-    "label": "互联网/IT"
+{
+  "meta": {
+    "version": "0.1",
+    "note": "Phase2 JSON taxonomy (company + K/S tags)"
   },
-  {
-    "key": "manufacturing",
-    "label": "制造业"
-  },
-  {
-    "key": "finance",
-    "label": "金融"
-  },
-  {
-    "key": "consulting",
-    "label": "咨询/专业服务"
-  },
-  {
-    "key": "retail",
-    "label": "零售/消费"
-  },
-  {
-    "key": "healthcare",
-    "label": "医疗/健康"
-  },
-  {
-    "key": "education",
-    "label": "教育"
-  },
-  {
-    "key": "public",
-    "label": "公共部门/事业单位"
-  },
-  {
-    "key": "startup",
-    "label": "创业公司"
-  },
-  {
-    "key": "other",
-    "label": "其他"
-  }
-]
+  "company_categories": [
+    {
+      "key": "internet",
+      "label": "互联网/IT"
+    },
+    {
+      "key": "manufacturing",
+      "label": "制造业"
+    },
+    {
+      "key": "finance",
+      "label": "金融"
+    },
+    {
+      "key": "consulting",
+      "label": "咨询/专业服务"
+    },
+    {
+      "key": "retail",
+      "label": "零售/消费"
+    },
+    {
+      "key": "healthcare",
+      "label": "医疗/健康"
+    },
+    {
+      "key": "education",
+      "label": "教育"
+    },
+    {
+      "key": "public",
+      "label": "公共部门/事业单位"
+    },
+    {
+      "key": "startup",
+      "label": "创业公司"
+    },
+    {
+      "key": "other",
+      "label": "其他"
+    }
+  ],
+  "K_TAGS": [
+    {
+      "key": "cs_basics",
+      "label": "计算机基础"
+    },
+    {
+      "key": "data_analysis",
+      "label": "数据分析"
+    },
+    {
+      "key": "sql",
+      "label": "SQL"
+    },
+    {
+      "key": "statistics",
+      "label": "统计学"
+    },
+    {
+      "key": "product_sense",
+      "label": "产品认知"
+    },
+    {
+      "key": "ux_basics",
+      "label": "UX基础"
+    },
+    {
+      "key": "marketing_basics",
+      "label": "市场基础"
+    },
+    {
+      "key": "finance_basics",
+      "label": "财务基础"
+    },
+    {
+      "key": "project_mgmt",
+      "label": "项目管理"
+    },
+    {
+      "key": "industry_domain",
+      "label": "行业知识"
+    },
+    {
+      "key": "compliance",
+      "label": "合规/风控"
+    },
+    {
+      "key": "business_english",
+      "label": "商务英语"
+    }
+  ],
+  "S_TAGS": [
+    {
+      "key": "writing",
+      "label": "文档写作"
+    },
+    {
+      "key": "presentation",
+      "label": "表达与汇报"
+    },
+    {
+      "key": "stakeholder_mgmt",
+      "label": "利益相关者管理"
+    },
+    {
+      "key": "execution",
+      "label": "执行力"
+    },
+    {
+      "key": "problem_solving",
+      "label": "问题解决"
+    },
+    {
+      "key": "research",
+      "label": "调研能力"
+    },
+    {
+      "key": "data_viz",
+      "label": "数据可视化"
+    },
+    {
+      "key": "coding",
+      "label": "编码实现"
+    },
+    {
+      "key": "prototyping",
+      "label": "原型设计"
+    },
+    {
+      "key": "negotiation",
+      "label": "谈判沟通"
+    },
+    {
+      "key": "leadership",
+      "label": "领导力"
+    },
+    {
+      "key": "process_improve",
+      "label": "流程优化"
+    }
+  ]
+}
