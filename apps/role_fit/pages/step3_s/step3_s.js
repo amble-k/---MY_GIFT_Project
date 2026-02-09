@@ -1,5 +1,27 @@
+import { loadTaxonomy } from "/apps/role_fit/core/data_loader.js";
 const KEY = "ROLE_FIT_STEP3_S_V1";
 const KEY_SUG = "ROLE_FIT_SUGGESTIONS_V0_1";
+
+let TAXONOMY = null;
+let S_TAGS = [];
+function suggestTags(text, tags){
+  const raw = String(text||"").toLowerCase();
+  const out = [];
+  (tags||[]).forEach(t=>{
+    if (!t) return;
+    const key = String(t.key||t.id||t.value||"").trim();
+    const label = String(t.label||t.name||"").trim();
+    const words = [key, label].filter(Boolean);
+    for (const w of words){
+      const ww = String(w).toLowerCase().trim();
+      if (ww && raw.includes(ww)){
+        out.push(key || label);
+        break;
+      }
+    }
+  });
+  return Array.from(new Set(out)).filter(Boolean);
+}
 
 const titleList = document.getElementById("titleList");
 const ipList = document.getElementById("ipList");
@@ -86,7 +108,20 @@ function renderPreview(){
 }
 
 function save(){
+  // ---- taxonomy: derive S tags from all free text ----
+  const __s_raw = [
+    ...readList(titleList),
+    ...readList(ipList),
+    ...readList(skillTrainList),
+    ...readList(practiceList),
+    String(portfolio.value||"").trim(),
+    String(note.value||"").trim()
+  ].filter(Boolean).join("
+");
+  const s_tags = suggestTags(__s_raw, S_TAGS);
+
   const payload = {
+    s_tags,
     titles: readList(titleList),
     ips: readList(ipList),
     skill_trainings: readList(skillTrainList),
@@ -182,11 +217,32 @@ nextBtn.addEventListener("click", ()=>{
   location.href = "/apps/role_fit/pages/step4_a/index.html";
 });
 
-if (!titleList.querySelector(".item")) addListItem(titleList, "");
-if (!ipList.querySelector(".item")) addListItem(ipList, "");
-if (!skillTrainList.querySelector(".item")) addListItem(skillTrainList, "");
-if (!practiceList.querySelector(".item")) addListItem(practiceList, "");
-load();
-renderPreview();
+// ---- init ----
+(async ()=>{
+  try{
+    TAXONOMY = await loadTaxonomy();
+    if (Array.isArray(TAXONOMY)){
+      S_TAGS = TAXONOMY;
+    }else if (TAXONOMY && typeof TAXONOMY === "object"){
+      S_TAGS = TAXONOMY.S_TAGS || TAXONOMY.s_tags || TAXONOMY.tags || [];
+    }
+    console.log("[STEP3_S] taxonomy loaded", { s_tags_n: Array.isArray(S_TAGS)?S_TAGS.length:0 });
+  }catch(e){
+    console.error("[STEP3_S] loadTaxonomy failed", e);
+    TAXONOMY = null;
+    S_TAGS = [];
+  }
+
+  // original init
+
+  // ensure at least one input row per list
+  if (!titleList.querySelector(".item")) addListItem(titleList, "");
+  if (!ipList.querySelector(".item")) addListItem(ipList, "");
+  if (!skillTrainList.querySelector(".item")) addListItem(skillTrainList, "");
+  if (!practiceList.querySelector(".item")) addListItem(practiceList, "");
+
+  load();
+  renderPreview();
+})();
 
 window.__ROLE_FIT_STEP3_S__ = { save, load };
