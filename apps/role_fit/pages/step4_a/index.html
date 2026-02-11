@@ -3,42 +3,54 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>ROLE FIT - Step4 A（天赋/性格吻合度）</title>
+  <title>ROLE FIT · Step4 A（天赋/性格）</title>
   <style>
-    body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif;margin:0;background:#f6f7fb;color:#0e1220;}
-    .wrap{max-width:920px;margin:0 auto;padding:22px;}
-    .card{background:#fff;border-radius:16px;padding:18px 18px;box-shadow:0 8px 30px rgba(14,18,32,.06);}
-    .row{display:flex;flex-direction:column;gap:8px;margin:14px 0;}
-    .btn{background:#0e1220;color:#fff;border:0;border-radius:12px;padding:12px 14px;font-weight:700;cursor:pointer;}
-    .btn2{background:#fff;color:#0e1220;border:1px solid rgba(14,18,32,.18);border-radius:12px;padding:12px 14px;font-weight:700;cursor:pointer;}
-    .hint{font-size:12px;color:rgba(14,18,32,.55);line-height:1.6;}
+    :root{--bg:#f6f7fb;--card:#fff;--text:#0e1220;--muted:rgba(14,18,32,.6);--line:rgba(14,18,32,.10);}
+    body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP","Hiragino Sans","PingFang SC","Microsoft YaHei",sans-serif;color:var(--text);}
+    .wrap{max-width:980px;margin:0 auto;padding:18px;}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 6px 18px rgba(14,18,32,.05);}
+    h2{margin:0 0 6px 0;}
+    .hint{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:12px;}
+    .btn,.btn2{border:none;border-radius:12px;padding:12px 14px;font-weight:700;cursor:pointer;}
+    .btn{background:#0e1220;color:#fff;}
+    .btn2{background:#fff;color:#0e1220;border:1px solid rgba(14,18,32,.18);}
     textarea{width:100%;min-height:160px;border:1px solid rgba(14,18,32,.14);border-radius:12px;padding:12px;outline:none;}
     .preview{margin-top:14px;border-top:1px dashed rgba(14,18,32,.18);padding-top:12px;font-size:14px;line-height:1.7}
     code{background:rgba(14,18,32,.06);padding:2px 6px;border-radius:8px;}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;}
+    .item{border:1px solid rgba(14,18,32,.10);border-radius:14px;padding:12px;}
+    .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
+    .name{font-weight:900}
+    .val{font-weight:900}
+    input[type="range"]{width:100%}
+    .scale{display:flex;justify-content:space-between;color:rgba(14,18,32,.55);font-size:11px;margin-top:4px}
+    .sub{color:rgba(14,18,32,.62);font-size:12px;line-height:1.45;margin-top:6px}
+    @media (max-width:720px){ .grid{grid-template-columns:1fr;} }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
-      <h2 style="margin:0 0 6px 0;">Step4 / A：天赋/性格 与 岗位吻合度（stub）</h2>
+      <h2>Step4 / A：天赋/性格（量表版 v0.1）</h2>
       <div class="hint">
-        这一页先打通 A 的“保存管线”。真实版本将由测评系统（MY GIFT）生成 A 向量。<br/>
-        注意：你说 A 是乘法主轴，我们在 Step6 评估时会用 A 作为乘法权重核心。
+        先用 8 个量表题（1~5）模拟 A 向量（D/I/S/C），每个维度由 2 题取平均。<br/>
+        目的：让 Step6 的 A 能稳定计算（后续可替换为 MY GIFT 等正式测评输出）。
       </div>
 
-      <div class="row">
-        <label style="font-weight:700;">A_SCORE JSON（可先用 stub）</label>
-        <textarea id="aJson" placeholder='例如：{"A_vector":{"D":0.62,"I":0.48,"S":0.55,"C":0.44},"fit_overall":0.61,"ts":123}'></textarea>
-        <div class="hint">建议保留：A_vector / fit_overall / ts。后续可接 MY GIFT 输出。</div>
-      </div>
+      <div class="grid" id="grid"></div>
 
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <div class="hint" style="margin-top:10px;">
+        你也可以直接粘贴外部 JSON 覆盖（未来可接真实测评系统）。
+      </div>
+      <textarea id="aJson" placeholder='将自动生成 {"A_vector":{"D":0..1,"I":0..1,"S":0..1,"C":0..1}, "fit_overall":0..1, "ts":...}'></textarea>
+
+      <div class="preview" id="previewBox" style="display:none;"></div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
         <button class="btn2" id="backBtn" type="button">← 上一步（回技能 S）</button>
-        <button class="btn2" id="stubBtn" type="button">写入示例 A（stub）</button>
+        <button class="btn2" id="stubBtn" type="button">写入示例（量表版 v0.2）</button>
         <button class="btn" id="nextBtn" type="button">下一步 →（去 Step5_H 习惯）</button>
       </div>
-
-      <div class="preview" id="previewBox" style="display:none"></div>
     </div>
   </div>
 

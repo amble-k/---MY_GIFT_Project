@@ -94,7 +94,16 @@
         <input id="jobCustomTitle" placeholder="例如：BP / 风控 / 运营增长 / 数据产品 / 售前解决方案…" />
       </div>
 
-      <div class="row">
+      
+      <!-- 基准岗位模型（用于自定义岗位映射评分） -->
+      <div class="row hide" id="jobModelKeyRow">
+        <label style="font-weight:900;">自定义岗位 · 选择一个最接近的基准岗位模型（必选）</label>
+        <select id="jobModelKey">
+          <option value="">请选择基准模型</option>
+        </select>
+        <div class="hint">用于 Step6 将你的 K/S/H 与“岗位模型要求”做一一映射计算（自定义岗位也必须有模型）。</div>
+      </div>
+<div class="row">
         <label>岗位/公司描述补充（可选）</label>
         <textarea id="otherNote" placeholder="补充语境：岗位层级、团队规模、偏策略/偏执行、关键协作对象、关键指标等（仅用于定义上下文）。"></textarea>
       </div>

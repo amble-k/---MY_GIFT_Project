@@ -1,28 +1,10 @@
 import { loadTaxonomy } from "/apps/role_fit/core/data_loader.js";
+import { suggestTags, joinFields } from "/apps/role_fit/core/tag_suggest.js";
 const KEY = "ROLE_FIT_STEP3_S_V1";
 const KEY_SUG = "ROLE_FIT_SUGGESTIONS_V0_1";
 
 let TAXONOMY = null;
 let S_TAGS = [];
-function suggestTags(text, tags){
-  const raw = String(text||"").toLowerCase();
-  const out = [];
-  (tags||[]).forEach(t=>{
-    if (!t) return;
-    const key = String(t.key||t.id||t.value||"").trim();
-    const label = String(t.label||t.name||"").trim();
-    const words = [key, label].filter(Boolean);
-    for (const w of words){
-      const ww = String(w).toLowerCase().trim();
-      if (ww && raw.includes(ww)){
-        out.push(key || label);
-        break;
-      }
-    }
-  });
-  return Array.from(new Set(out)).filter(Boolean);
-}
-
 const titleList = document.getElementById("titleList");
 const ipList = document.getElementById("ipList");
 const skillTrainList = document.getElementById("skillTrainList");
@@ -87,6 +69,22 @@ function readList(container){
   return arr;
 }
 
+function buildSRawFromUI(){
+  return joinFields([
+    ...readList(titleList),
+    ...readList(ipList),
+    ...readList(skillTrainList),
+    ...readList(practiceList),
+    String(portfolio.value||"").trim(),
+    String(note.value||"").trim()
+  ]);
+}
+function deriveSTagsFromUI(){
+  const raw = buildSRawFromUI();
+  return suggestTags(raw, S_TAGS);
+}
+
+
 function renderPreview(){
   const titles = readList(titleList);
   const ips = readList(ipList);
@@ -109,17 +107,9 @@ function renderPreview(){
 
 function save(){
   // ---- taxonomy: derive S tags from all free text ----
-  const __s_raw = [
-    ...readList(titleList),
-    ...readList(ipList),
-    ...readList(skillTrainList),
-    ...readList(practiceList),
-    String(portfolio.value||"").trim(),
-    String(note.value||"").trim()
-  ].filter(Boolean).join("\n");
-  const s_tags = suggestTags(__s_raw, S_TAGS);
+  const s_tags = deriveSTagsFromUI();
 
-  const payload = {
+const payload = {
     s_tags,
     titles: readList(titleList),
     ips: readList(ipList),
@@ -175,7 +165,13 @@ function load(){
 
     portfolio.value = j.portfolio || "";
     note.value = j.note || "";
-    renderPreview();
+    // legacy: derive s_tags if missing (reuse v1 engine)
+    if (!Array.isArray(j.s_tags) || j.s_tags.length===0){
+      j.s_tags = deriveSTagsFromUI();
+      try{ localStorage.setItem(KEY, JSON.stringify(j)); }catch(e){}
+    }
+
+      renderPreview();
   }catch(e){}
 }
 

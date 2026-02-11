@@ -1,6 +1,7 @@
 const DEFAULT_TAXONOMY_URL = "/apps/role_fit/data/json/role_fit_taxonomy_v0_1.json";
 const DEFAULT_JOB_MODELS_URL = "/apps/role_fit/data/json/job_models_v0_1.json";
 
+const DEFAULT_JOB_CATALOG_URL = "/apps/role_fit/data/json/job_catalog_v0_1.json";
 async function fetchJson(url) {
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) throw new Error(`fetch ${url} -> ${res.status} ${res.statusText}`);
@@ -30,3 +31,8 @@ export async function loadJobModels(opts = {}) {
     throw e;
   }
 }
+
+export async function loadJobCatalog(url = DEFAULT_JOB_CATALOG_URL){
+  return await fetchJson(url);
+}
+

@@ -1,0 +1,41 @@
+{
+  "meta": { "version": "0.1", "note": "Job catalog for Step1 UI, each item maps to a job_model_key" },
+  "families": [
+    { "key": "product", "label_zh": "产品" },
+    { "key": "engineering", "label_zh": "技术/数据" },
+    { "key": "ops", "label_zh": "运营/支持" },
+    { "key": "other", "label_zh": "其他" }
+  ],
+  "items": [
+    {
+      "job_key": "product_manager",
+      "title_zh": "产品经理",
+      "family": "product",
+      "job_model_key": "product_manager"
+    },
+    {
+      "job_key": "data_analyst",
+      "title_zh": "数据分析师",
+      "family": "engineering",
+      "job_model_key": "data_analyst"
+    },
+    {
+      "job_key": "software_engineer",
+      "title_zh": "软件工程师",
+      "family": "engineering",
+      "job_model_key": "software_engineer"
+    },
+    {
+      "job_key": "office_admin",
+      "title_zh": "行政/综合支持",
+      "family": "ops",
+      "job_model_key": "office_admin"
+    }
+  ],
+  "custom_base_models": [
+    { "job_model_key": "product_manager", "label_zh": "更像产品岗位（产品经理）" },
+    { "job_model_key": "data_analyst", "label_zh": "更像数据岗位（数据分析师）" },
+    { "job_model_key": "software_engineer", "label_zh": "更像研发岗位（软件工程师）" },
+    { "job_model_key": "office_admin", "label_zh": "更像运营支持（行政/综合支持）" }
+  ]
+}

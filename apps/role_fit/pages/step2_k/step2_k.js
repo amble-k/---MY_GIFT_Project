@@ -1,28 +1,11 @@
 import { loadTaxonomy } from "/apps/role_fit/core/data_loader.js";
+import { suggestTags, joinFields } from "/apps/role_fit/core/tag_suggest.js";
 const KEY = "ROLE_FIT_STEP2_K_V1";
+const KEY_STEP1 = "ROLE_FIT_STEP1_ROLE_V3";
 const KEY_SUG = "ROLE_FIT_SUGGESTIONS_V0_1";
 
 let TAXONOMY = null;
 let K_TAGS = [];
-function suggestTags(text, tags){
-  const raw = String(text||"").toLowerCase();
-  const out = [];
-  (tags||[]).forEach(t=>{
-    if (!t) return;
-    const key = String(t.key||t.id||t.value||"").trim();
-    const label = String(t.label||t.name||"").trim();
-    const words = [key, label].filter(Boolean);
-    for (const w of words){
-      const ww = String(w).toLowerCase().trim();
-      if (ww && raw.includes(ww)){
-        out.push(key || label);
-        break;
-      }
-    }
-  });
-  // uniq
-  return Array.from(new Set(out)).filter(Boolean);
-}
 
 const eduLevel = document.getElementById("eduLevel");
 const eduLevelOtherRow = document.getElementById("eduLevelOtherRow");
@@ -124,11 +107,23 @@ function renderPreview(){
   previewBox.innerHTML = t;
 }
 
-function save(){
-  // ---- taxonomy: derive K tags from free text (robust: first textarea) ----
-  const __k_raw = (document.querySelector("textarea")?.value || "").trim();
-  const k_tags = (typeof suggestTags === "function") ? suggestTags(__k_raw, K_TAGS) : [];
 
+// ---- tag raw helpers (single source of truth) ----
+function buildKRawFromUI(){
+  const eText = (String(eduLevel.value||"")==="other") ? String(eduLevelOther.value||"").trim() : (eduLevel.options[eduLevel.selectedIndex]?.text||"");
+  const m1Text = (String(major1.value||"")==="other") ? String(major1Other.value||"").trim() : (major1.options[major1.selectedIndex]?.text||"");
+  const m2Text = String(major2.value||"").trim();
+  const certs = readList(certList);
+  const trainings = readList(trainList);
+  const n = String(note.value||"").trim();
+  return joinFields([eText, m1Text, m2Text, ...certs, ...trainings, n]);
+}
+function deriveKTagsFromUI(){
+  const raw = buildKRawFromUI();
+  return suggestTags(raw, K_TAGS);
+}
+
+function save(){
   const e = String(eduLevel.value||"");
   if (!e) return {ok:false, msg:"请选择最高学历"};
   const eText = (e==="other") ? String(eduLevelOther.value||"").trim() : (eduLevel.options[eduLevel.selectedIndex]?.text||"");
@@ -139,15 +134,22 @@ function save(){
   const m1Text = (m1==="other") ? String(major1Other.value||"").trim() : (major1.options[major1.selectedIndex]?.text||"");
   if (m1==="other" && !m1Text) return {ok:false, msg:"请补充第一专业（其他）"};
 
+  // ---- taxonomy: derive K tags from all relevant fields ----
+  const m2Text = String(major2.value||"").trim();
+  const certs = readList(certList);
+  const trainings = readList(trainList);
+  const n = String(note.value||"").trim();
+  const k_tags = deriveKTagsFromUI();
   const payload = {
     edu_level_key: e,
     edu_level_text: eText,
     major1_key: m1,
     major1_text: m1Text,
-    major2_text: String(major2.value||"").trim(),
-    certs: readList(certList),
-    trainings: readList(trainList),
-    note: String(note.value||"").trim(),
+    major2_text: m2Text,
+    k_tags,
+    certs,
+    trainings,
+    note: n,
     ts: Date.now()
   };
   localStorage.setItem(KEY, JSON.stringify(payload));
@@ -200,8 +202,38 @@ function load(){
     (j.trainings||[]).forEach(x=>addListItem(trainList, x));
 
     note.value = j.note || "";
-    renderPreview();
-  }catch(e){}
+
+    // ---- compat: upgrade k_tags with latest taxonomy (add-only) ----
+    try{
+      const derived = deriveKTagsFromUI();
+      const old = Array.isArray(j.k_tags) ? j.k_tags : [];
+      const merged = Array.from(new Set([ ...old, ...(Array.isArray(derived)?derived:[]) ]));
+      if (merged.length !== old.length){
+        j.k_tags = merged;
+        try{ localStorage.setItem(KEY, JSON.stringify(j)); }catch(e){}
+        console.log("[STEP2_K] compat: k_tags upgraded", { before: old, after: merged });
+      }
+    }catch(e){
+      console.warn("[STEP2_K] compat: k_tags upgrade failed", e);
+    }
+
+
+// ---- compat: auto-derive k_tags for legacy saved data (no manual re-save) ----
+try{
+  const hasK = Array.isArray(j.k_tags) && j.k_tags.length > 0;
+  if (!hasK){
+    const k_tags = deriveKTagsFromUI();
+    if (Array.isArray(k_tags) && k_tags.length){
+      j.k_tags = k_tags;
+      localStorage.setItem(KEY, JSON.stringify(j));
+      console.log("[STEP2_K] compat: k_tags auto-derived", j.k_tags);
+    }
+  }
+}catch(e){
+  console.warn("[STEP2_K] compat: derive k_tags failed", e);
+}
+renderPreview();
+}catch(e){}
 }
 
 function exportSuggestions(){

@@ -1,6 +1,21 @@
 import { loadJobModels } from "/apps/role_fit/core/data_loader.js";
+
+/**
+ * Step1 Role
+ * - built-in job: job_key maps 1:1 to job_model_key
+ * - custom job: requires selecting a base model (job_model_key) to bind evaluation rules
+ */
+
 const KEY = "ROLE_FIT_STEP1_ROLE_V3";
 const KEY_SUG = "ROLE_FIT_SUGGESTIONS_V0_1";
+
+// Phase2: job catalog (UI list + custom mapping to job_model_key)
+const JOB_CATALOG_URL = "/apps/role_fit/data/json/job_catalog_v0_1.json";
+async function loadJobCatalog(){
+  const r = await fetch(JOB_CATALOG_URL, { cache: "no-store" });
+  if (!r.ok) throw new Error("loadJobCatalog HTTP " + r.status);
+  return await r.json();
+}
 
 // ---- DOM ----
 const companyCat   = document.getElementById("companyCat");
@@ -48,7 +63,44 @@ function normModels(J){
   }
   return [];
 }
+
 let models = [];
+let JOB_CATALOG = null;
+
+
+function populateCustomModelPicker(){
+  const sel = document.getElementById("jobModelKey");
+  if (!sel) return;
+
+  const prev = String(sel.value || "");
+  sel.innerHTML = "";
+  sel.appendChild(new Option("请选择基准模型", ""));
+
+  const items = (JOB_CATALOG && Array.isArray(JOB_CATALOG.custom_base_models))
+    ? JOB_CATALOG.custom_base_models
+    : [];
+
+  items.forEach(it=>{
+    const k = String(it.job_model_key || it.key || "").trim();
+    const label = String(it.title_zh || it.label_zh || it.label || k).trim();
+    if (!k) return;
+    sel.appendChild(new Option(label, k));
+  });
+
+  // restore previous selection if possible
+  if (prev) sel.value = prev;
+}
+
+function getJobModelKeyFromSelection(){
+  const jk = String(jobKey?.value || "");
+  // 内置岗位：job_key 本身就是 job_model_key
+  if (jk && jk !== "__custom__") return jk;
+
+  // 自定义岗位：取下拉框选择
+  const sel = document.getElementById("jobModelKey");
+  const v = String(sel?.value || "").trim();
+  return v || "";
+}
 
 function getKey(m, idx){
   return m?.key || m?.preset_key || m?.id || m?.__key || String(idx);
@@ -83,6 +135,14 @@ function getLabel(m, key){
   return k;
 }
 
+function escapeHtml(s){
+  return String(s||"")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#39;");
+}
 // ---- UI: select options ----
 function populateJobsByFamily(fid){
   jobKey.innerHTML = "";
@@ -149,7 +209,9 @@ function toggleCustomJob(){
   if (!row || !inp) return;
 
   const v = String(jobKey.value || "");
-  const label = (jobKey.options && jobKey.selectedIndex >= 0) ? (jobKey.options[jobKey.selectedIndex]?.text || "") : "";
+  const label = (jobKey.options && jobKey.selectedIndex >= 0)
+    ? (jobKey.options[jobKey.selectedIndex]?.text || "")
+    : "";
 
   const isCustom =
     (v === "__custom__") ||
@@ -158,6 +220,32 @@ function toggleCustomJob(){
 
   row.classList.toggle("hide", !isCustom);
   if (!isCustom) inp.value = "";
+
+  // show/hide model picker accordingly
+  const pickerRow = document.getElementById("jobModelKeyRow");
+  if (pickerRow) pickerRow.classList.toggle("hide", !isCustom);
+
+  const sel = document.getElementById("jobModelKey");
+  if (!sel) return;
+
+  if (isCustom){
+    // ensure options are ready
+    populateCustomModelPicker();
+
+    // if user didn't pick, auto-select first available base model to avoid undefined/""
+    if (!String(sel.value || "").trim()){
+      for (const opt of Array.from(sel.options || [])){
+        const val = String(opt?.value || "").trim();
+        if (val){
+          sel.value = val;
+          break;
+        }
+      }
+    }
+  }else{
+    // leaving custom mode: clear selection
+    sel.value = "";
+  }
 }
 
 function toggleCustom(){
@@ -217,120 +305,57 @@ function renderPreview(){
     text += "<span style='color:rgba(14,18,32,.55)'>岗位/公司描述补充（可选）</span>" + note.replaceAll("\n","<br>");
   }
 
-  previewBox.style.display = (text ? "block" : "none");
-  previewBox.innerHTML = text;
+  // model binding hint
+  const mk = getJobModelKeyFromSelection();
+  if (jk === "__custom__"){
+    text += "<br><span style='color:rgba(14,18,32,.55)'>评估参考模型：</span><b>" + (mk || "未选择") + "</b>";
+  }
+
+  previewBox.innerHTML = text || "";
+  previewBox.style.display = text ? "block" : "none";
 }
 
 // ---- save/load ----
 function save(){
-  const company_category = String(companyCat.value || "");
-  const job_family = String(jobFamily.value || "");
-  const other_note = (otherNote?.value || "").trim();
+  const c = String(companyCat.value || "");
+  if (!c) return {ok:false, msg:"请选择公司类别"};
+  const cText = (c==="other") ? String(document.getElementById("companyCustom")?.value||"").trim() : (companyCat.options[companyCat.selectedIndex]?.text||"");
+  if (c==="other" && !cText) return {ok:false, msg:"请补充公司类别（其他）"};
 
-  let job_key = "";
-  let job_label = "";
-  let job_custom_title = "";
-  let job_family_text = "";
-  let job_text = "";
+  const fam = String(jobFamily.value || "");
+  if (!fam) return {ok:false, msg:"请选择目标岗位大类"};
 
-  if (!company_category) return { ok:false, msg:"请先选择公司类别" };
-  if (company_category === "other"){
-    const cc = (document.getElementById("companyCustom")?.value || "").trim();
-    if (!cc) return { ok:false, msg:"请填写公司类别（其他）补充" };
+  const jk = String(jobKey.value || "");
+  if (!jk) return {ok:false, msg:"请选择细分岗位"};
+
+  const label = (jk === "__custom__")
+    ? (String(document.getElementById("jobCustomTitle")?.value || "").trim() || "其他（自定义）")
+    : (jobKey.options[jobKey.selectedIndex]?.text || jk);
+
+  const job_model_key = getJobModelKeyFromSelection();
+  if (jk === "__custom__" && !job_model_key){
+    return { ok:false, msg:"自定义岗位需要选择一个“参考模型”（用于评估规则）" };
   }
-
-  if (!job_family) return { ok:false, msg:"请先选择岗位大类" };
-  
-  if (job_family === "other"){
-    // ✅ 目标岗位自定义：只要求目标岗位名称；细分岗位是可选
-    job_custom_title = (document.getElementById("jobFamilyCustomTitle")?.value || "").trim();
-    if (!job_custom_title) return {ok:false, msg:"请填写目标岗位名称"};
-
-    // 细分岗位（可选）
-    const jk2 = (jobKey && jobKey.value) ? String(jobKey.value) : "";
-    if (jk2){
-      job_key = jk2;
-
-      if (jk2 === "__custom__"){
-        job_text = (document.getElementById("jobCustomTitle")?.value || "").trim();
-        if (!job_text) return {ok:false, msg:"请填写细分岗位名称"};
-        job_label = job_text;
-      } else {
-        job_label = (jobKey.options && jobKey.selectedIndex >= 0)
-          ? (jobKey.options[jobKey.selectedIndex]?.text || "")
-          : "";
-      }
-    }
-
-    // 目标岗位文本镜像（用于后台建议/增量）
-    job_family_text = job_custom_title;
-
-  } else {
-    // ✅ 普通大类：细分岗位必填
-    job_key = (jobKey && jobKey.value) ? String(jobKey.value) : "";
-    if (!job_key) return {ok:false, msg:"请先选择细分岗位"};
-
-    if (job_key === "__custom__"){
-      job_text = (document.getElementById("jobCustomTitle")?.value || "").trim();
-      if (!job_text) return {ok:false, msg:"请填写细分岗位名称"};
-      job_label = job_text;
-    } else {
-      job_label = (jobKey.options && jobKey.selectedIndex >= 0)
-        ? (jobKey.options[jobKey.selectedIndex]?.text || "")
-        : "";
-    }
-
-    // 普通大类的文本镜像：用下拉显示文本
-    job_family_text = (jobFamily.options && jobFamily.selectedIndex >= 0)
-      ? (jobFamily.options[jobFamily.selectedIndex]?.text || "")
-      : "";
-  }
-
-
-  job_family_text = (job_family === "other")
-    ? (document.getElementById("jobFamilyCustomTitle")?.value || "").trim()
-    : (jobFamily.options && jobFamily.selectedIndex >= 0 ? (jobFamily.options[jobFamily.selectedIndex]?.text || "") : "");
-
-  const company_category_text = (company_category === "other")
-    ? (document.getElementById("companyCustom")?.value || "").trim()
-    : (companyCat.options && companyCat.selectedIndex >= 0 ? (companyCat.options[companyCat.selectedIndex]?.text || "") : "");
-
-  const m = (job_key && job_key !== "__custom__") ? findJob(job_key) : null;
 
   const payload = {
-    company_category,
-    company_category_text,
-    job_family,
-    job_family_text,
-    job_key,
-    job_label,
-    job_text,
-    job_custom_title: job_family_text, // 兼容旧字段：目标岗位自定义文本
-    other_note,
-    job_model: m || null,
+    company_category: c,
+    company_category_text: cText,
+    job_family: fam,
+    job_family_text: (fam==="other") ? String(document.getElementById("jobFamilyCustomTitle")?.value||"").trim() : "",
+    job_key: jk,
+    job_label: label,
+    job_text: (jk==="__custom__") ? String(document.getElementById("jobCustomTitle")?.value||"").trim() : "",
+    job_custom_title: (fam==="other") ? String(document.getElementById("jobFamilyCustomTitle")?.value||"").trim() : "",
+    job_model_key: (jk==="__custom__") ? job_model_key : jk,
+    other_note: String(otherNote?.value||"").trim(),
     ts: Date.now()
   };
 
   localStorage.setItem(KEY, JSON.stringify(payload));
 
-  // ---- push suggestion (for backend incremental) ----
-  const rec = {
-    ts: Date.now(),
-    source: "role_fit_step1",
-    company_category_key: company_category,
-    company_category_text: company_category_text,
-    job_family_key: job_family,
-    job_family_text: job_family_text,
-    job_key: job_key,
-    job_label: job_label,
-    job_text: job_text,
-    other_note: other_note
-  };
-  rec.fingerprint = _rf_hash([
-    rec.company_category_key, rec.company_category_text,
-    rec.job_family_key, rec.job_family_text,
-    rec.job_key, rec.job_label, rec.job_text
-  ].join("|"));
+  // suggestion
+  const rec = { ts: Date.now(), source:"role_fit_step1_role", type:"role", text: label };
+  rec.fingerprint = _rf_hash([rec.type, rec.text, payload.company_category, payload.job_family, payload.job_model_key].join("|"));
   pushSuggestion(rec);
 
   return { ok:true, payload };
@@ -363,6 +388,13 @@ function load(){
     if (String(jobKey.value || "") === "__custom__"){
       const jt = document.getElementById("jobCustomTitle");
       if (jt) jt.value = j.job_text || j.job_label || "";
+    }
+
+    // restore custom model picker
+    populateCustomModelPicker();
+    if (String(jobKey.value || "") === "__custom__"){
+      const sel = document.getElementById("jobModelKey");
+      if (sel) sel.value = j.job_model_key || "";
     }
 
     if (otherNote) otherNote.value = j.other_note || "";
@@ -410,7 +442,6 @@ jobKey?.addEventListener("change", ()=>{
   toggleCustomJob();
   renderPreview();
 });
-
 jobCustomTitle?.addEventListener("input", renderPreview);
 otherNote?.addEventListener("input", renderPreview);
 
@@ -430,7 +461,6 @@ nextBtn?.addEventListener("click", ()=>{
     alert(s.msg || "请完成必填项");
     return;
   }
-  // TODO: 下一步接 step2（K/S 填写或测评/不测评分流）
   location.href = "/apps/role_fit/pages/step2_k/index.html";
 });
 
@@ -443,6 +473,15 @@ nextBtn?.addEventListener("click", ()=>{
   }catch(e){
     console.error("[STEP1_ROLE] loadJobModels failed", e);
     models = [];
+  }
+
+  try{
+    JOB_CATALOG = await loadJobCatalog();
+    console.log("[STEP1_ROLE] job_catalog loaded", { items_n: JOB_CATALOG?.items?.length || 0 });
+    populateCustomModelPicker();
+  }catch(e){
+    console.error("[STEP1_ROLE] loadJobCatalog failed", e);
+    JOB_CATALOG = null;
   }
 
   // keep original init order
