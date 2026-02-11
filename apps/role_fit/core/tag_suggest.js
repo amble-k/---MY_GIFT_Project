@@ -53,31 +53,18 @@ function phraseToRegExp(phrase){
  */
 function isWordEligible(word){
   const w = normText(word);
+  // Block extremely generic short verbs (high false-positive risk)
+  if (w === "推进" || w === "推动") return false;
   if (!w) return false;
-
-  // reject too-short tokens
   if (w.length <= 1) return false;
 
-  // If it's pure latin letters, apply stricter rules for short abbreviations
-  if (/^[a-z]+$/i.test(w)){
-    const wl = w.length;
-
-    // allow only whitelisted 2-letter abbreviations (avoid false positives like "to", "in")
-    if (wl === 2){
-      const allow2 = new Set(["pm","ui","ux","hr","bd","cs","bi","qa"]);
-      return allow2.has(w);
-    }
-
-    // allow only whitelisted 3-letter abbreviations (extend if needed)
-    if (wl === 3){
-      const allow3 = new Set(["sql","api","kpi","okr","crm"]);
-      return allow3.has(w);
-    }
-
-    return true;
+  // length==2: allow common 2-letter abbreviations AND common 2-char CJK words
+  if (w.length === 2){
+    if (/^[a-z]{2}$/i.test(w)) return true;
+    if (/[\u4e00-\u9fff]/.test(w)) return true;
+    return false;
   }
 
-  // For non-latin tokens (e.g. Chinese), keep it permissive once length>=2
   return true;
 }
 
@@ -137,24 +124,16 @@ export function suggestTags(text, tags){
     }
   });
 
-  return Array.from(new Set(out)).filter(Boolean);
+  {
+  const uniq = Array.from(new Set(out)).filter(Boolean);
+  const order = new Map();
+  (tags||[]).forEach((t, i) => {
+    const k = String(t?.key || t?.id || t?.value || "").trim();
+    if (k && !order.has(k)) order.set(k, i);
+  });
+  uniq.sort((a,b) => (order.has(a)?order.get(a):1e9) - (order.has(b)?order.get(b):1e9));
+  return uniq;
+}
 }
 
-// Export internals for unit/debug if needed (optional)
-export const __tagSuggestInternals = {
-  normText,
-  phraseToRegExp,
-  isWordEligible,
-};
 
-// ---- tiny sanity check (node only) ----
-// Run: ROLE_FIT_TAG_SUGGEST_TEST=1 node apps/role_fit/core/tag_suggest.js
-if (typeof process !== "undefined" && process?.env?.ROLE_FIT_TAG_SUGGEST_TEST === "1"){
-  const tags = [
-    { key:"sql", label:"SQL", aliases:["Structured Query Language","数据库查询"] },
-    { key:"writing", label:"文档写作", aliases:["写文档","报告"] },
-  ];
-  const text = "我做过数据库查询，也写过报告";
-  const got = suggestTags(text, tags);
-  console.log("[tag_suggest:test]", got);
-}

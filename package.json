@@ -1,0 +1,8 @@
+{
+  "name": "my_gift_project",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "smoke:tag": "node apps/role_fit/core/tag_suggest.smoke.mjs"
+  }
+}
