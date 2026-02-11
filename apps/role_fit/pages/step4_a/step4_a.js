@@ -6,7 +6,7 @@ const previewBox = document.getElementById("previewBox");
 const backBtn = document.getElementById("backBtn");
 const nextBtn = document.getElementById("nextBtn");
 const stubBtn = document.getElementById("stubBtn");
-const aGrid = document.getElementById("aGrid");
+const aGrid = document.getElementById("grid");
 
 const ITEMS = [
   { id:"D", label:"驱动力/主导（D）", left:"温和谨慎", right:"强势推进" },
@@ -131,7 +131,9 @@ function load(){
     let j = JSON.parse(localStorage.getItem(KEY_A) || "null");
     if (!j){
       j = JSON.parse(localStorage.getItem(KEY_A_OLD) || "null");
-      if (j) localStorage.setItem(KEY_A, JSON.stringify(j));
+      if (j){
+        try{ localStorage.setItem(KEY_A, JSON.stringify(j)); }catch(e){}
+      }
     }
     if (!j) return;
 
@@ -184,8 +186,6 @@ nextBtn?.addEventListener("click", ()=>{
 // init
 buildUI();
 load();
-if (!(aJson?.value || "").trim()){
-  // default generate once so Step6 never shows missing A by default
-  syncJsonFromSliders();
-}
+  // NOTE: do NOT auto-generate A_SCORE on page load.
+  // User must interact (sliders/stub/paste) and then click Next to save.
 render();
