@@ -1,4 +1,4 @@
-import { loadJobModels } from "/apps/role_fit/core/data_loader.js";
+import { loadJobModels, loadJobCatalog } from "/apps/role_fit/core/data_loader.js";
 
 /**
  * Step1 Role
@@ -9,13 +9,6 @@ import { loadJobModels } from "/apps/role_fit/core/data_loader.js";
 const KEY = "ROLE_FIT_STEP1_ROLE_V3";
 const KEY_SUG = "ROLE_FIT_SUGGESTIONS_V0_1";
 
-// Phase2: job catalog (UI list + custom mapping to job_model_key)
-const JOB_CATALOG_URL = "/apps/role_fit/data/json/job_catalog_v0_1.json";
-async function loadJobCatalog(){
-  const r = await fetch(JOB_CATALOG_URL, { cache: "no-store" });
-  if (!r.ok) throw new Error("loadJobCatalog HTTP " + r.status);
-  return await r.json();
-}
 
 // ---- DOM ----
 const companyCat   = document.getElementById("companyCat");

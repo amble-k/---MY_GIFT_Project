@@ -84,6 +84,35 @@ function deriveSTagsFromUI(){
   return suggestTags(raw, S_TAGS);
 }
 
+// Derive tags from a saved payload object (no DOM dependency).
+function deriveSTagsFromSavedPayload(j){
+  const titles = Array.isArray(j?.titles) ? j.titles : [];
+  const ips = Array.isArray(j?.ips) ? j.ips : [];
+  const trains = Array.isArray(j?.skill_trainings) ? j.skill_trainings : [];
+  const practices = Array.isArray(j?.practices) ? j.practices : [];
+  const portfolio = String(j?.portfolio || "").trim();
+  const note = String(j?.note || "").trim();
+  const raw = joinFields([ ...titles, ...ips, ...trains, ...practices, portfolio, note ]);
+  return suggestTags(raw, S_TAGS);
+}
+
+
+
+function deriveSTagsFromData(j){
+  try{
+    const raw = joinFields([
+      ...(j?.titles||[]),
+      ...(j?.ips||[]),
+      ...(j?.skill_trainings||[]),
+      ...(j?.practices||[]),
+      String(j?.portfolio||""),
+      String(j?.note||"")
+    ]);
+    return suggestTags(raw, S_TAGS);
+  }catch(e){
+    return [];
+  }
+}
 
 function renderPreview(){
   const titles = readList(titleList);
@@ -165,13 +194,21 @@ function load(){
 
     portfolio.value = j.portfolio || "";
     note.value = j.note || "";
-    // legacy: derive s_tags if missing (reuse v1 engine)
-    if (!Array.isArray(j.s_tags) || j.s_tags.length===0){
-      j.s_tags = deriveSTagsFromUI();
-      try{ localStorage.setItem(KEY, JSON.stringify(j)); }catch(e){}
+    // ---- compat: derive/upgrade s_tags from saved payload (add-only) ----
+    try{
+      const old = Array.isArray(j.s_tags) ? j.s_tags : [];
+      const derived = deriveSTagsFromSavedPayload(j);
+      const merged = Array.from(new Set([ ...old, ...(Array.isArray(derived)?derived:[]) ]));
+      if (merged.length !== old.length){
+        j.s_tags = merged;
+        try{ localStorage.setItem(KEY, JSON.stringify(j)); }catch(e){}
+        console.log("[STEP3_S] compat: s_tags upgraded", { before: old, after: merged });
+      }
+    }catch(e){
+      console.warn("[STEP3_S] compat: s_tags derive/upgrade failed", e);
     }
 
-      renderPreview();
+    renderPreview();
   }catch(e){}
 }
 

@@ -3,6 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "smoke:tag": "node apps/role_fit/core/tag_suggest.smoke.mjs"
+    "smoke:tag": "node apps/role_fit/core/tag_suggest.smoke.mjs",
+    "smoke:step3s": "node apps/role_fit/pages/step3_s/step3_s.smoke.mjs",
+    "smoke": "npm run smoke:tag && npm run smoke:step3s"
   }
 }

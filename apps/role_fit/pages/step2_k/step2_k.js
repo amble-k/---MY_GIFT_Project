@@ -123,6 +123,18 @@ function deriveKTagsFromUI(){
   return suggestTags(raw, K_TAGS);
 }
 
+// Derive tags from a saved payload object (no DOM dependency).
+function deriveKTagsFromSavedPayload(j){
+  const eText = String(j?.edu_level_text || "").trim();
+  const m1Text = String(j?.major1_text || "").trim();
+  const m2Text = String(j?.major2_text || "").trim();
+  const certs = Array.isArray(j?.certs) ? j.certs : [];
+  const trainings = Array.isArray(j?.trainings) ? j.trainings : [];
+  const n = String(j?.note || "").trim();
+  const raw = joinFields([eText, m1Text, m2Text, ...certs, ...trainings, n]);
+  return suggestTags(raw, K_TAGS);
+}
+
 function save(){
   const e = String(eduLevel.value||"");
   if (!e) return {ok:false, msg:"请选择最高学历"};
@@ -203,10 +215,10 @@ function load(){
 
     note.value = j.note || "";
 
-    // ---- compat: upgrade k_tags with latest taxonomy (add-only) ----
+    // ---- compat: derive/upgrade k_tags from saved payload (add-only) ----
     try{
-      const derived = deriveKTagsFromUI();
       const old = Array.isArray(j.k_tags) ? j.k_tags : [];
+      const derived = deriveKTagsFromSavedPayload(j);
       const merged = Array.from(new Set([ ...old, ...(Array.isArray(derived)?derived:[]) ]));
       if (merged.length !== old.length){
         j.k_tags = merged;
@@ -214,25 +226,10 @@ function load(){
         console.log("[STEP2_K] compat: k_tags upgraded", { before: old, after: merged });
       }
     }catch(e){
-      console.warn("[STEP2_K] compat: k_tags upgrade failed", e);
+      console.warn("[STEP2_K] compat: k_tags derive/upgrade failed", e);
     }
 
-
-// ---- compat: auto-derive k_tags for legacy saved data (no manual re-save) ----
-try{
-  const hasK = Array.isArray(j.k_tags) && j.k_tags.length > 0;
-  if (!hasK){
-    const k_tags = deriveKTagsFromUI();
-    if (Array.isArray(k_tags) && k_tags.length){
-      j.k_tags = k_tags;
-      localStorage.setItem(KEY, JSON.stringify(j));
-      console.log("[STEP2_K] compat: k_tags auto-derived", j.k_tags);
-    }
-  }
-}catch(e){
-  console.warn("[STEP2_K] compat: derive k_tags failed", e);
-}
-renderPreview();
+  renderPreview();
 }catch(e){}
 }
 
