@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ROLE FIT · Step3 S（技能/经历）</title>
+  <style>
+    :root{--bg:#f6f7fb;--card:#fff;--text:#0e1220;--muted:rgba(14,18,32,.6);--line:rgba(14,18,32,.08);}
+    body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP","Hiragino Sans","PingFang SC","Microsoft YaHei",sans-serif;color:var(--text);}
+    .wrap{max-width:860px;margin:0 auto;padding:18px;}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 6px 18px rgba(14,18,32,.05);}
+    h1{margin:0 0 10px 0;font-size:18px;}
+    .sub{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px;}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    @media (max-width:760px){.grid{grid-template-columns:1fr;}}
+    .row{display:flex;flex-direction:column;gap:8px;margin:10px 0;}
+    label{font-size:13px;color:var(--muted);}
+    input,textarea{border:1px solid var(--line);border-radius:12px;padding:12px 12px;font-size:14px;background:#fff;outline:none;}
+    textarea{min-height:86px;resize:vertical;}
+    .hint{font-size:12px;color:var(--muted);margin-top:2px;}
+    .preview{margin-top:14px;border:1px dashed var(--line);border-radius:12px;padding:12px;color:var(--text);background:rgba(14,18,32,.02);}
+    .actions{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:16px;}
+    .mini{font-size:12px;color:var(--muted);}
+    .btn,.btn2,.btn3{border:none;border-radius:12px;padding:10px 12px;font-size:14px;cursor:pointer;}
+    .btn{background:#111827;color:#fff;}
+    .btn2{background:rgba(14,18,32,.06);color:#111827;}
+    .btn3{background:rgba(14,18,32,.06);color:#111827;}
+    .btnrow{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
+    .list{border:1px solid var(--line);border-radius:12px;padding:10px;background:#fff;}
+    .item{display:flex;gap:10px;align-items:center;margin:8px 0;}
+    .item input{flex:1;}
+    .x{border:none;border-radius:10px;padding:8px 10px;background:rgba(14,18,32,.06);cursor:pointer;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="card">
+      <h1>Step 3 · S（技能/经历）</h1>
+      <div class="sub">技能与经历（可迁移、可积累、可证明）。所有字段可自由增加，用于后续回填技能库。</div>
+
+      <div class="grid">
+        <div class="row">
+          <label>职称/认证（可选，多条）</label>
+          <div class="list" id="titleList"></div>
+          <button class="btn2" id="addTitleBtn" type="button">+ 添加</button>
+        </div>
+
+        <div class="row">
+          <label>发明/专利/论文（可选，多条）</label>
+          <div class="list" id="ipList"></div>
+          <button class="btn2" id="addIpBtn" type="button">+ 添加</button>
+        </div>
+
+        <div class="row">
+          <label>关键技能训练（可选，多条）</label>
+          <div class="list" id="skillTrainList"></div>
+          <button class="btn2" id="addSkillTrainBtn" type="button">+ 添加</button>
+        </div>
+
+        <div class="row">
+          <label>岗位实作积累（可选，多条）</label>
+          <div class="list" id="practiceList"></div>
+          <button class="btn2" id="addPracticeBtn" type="button">+ 添加</button>
+        </div>
+
+        <div class="row">
+          <label>作品集/主页链接（可选）</label>
+          <input id="portfolio" placeholder="例如：Notion / GitHub / Behance / 个人站…" />
+        </div>
+
+        <div class="row">
+          <label>补充说明（可选）</label>
+          <textarea id="note" placeholder="补充：业务规模、数据体量、协作对象、关键指标、方法等。"></textarea>
+        </div>
+      </div>
+
+      <div class="preview" id="previewBox" style="display:none"></div>
+
+      <div class="actions">
+        <div class="mini">保存到本地浏览器（localStorage）。</div>
+        <div class="btnrow">
+          <button class="btn3" id="exportSugBtn" type="button">导出新增候选（JSON）</button>
+          <button class="btn2" id="backBtn" type="button">← 上一步</button>
+          <button class="btn" id="nextBtn" type="button">下一步 →（A/H 测评入口）</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="./step3_s.js"></script>
+</body>
+</html>

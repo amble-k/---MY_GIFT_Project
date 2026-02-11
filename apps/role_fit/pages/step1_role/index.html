@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ROLE FIT · Step1 目标岗位</title>
+  <style>
+    :root{--bg:#f6f7fb;--card:#fff;--text:#0e1220;--muted:rgba(14,18,32,.6);--line:rgba(14,18,32,.08);}
+    body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP","Hiragino Sans","PingFang SC","Microsoft YaHei",sans-serif;color:var(--text);}
+    .wrap{max-width:780px;margin:0 auto;padding:18px;}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 6px 18px rgba(14,18,32,.05);}
+    h1{margin:0 0 14px 0;font-size:18px;}
+    .row{display:flex;flex-direction:column;gap:8px;margin:12px 0;}
+    label{font-size:13px;color:var(--muted);}
+    select,input,textarea{border:1px solid var(--line);border-radius:12px;padding:12px 12px;font-size:14px;background:#fff;outline:none;}
+    textarea{min-height:88px;resize:vertical;}
+    .hint{font-size:12px;color:var(--muted);margin-top:2px;}
+    .req{color:#d33;margin-left:4px;}
+    .hide{display:none!important;}
+    .preview{margin-top:14px;border:1px dashed var(--line);border-radius:12px;padding:12px;color:var(--text);background:rgba(14,18,32,.02);}
+    .actions{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:16px;}
+    .mini{font-size:12px;color:var(--muted);}
+    .btn,.btn2{border:none;border-radius:12px;padding:10px 12px;font-size:14px;cursor:pointer;}
+    .btn{background:#111827;color:#fff;}
+    .btn2{background:rgba(14,18,32,.06);color:#111827;}
+    .btn3{background:rgba(14,18,32,.06);color:#111827;}
+    .btnrow{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <section class="card">
+      <h1>Step 1 · 目标岗位与公司语境</h1>
+
+      <div class="row">
+        <label>公司类别（必填）<span class="req">*</span></label>
+        <select id="companyCat">
+          <option value="">请选择</option>
+          <option value="internet">互联网/IT</option>
+          <option value="manufacturing">制造业</option>
+          <option value="finance">金融</option>
+          <option value="consulting">咨询/专业服务</option>
+          <option value="retail">零售/消费</option>
+          <option value="healthcare">医疗/健康</option>
+          <option value="education">教育</option>
+          <option value="public">公共部门/事业单位</option>
+          <option value="startup">创业公司</option>
+          <option value="other">其他</option>
+        </select>
+        <div class="hint">若选“其他”，请补充你的公司/行业语境（用于评估上下文）。</div>
+      </div>
+
+      <div class="row hide" id="companyCustomRow">
+        <label>公司类别（其他）补充（必填）<span class="req">*</span></label>
+        <input id="companyCustom" placeholder="例如：创投 / SaaS / 医疗器械 / 教育（ToB）/ 政府委托项目…" />
+      </div>
+
+      <div class="row">
+        <label>目标岗位大类（必填）<span class="req">*</span></label>
+        <select id="jobFamily">
+          <option value="">请选择</option>
+          <option value="product">产品/企划</option>
+          <option value="pm">项目/交付</option>
+          <option value="design">设计/创意</option>
+          <option value="engineering">研发/数据/技术</option>
+          <option value="marketing">市场/增长/品牌</option>
+          <option value="sales">销售/BD</option>
+          <option value="ops">运营/客服</option>
+          <option value="hr">人事/组织</option>
+          <option value="finance">财务/法务/风控</option>
+          <option value="consulting">咨询/研究</option>
+          <option value="other">其他（自定义）</option>
+        </select>
+        <div class="hint">先选大类；若你的目标岗位不在大类中，选“其他（自定义）”。</div>
+      </div>
+
+      <div class="row hide" id="jobFamilyCustomRow">
+        <label>目标岗位（自定义，必填）<span class="req">*</span></label>
+        <input id="jobFamilyCustomTitle" placeholder="请输入目标岗位名称（例如：创业公司运营 / 综合管理 / ToB 售前顾问…）" />
+        <div class="hint">这用于定义“目标岗位”语义（不会替代细分岗位选择）。</div>
+      </div>
+
+      <div class="row" id="jobKeyRow">
+        <label>细分岗位（必填）<span class="req">*</span></label>
+        <select id="jobKey">
+          <option value="">请选择</option>
+        </select>
+        <div class="hint">细分岗位来自岗位库；找不到可选“其他（自定义）”。</div>
+      </div>
+
+      <div class="row hide" id="jobCustomRow">
+        <label>细分岗位（自定义，必填）<span class="req">*</span></label>
+        <input id="jobCustomTitle" placeholder="例如：BP / 风控 / 运营增长 / 数据产品 / 售前解决方案…" />
+      </div>
+
+      
+      <!-- 基准岗位模型（用于自定义岗位映射评分） -->
+      <div class="row hide" id="jobModelKeyRow">
+        <label style="font-weight:900;">自定义岗位 · 选择一个最接近的基准岗位模型（必选）</label>
+        <select id="jobModelKey">
+          <option value="">请选择基准模型</option>
+        </select>
+        <div class="hint">用于 Step6 将你的 K/S/H 与“岗位模型要求”做一一映射计算（自定义岗位也必须有模型）。</div>
+      </div>
+<div class="row">
+        <label>岗位/公司描述补充（可选）</label>
+        <textarea id="otherNote" placeholder="补充语境：岗位层级、团队规模、偏策略/偏执行、关键协作对象、关键指标等（仅用于定义上下文）。"></textarea>
+      </div>
+
+      <div class="preview" id="previewBox" style="display:none"></div>
+
+      <div class="actions">
+        <div class="mini">保存到本地浏览器（localStorage）。</div>
+        <div class="btnrow">
+          <button class="btn3" id="exportSugBtn" type="button">导出新增候选（JSON）</button>
+          <button class="btn2" id="backBtn" type="button">← 返回</button>
+          <button class="btn" id="nextBtn" type="button">下一步 →</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="./step1_role.js"></script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>岗位胜任度测评 · Role Fit Assessment</title>
+  <link rel="stylesheet" href="./landing.css"/>
+</head>
+<body>
+  <div class="page-shell">
+    <div class="stack">
+
+      <header class="hero">
+        <div class="kicker">MY GIFT · ROLE FIT</div>
+        <h1>岗位胜任度测评</h1>
+        <div class="en">ROLE FIT ASSESSMENT</div>
+      </header>
+
+      <section class="card" aria-label="role-fit-landing-card">
+        <div class="inner">
+
+          <div>
+            <h2 class="h2">你是否胜任当前岗位？</h2>
+            <p class="lead">基于岗位标准与真实行为反应，评估你与岗位之间的匹配度、稳定性与潜在风险。</p>
+          </div>
+
+          <div class="valueLine">
+            不评“你是什么样的人”，只评你是否具备 <strong>持续胜任</strong> 的条件。
+          </div>
+
+          <div class="tags" aria-label="use-cases">
+            <span class="tag">岗位匹配</span>
+            <span class="tag">转岗判断</span>
+            <span class="tag">晋升评估</span>
+            <span class="tag">用人决策</span>
+          </div>
+
+          <div class="sep"></div>
+
+          <div class="notesLines" aria-label="assessment-notes">
+            <div class="noteLine">・<span class="b">用时</span> 约 10–15 分钟</div>
+            <div class="noteLine">・无对错答案，请按真实工作情况选择</div>
+            <div class="noteLine">・结果仅用于评估呈现，不涉及心理诊断</div>
+          </div>
+
+          <div class="ctaRow">
+            <div class="ctaHint">提交后生成结构化结果报告</div>
+            <button class="btn" id="startBtn" type="button">开始测评 →</button>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <script>
+    // 先指到 step0（下一步我们会补齐 step0_profile/index.html）
+    document.getElementById("startBtn").addEventListener("click", function(){
+      location.href = "/apps/role_fit/pages/step0_profile/index.html";
+    });
+  </script>
+</body>
+</html>

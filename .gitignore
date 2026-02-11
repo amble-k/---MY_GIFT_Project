@@ -4,3 +4,41 @@ snapshots/
 diagnostics/
 output/
 *.zip
+
+# local pause backups (do not commit)
+apps/resume_product/*.bak_paused_*
+snapshots/_paused_resume/
+
+# === MY GIFT: ignore generated / local artifacts (root hygiene) ===
+.DS_Store
+snapshots/
+diagnostics/_root_archive_*/
+tmp_resume_preview*.html
+_dir_tree_*.txt
+
+# === MY GIFT: local backup archives (keep local, do not track) ===
+archive/_bak_tracked_*/
+
+# === MY GIFT: ignore untracked backup archives ===
+archive/_bak_untracked_*/
+
+# === MY GIFT: ignore root archives moved from diagnostics ===
+archive/_root_archive_*/
+
+# === MY GIFT: ignore paused snapshot archives ===
+archive/_paused_snapshots_*/
+
+# === MY GIFT: local fix archives (do not track) ===
+archive/_fix_*/
+
+# ---- MYGIFT local triage / archives ----
+_triage/
+archive/
+**/_archive/
+**/*.bak_*
+**/*.save
+**/*.tmp
+**/index.html.__tmp__
+
+# local test
+rf_tax_test.mjs

@@ -49,7 +49,7 @@ export function dispatch(ctx = {}) {
   const db = ctx.db || loadDB();
   const st = ctx.st || deriveStatus(db);
 
-  const isHub = currentRoute === "/resume" || currentRoute === "/health";
+  const isHub = currentRoute === "/resume" || currentRoute === "/health" || currentRoute === "/resume/fit";
   const noGuard = isNoGuard();
 
   let targetRoute = currentRoute;

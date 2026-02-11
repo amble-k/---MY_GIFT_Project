@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ROLE FIT - Step0 基本信息</title>
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --text:#0e1220;
+      --muted:rgba(14,18,32,.55);
+      --line:rgba(14,18,32,.10);
+      --btn:#0e1220;
+      --btnText:#fff;
+      --btn2:#fff;
+      --btn2Text:#0e1220;
+    }
+    body{
+      margin:0;
+      font-family: "Noto Sans JP","Noto Sans CJK SC",system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+      background:var(--bg);
+      color:var(--text);
+    }
+    .wrap{max-width:860px;margin:0 auto;padding:22px 16px 64px;}
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:18px 18px 10px;
+      box-shadow:0 10px 22px rgba(14,18,32,.06);
+    }
+    h1{font-size:18px;margin:0 0 10px;}
+    .sub{font-size:13px;color:var(--muted);margin:0 0 16px;line-height:1.6}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .row{display:flex;flex-direction:column;gap:6px;}
+    label{font-size:13px;}
+    .req{color:#c0392b;font-weight:700;margin-left:6px}
+    input,select{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:12px 12px;
+      font-size:14px;
+      outline:none;
+      background:#fff;
+    }
+    input:focus,select:focus{border-color:rgba(14,18,32,.25)}
+    .hide{display:none!important;}
+    .hint{font-size:12px;color:var(--muted);line-height:1.5}
+    .preview{
+      margin-top:14px;
+      border:1px dashed rgba(14,18,32,.22);
+      border-radius:14px;
+      padding:12px 12px;
+      font-size:13px;
+      color:rgba(14,18,32,.85);
+      background:rgba(255,255,255,.65);
+    }
+    .actions{
+      margin-top:16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:10px 2px 6px;
+    }
+    .mini{font-size:12px;color:var(--muted)}
+    .btn,.btn2{
+      border-radius:999px;
+      padding:12px 16px;
+      font-size:14px;
+      cursor:pointer;
+      border:1px solid var(--line);
+    }
+    .btn{background:var(--btn);color:var(--btnText);border-color:transparent;}
+    .btn2{background:var(--btn2);color:var(--btn2Text);}
+    @media (max-width:700px){.grid{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="card">
+      <h1>Step0｜用户基本信息</h1>
+      <p class="sub">
+        用于定义评估语境与报告投放（日本市场）。这里是信息收集，不是测评；每个要素都保留“其他/自填”入口。
+      </p>
+
+      <div class="grid">
+        <div class="row">
+          <label>年龄（可选）</label>
+          <select id="age">
+            <option value="">请选择</option>
+            <option value="18-22">18-22</option>
+            <option value="23-27">23-27</option>
+            <option value="28-34">28-34</option>
+            <option value="35-44">35-44</option>
+            <option value="45+">45+</option>
+          </select>
+        </div>
+
+        <div class="row">
+          <label>性别（可选）</label>
+          <select id="gender">
+            <option value="">请选择</option>
+            <option value="female">女</option>
+            <option value="male">男</option>
+            <option value="other">其他（自填）</option>
+          </select>
+          <div class="row hide" id="genderOtherRow">
+            <input id="genderOther" placeholder="请填写性别（可选）">
+          </div>
+        </div>
+
+        <div class="row">
+          <label>地区（必填）<span class="req">*</span></label>
+          <select id="region">
+            <option value="">请选择</option>
+            <option value="jp_kanto">日本｜关东</option>
+            <option value="jp_kansai">日本｜关西</option>
+            <option value="jp_chubu">日本｜中部</option>
+            <option value="jp_kyushu">日本｜九州</option>
+            <option value="jp_hokkaido">日本｜北海道</option>
+            <option value="jp_tohoku">日本｜东北</option>
+            <option value="jp_chugoku">日本｜中国/四国</option>
+            <option value="other">其他（自填）</option>
+          </select>
+          <div class="row hide" id="regionOtherRow">
+            <input id="regionOther" placeholder="例如：东京/大阪/福冈/远程/海外…">
+          </div>
+        </div>
+
+        <div class="row">
+          <label>阶段（必填）<span class="req">*</span></label>
+          <select id="stage">
+            <option value="">请选择</option>
+            <option value="graduate_job">毕业求职</option>
+            <option value="switch_role">转岗位</option>
+            <option value="promotion">晋升/带团队</option>
+            <option value="other">其他（自填）</option>
+          </select>
+          <div class="row hide" id="stageOtherRow">
+            <input id="stageOther" placeholder="请填写阶段（例如：复职/自由职业转正等）">
+          </div>
+        </div>
+
+        <div class="row" style="grid-column:1/-1;">
+          <label>邮箱（可选，用于报告投放/找回）</label>
+          <input id="email" placeholder="name@example.com" inputmode="email" autocomplete="email">
+          <div class="hint">不会在页面上公开展示；仅用于本地保存与后续报告投放流程。</div>
+        </div>
+      </div>
+
+      <div class="preview" id="previewBox" style="display:none"></div>
+
+      <div class="actions">
+        <div class="mini">保存到本地浏览器（localStorage）。</div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn2" id="backBtn" type="button">← 返回</button>
+          <button class="btn" id="nextBtn" type="button">下一步 →</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="./step0_profile.js"></script>
+</body>
+</html>

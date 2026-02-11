@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ROLE FIT · Step6 Eval（胜任度评估）</title>
+  <style>
+    :root{--bg:#f6f7fb;--card:#fff;--text:#0e1220;--muted:rgba(14,18,32,.6);--line:rgba(14,18,32,.10);}
+    body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP","Hiragino Sans","PingFang SC","Microsoft YaHei",sans-serif;color:var(--text);}
+    .wrap{max-width:980px;margin:0 auto;padding:18px;}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 6px 18px rgba(14,18,32,.05);}
+    h1{margin:0 0 10px 0;font-size:18px;}
+    .sub{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:12px;}
+    .btn,.btn2{border:none;border-radius:12px;padding:10px 12px;font-size:14px;cursor:pointer;}
+    .btn{background:#111827;color:#fff;}
+    .btn2{background:rgba(14,18,32,.06);color:#111827;}
+    .rowbtn{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;margin-top:14px;}
+    pre{white-space:pre-wrap;word-break:break-word;background:rgba(14,18,32,.04);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:12px;line-height:1.5;}
+    .mini{font-size:12px;color:var(--muted);}
+    .cardmini{background:#fff;border:1px solid rgba(14,18,32,.10);border-radius:14px;padding:12px;}
+    .cardmini .k{font-size:12px;color:rgba(14,18,32,.65);font-weight:700}
+    .cardmini .v{font-size:22px;font-weight:900;margin-top:6px}
+    .cardmini .h{font-size:12px;color:rgba(14,18,32,.55);margin-top:6px;line-height:1.45}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="card">
+      <h1>Step6 · 岗位胜任度评估</h1>
+      <div class="sub">
+        这里读取 Step1~5 的 localStorage，计算 K/S/A/H 与总胜任度（A 为乘法主轴）。<br/>
+        现在先把“功能跑通 + 可计算结果可见”，专业内容后续再迭代。
+      </div>
+
+      <!-- ✅ 唯一的评估展示区：由 step6_eval.js 写入 -->
+      <div id="summaryBox"></div>
+
+      <div style="margin-top:16px;">
+        <div style="font-weight:800;margin-bottom:8px;">调试原始数据（Raw JSON）</div>
+        <pre id="rawBox"></pre>
+      </div>
+
+      <div class="rowbtn">
+        <div class="mini" style="margin-right:auto;">如 K/S 为空：通常是没在 Step2/3 点“下一步保存”。</div>
+        <button class="btn2" id="backBtn" type="button">← 返回 Step5_H</button>
+        <button class="btn" id="nextBtn" type="button">下一步 →（Step7 报告，待建）</button>
+      </div>
+    </section>
+  </div>
+
+  <script type="module">
+    // 简单导航（不依赖 history.back）
+    document.getElementById("backBtn").addEventListener("click", ()=> {
+      location.href = "/apps/role_fit/pages/step5_h/index.html";
+    });
+    document.getElementById("nextBtn").addEventListener("click", ()=> {
+      alert("Step7 报告页尚未创建（下一步再做）");
+    });
+  </script>
+
+  <script type="module" src="./step6_eval.js"></script>
+</body>
+</html>

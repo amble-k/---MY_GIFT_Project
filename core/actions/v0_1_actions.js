@@ -2,6 +2,7 @@
 // 目标：把 entry/scenario/fact/... 页面里散落的 dummy 写入逻辑，集中到这里
 
 import { loadDB, saveDB, setActive } from "/core/storage/resume_db.js";
+import { calculateFitReportV01 } from "/core/logic_core.js";
 import RESUME_BASE_V1_ZH from "/core/template_engine/templates/resume_base_v1_zh.js";
 import { composeResume } from "/core/resume_orchestrator/compose_resume.js";
 import { adaptLegacyFactToV03, validateFactV03 } from "/apps/resume_product/contracts/fact_runtime.v0_3_0.js?v=20260110_154445";
@@ -493,8 +494,50 @@ export function writeFitDummy(payload = {}) {
   // 2) 再 load 一次，拿“最新 db”，避免旧 db 覆盖
   const db = loadDB();
 
-  const fid = id("fit");
+  // 3) 复用已有 id（允许反复保存同一份 Fit），否则新建
+  const existing =
+    db?.active?.fit_result_id ||
+    db?.sessions?.[sid]?.fit_result_id ||
+    null;
 
+  const fid = existing || id("fit");
+
+  // 4) job_key：优先用 payload；否则用一个 demo key（v0.1）
+  const job_key =
+    (payload && (payload.job_key || payload.jobKey || payload.job)) ||
+    db?.active?.job_key ||
+    "office_admin";
+
+  // 5) raw：可选（若已有测评，可提高 confidence）
+  const aid = db?.active?.assessment_id || null;
+
+  let raw2 = (payload && payload.raw) || null;
+  try {
+    if (!raw2 && aid && db?.assessments?.[aid]?.payload?.raw) raw2 = db.assessments[aid].payload.raw;
+  } catch (e) {}
+  const rawFinal = raw2 || null;
+
+  // 6) 生成 fit_report（核心产物）
+  let fit_report = null;
+  try {
+    const locale = (payload && (payload.locale || payload.lang)) || (typeof localStorage!=="undefined" ? (localStorage.getItem("MYGIFT_LOCALE")||"zh-CN") : "zh-CN");
+      fit_report = calculateFitReportV01({ job_key, raw: rawFinal, locale });
+  } catch (e) {
+    fit_report = {
+      meta: { schema: "MY_GIFT_FIT_REPORT_V0_1", version: "0.1.0" },
+      inputs: { job_key },
+      synthesis: {
+        fit_grade: "N/A",
+        fit_score: 0,
+        confidence: 0.2,
+        kash_start: "H",
+        kash_rule: "K0_default_habit",
+        warnings: [{ key: "engine_error", title: "fit engine failed", level: "warn" }]
+      }
+    };
+  }
+
+  // 7) 写入 fit_results（结构化保存）
   db.fit_results = db.fit_results || {};
   db.fit_results[fid] = {
     id: fid,
@@ -505,16 +548,29 @@ export function writeFitDummy(payload = {}) {
       target_profile_id: db?.active?.target_profile_id || null,
       role_id: db?.sessions?.[sid]?.role_id || null,
     },
-    payload,
+    payload: {
+      ...payload,
+      job_key,
+      note: payload?.note || payload?.fit_note || "",
+      fit_report,
+    },
     meta: {
       version: "0.1.0",
+      schema: "MY_GIFT_FIT_RESULT_V0_1",
+      report_schema: "MY_GIFT_FIT_REPORT_V0_1",
     },
   };
 
-  // 双保险：写回 session_id + fit_result_id
+  // 8) 双保险：写回 active + session（状态机/跳转/页面回填会用到）
   db.active = db.active || {};
   db.active.session_id = sid;
   db.active.fit_result_id = fid;
+  db.active.fit_id = fid;
+
+  db.sessions = db.sessions || {};
+  db.sessions[sid] = db.sessions[sid] || { id: sid, created_at: iso() };
+  db.sessions[sid].fit_result_id = fid;
+  db.sessions[sid].fit_id = fid;
 
   saveDB(db);
   return fid;

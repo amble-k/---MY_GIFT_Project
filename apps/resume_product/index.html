@@ -1,43 +1,48 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Resume Product Router</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>MY GIFT - Resume Hub</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans SC","Noto Sans JP","Segoe UI",Roboto,Helvetica,Arial,sans-serif;margin:0;background:#f6f7f9;}
+    .wrap{max-width:980px;margin:0 auto;padding:16px;}
+    .card{background:#fff;border:1px solid #e6e8ee;border-radius:12px;padding:14px;margin:12px 0;box-shadow:0 1px 2px rgba(0,0,0,.03);}
+    a{color:#111827;text-decoration:none;}
+    .links a{display:inline-block;margin:6px 10px 0 0;padding:8px 10px;border:1px solid #d6d9e0;border-radius:999px;}
+    .muted{color:#6b7280;font-size:12px;}
+  </style>
 </head>
 <body>
-  <pre id="log" style="padding:12px;white-space:pre-wrap;word-break:break-word;background:#111;color:#0f0;border-radius:10px;">
-[router] booting...
-  </pre>
+  <div class="wrap">
+    <div class="card">
+      <div style="font-weight:800;font-size:16px;">MY GIFT（入口壳）</div>
+      <div class="muted" style="margin-top:6px;">如果你看到这行文字，说明入口页已恢复为路由壳。它会根据 hash 自动跳转到对应页面。</div>
+      <div class="links" style="margin-top:10px;">
+        <a href="/apps/resume_product/index.html?noguard=1#/resume/fit">Fit</a>
+        <a href="/apps/resume_product/index.html?noguard=1#/resume/assessment">Assessment</a>
+        <a href="/apps/resume_product/index.html?noguard=1#/resume/fact">Fact</a>
+        <a href="/apps/resume_product/index.html?noguard=1#/resume">Hub</a>
+      </div>
+      <div id="err" class="muted" style="margin-top:10px;"></div>
+    </div>
+  </div>
 
   <script type="module">
-    const logEl = document.getElementById("log");
-    const log = (msg, obj) => {
-      const line = obj ? (msg + " " + JSON.stringify(obj, null, 2)) : msg;
-      logEl.textContent += "\n" + line;
-      console.log(line);
-    };
+    import { dispatch } from "/apps/resume_product/router_runtime.js";
 
-    window.addEventListener("error", (e) => log("[error] " + (e?.message || e)));
-    window.addEventListener("unhandledrejection", (e) => log("[rejection] " + (e?.reason?.message || e?.reason || e)));
-
-    import { dispatch, getRoute } from "/apps/resume_product/router_runtime.js?v=3";
-
-    // 默认给一个可推进的 route（避免停在 Hub 空白）
-    if (!location.hash || location.hash === "#") {
-      location.hash = "#/resume";
+    function safeDispatch(){
+      try { dispatch(); }
+      catch (e) {
+        console.error(e);
+        const el = document.getElementById("err");
+        if (el) el.textContent = "dispatch failed: " + (e?.message || e);
+      }
     }
 
-    const run = () => {
-      log("[router] pathname=" + location.pathname + " hash=" + location.hash + " route=" + getRoute());
-      const r = dispatch();
-      log("[dispatch return]", r);
-    };
-
-    window.addEventListener("hashchange", run);
-    window.addEventListener("pageshow", run);
-    run();
+    // 初次进入 + hash变化都执行路由
+    safeDispatch();
+    window.addEventListener("hashchange", safeDispatch);
   </script>
-  <script type="module" src="/apps/resume_product/app_boot.js?v=3"></script>
 </body>
 </html>

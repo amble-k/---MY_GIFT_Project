@@ -3,40 +3,341 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Resume Product - Fit</title>
+  <title>MY GIFT - Fit</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans SC","Noto Sans JP","Segoe UI",Roboto,Helvetica,Arial,sans-serif;margin:0;background:#f6f7f9;}
+    .wrap{max-width:980px;margin:0 auto;padding:16px;}
+    .card{background:#fff;border:1px solid #e6e8ee;border-radius:12px;padding:14px;margin:12px 0;box-shadow:0 1px 2px rgba(0,0,0,.03);}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+    label{font-size:12px;color:#374151;}
+    select,textarea,button{font-size:14px;}
+    select,textarea{border:1px solid #d6d9e0;border-radius:10px;padding:8px;}
+    textarea{width:100%;min-height:110px;}
+    button{border:1px solid #d6d9e0;border-radius:10px;padding:10px 12px;background:#fff;cursor:pointer;}
+    .muted{color:#6b7280;font-size:12px;}
+    pre{background:#0b1020;color:#e6edf3;border-radius:10px;padding:12px;overflow:auto;white-space:pre-wrap;}
+    ul{margin:8px 0 0 18px;}
+    .pill{display:inline-block;padding:2px 8px;border:1px solid #e6e8ee;border-radius:999px;font-size:12px;color:#374151;}
+    details summary{cursor:pointer;}
+  </style>
 </head>
 <body>
-  <div id="app"></div>
+  <div class="wrap">
+    <div class="card">
+      <div style="font-weight:900;font-size:16px;" id="title">Fit Quick（岗位适配度）</div>
+      <div class="muted" id="desc">选择岗位 → 点击生成报告（免费版：少量输入→快速结论）。</div>
+      <div style="height:10px;"></div>
+
+      <div class="row">
+        <div>
+          <label id="labLocale">语言 / Language / 言語</label><br/>
+          <select id="locale">
+            <option value="zh-CN">中文</option>
+            <option value="en-US">English</option>
+            <option value="ja-JP">日本語</option>
+          </select>
+        </div>
+
+        <div style="flex:1;min-width:260px;">
+          <label id="labJob">岗位选择</label><br/>
+          <select id="job"></select>
+        </div>
+
+        <div>
+          <label>&nbsp;</label><br/>
+          <button id="gen">生成报告</button>
+        </div>
+      </div>
+
+      <div style="height:10px;"></div>
+      <label id="labNote">备注（可选）</label>
+      <textarea id="note" placeholder="例如：更偏好什么类型岗位 / 不想做什么 / 关键筛选条件..."></textarea>
+
+      <div style="height:10px;"></div>
+      <div class="muted" id="hint"></div>
+    </div>
+
+    <div class="card">
+      <div style="font-weight:900;" id="reportTitle">报告概览</div>
+      <div class="muted" id="reportSub">（可通过测评/经历输入提高置信度）</div>
+      <div style="height:10px;"></div>
+      <div id="report"></div>
+
+      <div style="height:10px;"></div>
+      <details>
+        <summary class="muted" id="jsonToggle">查看 JSON（调试）</summary>
+        <pre id="out">{}</pre>
+      </details>
+    </div>
+  </div>
 
   <script type="module">
-    import { bootStepPage } from "/apps/resume_product/pages/_step_page.js?v=9999";
-    import { loadDB, setActive } from "/core/storage/resume_db.js";
-    import { mountStepForm } from "/core/ui/step_form_v0_2.js?v=2";
+    import { JOB_MODELS_V0_1 } from "/data/job_models_v0_1.js";
+    import { loadDB } from "/core/storage/resume_db.js";
+    import { writeFitDummy } from "/core/actions/v0_1_actions.js";
 
-    bootStepPage({ title:"Resume Product — Fit", stepId:"fit", writeFnName:"writeFitDummy" });
+    const $ = (id) => document.getElementById(id);
 
-    mountStepForm({
-      title: "岗位匹配（最小版）",
-      desc: "说明：输入后将自动保存（不跳页）。进入下一步仍可用上方“写入/保存并进入下一步”。",
-      fields: [
-        { id: "fit_note", label: "匹配备注", type: "textarea", rows: 10, placeholder: "例如：更偏好什么类型岗位 / 不想做什么 / 关键筛选条件...", key: "note" },
-      ],
-      loadDB,
-      setActive,
-      writerName: "writeFitDummy",
-      setActiveMap: { fit_result_id: "RET_ID", fit_id: "RET_ID" },
+    function getLocale(){
+      try { return localStorage.getItem("MYGIFT_LOCALE") || "zh-CN"; } catch(e){ return "zh-CN"; }
+    }
+    function setLocale(v){
+      try { localStorage.setItem("MYGIFT_LOCALE", v); } catch(e){}
+    }
+    function pick(map, lc){
+      if (!map) return "";
+      return map[lc] || map["zh-CN"] || map["en-US"] || map["ja-JP"] || "";
+    }
 
-      // 回填：fit_results / fit 兼容
-      fillFromDB: (db) => {
-        const fid = db?.active?.fit_result_id || db?.active?.fit_id || null;
-        const row =
-          (fid && db?.fit_results?.[fid]) ? db.fit_results[fid] :
-          (fid && db?.fit?.[fid]) ? db.fit[fid] :
-          null;
-        const p = row?.payload || row || {};
-        return { note: p?.note || "" };
-      },
+    function t(lc, key){
+      const dict = {
+        title:{ "zh-CN":"Fit Quick（岗位适配度）", "en-US":"Fit Quick (Role Fit)", "ja-JP":"Fit Quick（職種適合）" },
+        desc:{ "zh-CN":"选择岗位 → 点击生成报告（免费版：少量输入→快速结论）。", "en-US":"Choose a role → Generate report (free quick estimate).", "ja-JP":"職種を選ぶ → レポート生成（無料・簡易版）。" },
+        labJob:{ "zh-CN":"岗位选择", "en-US":"Job", "ja-JP":"職種" },
+        gen:{ "zh-CN":"生成报告", "en-US":"Generate", "ja-JP":"生成" },
+        labNote:{ "zh-CN":"备注（可选）", "en-US":"Notes (optional)", "ja-JP":"メモ（任意）" },
+        reportTitle:{ "zh-CN":"报告概览", "en-US":"Report Overview", "ja-JP":"レポート概要" },
+        reportSub:{ "zh-CN":"（可通过测评/经历输入提高置信度）", "en-US":"(Improve confidence via assessment / experience)", "ja-JP":"（測評/経験入力で精度UP）" },
+        jsonToggle:{ "zh-CN":"查看 JSON（调试）", "en-US":"Show JSON (debug)", "ja-JP":"JSONを見る（デバッグ）" },
+        saved:{ "zh-CN":"已生成并写入本地档案。", "en-US":"Generated & saved.", "ja-JP":"生成して保存しました。" },
+        noReport:{ "zh-CN":"尚未生成报告。", "en-US":"No report yet.", "ja-JP":"まだレポートがありません。" },
+        reasons:{ "zh-CN":"关键理由", "en-US":"Key reasons", "ja-JP":"主な理由" },
+        warns:{ "zh-CN":"提示", "en-US":"Notes", "ja-JP":"注意" },
+        next:{ "zh-CN":"下一步", "en-US":"Next steps", "ja-JP":"次のステップ" },
+        job:{ "zh-CN":"岗位", "en-US":"Role", "ja-JP":"職種" },
+        grade:{ "zh-CN":"等级", "en-US":"Grade", "ja-JP":"評価" },
+        score:{ "zh-CN":"分数", "en-US":"Score", "ja-JP":"スコア" },
+        conf:{ "zh-CN":"置信度", "en-US":"Confidence", "ja-JP":"信頼度" },
+        kash:{ "zh-CN":"KASH 起点", "en-US":"KASH start", "ja-JP":"KASH 起点" }
+      };
+      return pick(dict[key], lc) || key;
+    }
+
+    function renderTexts(){
+      const lc = $("locale").value;
+      $("title").textContent = t(lc,"title");
+      $("desc").textContent = t(lc,"desc");
+      $("labJob").textContent = t(lc,"labJob");
+      $("gen").textContent = t(lc,"gen");
+      $("labNote").textContent = t(lc,"labNote");
+      $("reportTitle").textContent = t(lc,"reportTitle");
+      $("reportSub").textContent = t(lc,"reportSub");
+      $("jsonToggle").textContent = t(lc,"jsonToggle");
+    }
+
+    function readDBFresh(){
+      // loadDB already returns latest RESUME_DB_V1 / RESUME_DB; keep as single source
+      return loadDB();
+    }
+
+    function renderJobs(){
+      const lc = $("locale").value;
+      const jobSel = $("job");
+      jobSel.innerHTML = "";
+
+      const models = (JOB_MODELS_V0_1 && JOB_MODELS_V0_1.models) ? JOB_MODELS_V0_1.models : {};
+      const keys = Object.keys(models);
+
+      keys.forEach((k) => {
+        const m = models[k] || {};
+        const label = (m.label_i18n ? pick(m.label_i18n, lc) : "") || m.label || k;
+        const opt = document.createElement("option");
+        opt.value = k;
+        opt.textContent = label;
+        jobSel.appendChild(opt);
+      });
+
+      // restore last selected
+      try{
+        const db = readDBFresh();
+        const fid = db && db.active ? (db.active.fit_result_id || null) : null;
+        const row = (fid && db.fit_results && db.fit_results[fid]) ? db.fit_results[fid] : null;
+        const last = row && row.payload ? (row.payload.job_key || null) : null;
+        if (last && models[last]) jobSel.value = last;
+        else if (keys.includes("office_admin")) jobSel.value = "office_admin";
+      }catch(e){}
+    }
+
+    function pct(x){
+      const n = Number(x);
+      if (!isFinite(n)) return "-";
+      return Math.round(n * 100) + "%";
+    }
+    function clamp01(x){
+      const n = Number(x);
+      if (!isFinite(n)) return 0;
+      return Math.max(0, Math.min(1, n));
+    }
+    function routeTo(target){
+      const base = "/apps/resume_product/index.html?noguard=1#";
+      const map = { assessment:"/resume/assessment", fact:"/resume/fact", role_target:"/resume/role_target", fit:"/resume/fit", hub:"/resume" };
+      location.href = base + (map[target] || "/resume");
+    }
+
+    function renderReportUI(rep){
+      const box = $("report");
+      const lc = $("locale").value;
+      if (!rep || !rep.synthesis){
+        box.innerHTML = '<div class="muted">' + t(lc,"noReport") + '</div>';
+        return;
+      }
+
+      const syn = rep.synthesis || {};
+      const inputs = rep.inputs || {};
+      const reasons = Array.isArray(syn.top_reasons) ? syn.top_reasons : [];
+      const warns = Array.isArray(syn.warnings) ? syn.warnings : [];
+      const cta = (rep.upgrade && Array.isArray(rep.upgrade.cta)) ? rep.upgrade.cta : [];
+
+      const score = clamp01(syn.fit_score);
+      const conf = clamp01(syn.confidence);
+
+      // top cards
+      const row = document.createElement("div");
+      row.className = "row";
+
+      function smallCard(title, value, sub){
+        const c = document.createElement("div");
+        c.className = "card";
+        c.style.margin = "0";
+        c.style.minWidth = "160px";
+        const a = document.createElement("div");
+        a.className = "muted";
+        a.textContent = title;
+        const b = document.createElement("div");
+        b.style.fontWeight = "900";
+        b.style.fontSize = "16px";
+        b.textContent = value;
+        c.appendChild(a); c.appendChild(b);
+        if (sub){
+          const d = document.createElement("div");
+          d.className = "muted";
+          d.textContent = sub;
+          c.appendChild(d);
+        }
+        return c;
+      }
+
+      row.appendChild(smallCard(t(lc,"job"), inputs.job_label || inputs.job_key || "-"));
+      row.appendChild(smallCard(t(lc,"grade"), syn.fit_grade || "-"));
+      row.appendChild(smallCard(t(lc,"score"), String(score.toFixed(2)), pct(score)));
+      row.appendChild(smallCard(t(lc,"conf"), String(conf.toFixed(2)), pct(conf)));
+      row.appendChild(smallCard(t(lc,"kash"), syn.kash_start || "-"));
+
+      // reasons
+      const reasonsWrap = document.createElement("div");
+      reasonsWrap.style.marginTop = "10px";
+      if (reasons.length){
+        const h = document.createElement("div");
+        h.style.fontWeight = "800";
+        h.textContent = t(lc,"reasons");
+        const ul = document.createElement("ul");
+        reasons.forEach(r=>{
+          const li = document.createElement("li");
+          li.textContent = (r.title || r.key || "");
+          ul.appendChild(li);
+        });
+        reasonsWrap.appendChild(h);
+        reasonsWrap.appendChild(ul);
+      }
+
+      // warnings
+      const warnsWrap = document.createElement("div");
+      warnsWrap.style.marginTop = "10px";
+      if (warns.length){
+        const h = document.createElement("div");
+        h.style.fontWeight = "800";
+        h.textContent = t(lc,"warns");
+        const ul = document.createElement("ul");
+        warns.forEach(w=>{
+          const li = document.createElement("li");
+          li.className = "muted";
+          li.textContent = (w.title || w.key || "");
+          ul.appendChild(li);
+        });
+        warnsWrap.appendChild(h);
+        warnsWrap.appendChild(ul);
+      }
+
+      // CTA
+      const ctaWrap = document.createElement("div");
+      ctaWrap.style.marginTop = "12px";
+      if (cta.length){
+        const h = document.createElement("div");
+        h.style.fontWeight = "800";
+        h.textContent = t(lc,"next");
+        const r = document.createElement("div");
+        r.className = "row";
+        r.style.marginTop = "6px";
+        cta.forEach(x=>{
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.textContent = x.label || x.key || "Go";
+          btn.addEventListener("click", ()=>routeTo(x.target || "hub"));
+          r.appendChild(btn);
+        });
+        ctaWrap.appendChild(h);
+        ctaWrap.appendChild(r);
+      }
+
+      box.innerHTML = "";
+      box.appendChild(row);
+      if (reasons.length) box.appendChild(reasonsWrap);
+      if (warns.length) box.appendChild(warnsWrap);
+      if (cta.length) box.appendChild(ctaWrap);
+    }
+
+    function renderReportFromDB(){
+      const db = readDBFresh();
+      let fid = db && db.active ? (db.active.fit_result_id || db.active.fit_id || null) : null;
+
+      // fallback: latest
+      if (!fid && db && db.fit_results){
+        try{
+          const rows = Object.values(db.fit_results);
+          rows.sort((a,b)=>String(a && a.created_at || "").localeCompare(String(b && b.created_at || "")));
+          const last = rows[rows.length-1];
+          fid = last && last.id || null;
+        }catch(e){}
+      }
+
+      const row =
+        (fid && db && db.fit_results && db.fit_results[fid]) ? db.fit_results[fid] :
+        (fid && db && db.fit && db.fit[fid]) ? db.fit[fid] :
+        null;
+
+      const rep = row && row.payload ? (row.payload.fit_report || null) : null;
+      renderReportUI(rep);
+
+      $("out").textContent = JSON.stringify(rep || {}, null, 2);
+      $("note").value = (row && row.payload && row.payload.note) ? row.payload.note : "";
+    }
+
+    function generate(){
+      const lc = $("locale").value;
+      setLocale(lc);
+      const job_key = $("job").value;
+      const note = $("note").value || "";
+      writeFitDummy({ job_key: job_key, note: note, locale: lc });
+      $("hint").textContent = t(lc,"saved");
+      renderReportFromDB();
+    }
+
+    // init
+    $("locale").value = getLocale();
+    renderTexts();
+    renderJobs();
+    renderReportFromDB();
+
+    $("locale").addEventListener("change", ()=>{
+      const lc = $("locale").value;
+      setLocale(lc);
+      renderTexts();
+      renderJobs();
+      // 报告文案语言需要重新生成才会变化：这里不自动生成，避免误写 DB
+      renderReportFromDB();
     });
+
+    $("gen").addEventListener("click", generate);
   </script>
 </body>
 </html>

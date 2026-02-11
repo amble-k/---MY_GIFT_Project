@@ -1,0 +1,80 @@
+{
+  "meta": {
+    "schema": "MY_GIFT_FIT_REPORT_V0_1",
+    "version": "0.1.0",
+    "locale": "ja-JP",
+    "created_at": "2026-01-11",
+    "source": {
+      "job_model_version": "JOB_MODELS_V0_1",
+      "engine": "fit_engine_v0_1"
+    }
+  },
+  "inputs": {
+    "job_key": "office_admin",
+    "job_label": "事務職（例）",
+    "user_profile_ref": {
+      "has_assessment": false,
+      "has_fact_profile": false,
+      "has_resume": false
+    }
+  },
+  "synthesis": {
+    "fit_grade": "B",
+    "fit_score": 0.72,
+    "confidence": 0.55,
+    "kash_start": "H",
+    "kash_rule": "K6_low_harmony_habit_H",
+    "top_reasons": [
+      { "key": "strength_match", "title": "強みが職務要件と重なる", "weight": 0.34 },
+      { "key": "habit_risk", "title": "習慣・継続の設計がボトルネック", "weight": 0.22 }
+    ],
+    "warnings": [
+      { "key": "low_input", "title": "入力が少ないため精度は参考値", "level": "info" }
+    ]
+  },
+  "fit": {
+    "job": {
+      "key": "office_admin",
+      "kash_profile": {
+        "K": [],
+        "A": [],
+        "S": [],
+        "H": []
+      }
+    },
+    "user": {
+      "kash_profile": {
+        "K": [],
+        "A": [],
+        "S": [],
+        "H": []
+      }
+    },
+    "match": {
+      "kash_gap_summary": {
+        "K": 0.2,
+        "A": 0.35,
+        "S": 0.25,
+        "H": 0.45
+      },
+      "suggested_actions": {
+        "now_7d": [
+          { "title": "1日15分の習慣設計", "why": "Hのギャップが大きい", "metric": "7日連続の実行" }
+        ],
+        "next_30d": [
+          { "title": "職務タスクの分解と週次レビュー", "why": "H→Sへの接続", "metric": "週1レビュー×4回" }
+        ],
+        "next_90d": [
+          { "title": "成果事例（STAR）を3本作成", "why": "Sの可視化", "metric": "STAR 3本完成" }
+        ]
+      }
+    }
+  },
+  "upgrade": {
+    "cta": [
+      { "key": "do_assessment", "label": "適性測評で精度を上げる", "target": "assessment" },
+      { "key": "add_fact_profile", "label": "経験入力で職務適合を深掘り", "target": "fact" },
+      { "key": "target_role", "label": "志望職種を設定して精密対標", "target": "role_target" }
+    ]
+  }
+}

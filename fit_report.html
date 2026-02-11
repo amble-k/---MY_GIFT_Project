@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MY GIFT - Fit Report</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body { padding: 16px; }
+    .wrap { max-width: 960px; margin: 0 auto; }
+    .card { padding: 16px; border: 1px solid #ddd; border-radius: 12px; margin-bottom: 12px; }
+    .row { display:flex; gap:12px; flex-wrap:wrap; }
+    .pill { display:inline-block; padding: 6px 10px; border:1px solid #ddd; border-radius: 999px; font-size: 13px; }
+    pre { white-space: pre-wrap; word-break: break-word; font-size: 12px; padding: 12px; border-radius: 12px; border:1px solid #eee; }
+    a { text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="row" style="justify-content:space-between;align-items:center;">
+        <h2 style="margin:0;">職務適合度レポート（無料版）</h2>
+        <div class="row">
+          <a class="pill" href="fit.html">← 戻る</a>
+          <a class="pill" href="index.html">Home</a>
+        </div>
+      </div>
+      <div id="summary" style="margin-top:10px;"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;">理由（暫定）</h3>
+      <div id="reasons"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;">警告</h3>
+      <div id="warnings"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;">Debug JSON</h3>
+      <pre id="json"></pre>
+    </div>
+  </div>
+
+  <script type="module" src="/js/fit_report_renderer.js"></script>
+</body>
+</html>
