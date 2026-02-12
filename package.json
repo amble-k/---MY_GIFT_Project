@@ -5,6 +5,8 @@
   "scripts": {
     "smoke:tag": "node apps/role_fit/core/tag_suggest.smoke.mjs",
     "smoke:step3s": "node apps/role_fit/pages/step3_s/step3_s.smoke.mjs",
-    "smoke": "npm run smoke:tag && npm run smoke:step3s"
+    "smoke": "npm run smoke:tag && npm run smoke:matcher && npm run smoke:step3s && npm run smoke:step5h",
+    "smoke:matcher": "node apps/role_fit/core/tag_matcher.smoke.mjs",
+    "smoke:step5h": "node apps/role_fit/pages/step5_h/step5_h.smoke.mjs"
   }
 }

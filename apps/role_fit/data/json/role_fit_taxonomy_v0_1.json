@@ -301,5 +301,43 @@
       "key": "process_improve",
       "label": "流程优化"
     }
+  ],
+  "H_DIMS": [
+    {
+      "id": "punctuality",
+      "label": "守时与可靠性",
+      "left": "经常拖延",
+      "right": "高度守时"
+    },
+    {
+      "id": "followthrough",
+      "label": "坚持与闭环",
+      "left": "容易中断",
+      "right": "强闭环"
+    },
+    {
+      "id": "planning",
+      "label": "计划性",
+      "left": "随性推进",
+      "right": "强规划"
+    },
+    {
+      "id": "execution",
+      "label": "执行推进",
+      "left": "推进慢",
+      "right": "推进快"
+    },
+    {
+      "id": "reflection",
+      "label": "复盘习惯",
+      "left": "很少复盘",
+      "right": "经常复盘"
+    },
+    {
+      "id": "stability",
+      "label": "稳定性/抗波动",
+      "left": "易波动",
+      "right": "很稳定"
+    }
   ]
 }

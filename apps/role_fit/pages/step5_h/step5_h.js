@@ -1,6 +1,10 @@
+import { loadTaxonomy } from "/apps/role_fit/core/data_loader.js";
 const KEY_H = "ROLE_FIT_STEP5_H_V1";
 const KEY_H_OLD = "ROLE_FIT_STEP5_H_V0_1";
 
+
+let TAXONOMY = null;
+let H_DIMS = [];
 const grid = document.getElementById("grid");
 const hJson = document.getElementById("hJson");
 const previewBox = document.getElementById("previewBox");
@@ -8,14 +12,8 @@ const backBtn = document.getElementById("backBtn");
 const nextBtn = document.getElementById("nextBtn");
 const stubBtn = document.getElementById("stubBtn");
 
-const ITEMS = [
-  { id:"punctuality",  label:"守时与可靠性",        left:"经常拖延", right:"高度守时" },
-  { id:"followthrough",label:"坚持与闭环",          left:"容易中断", right:"强闭环" },
-  { id:"planning",     label:"计划性",              left:"随性推进", right:"强规划" },
-  { id:"execution",    label:"执行推进",            left:"推进慢",   right:"推进快" },
-  { id:"reflection",   label:"复盘习惯",            left:"很少复盘", right:"经常复盘" },
-  { id:"stability",    label:"稳定性/抗波动",       left:"易波动",   right:"很稳定" },
-];
+const ITEMS = [];
+// ITEMS will be populated from taxonomy.H_DIMS at init
 
 function escapeHtml(s){
   return String(s||"")
@@ -193,7 +191,42 @@ nextBtn?.addEventListener("click", ()=>{
 });
 
 // ---- init ----
-buildUI();
-syncJsonFromSliders();   // default values
-load();                 // overwrite if saved
-render();
+(async ()=>{
+  try{
+    TAXONOMY = await loadTaxonomy();
+    const dims = (TAXONOMY && typeof TAXONOMY === "object") ? (TAXONOMY.H_DIMS || TAXONOMY.h_dims || []) : (Array.isArray(TAXONOMY) ? TAXONOMY : []);
+    H_DIMS = Array.isArray(dims) ? dims : [];
+  }catch(e){
+    console.error("[STEP5_H] loadTaxonomy failed", e);
+    TAXONOMY = null;
+    H_DIMS = [];
+  }
+
+  // populate ITEMS (fallback to hardcoded defaults if taxonomy missing)
+  const fallback = [
+    { id:"punctuality",  label:"守时与可靠性",        left:"经常拖延", right:"高度守时" },
+    { id:"followthrough",label:"坚持与闭环",          left:"容易中断", right:"强闭环" },
+    { id:"planning",     label:"计划性",              left:"随性推进", right:"强规划" },
+    { id:"execution",    label:"执行推进",            left:"推进慢",   right:"推进快" },
+    { id:"reflection",   label:"复盘习惯",            left:"很少复盘", right:"经常复盘" },
+    { id:"stability",    label:"稳定性/抗波动",       left:"易波动",   right:"很稳定" },
+  ];
+
+  ITEMS.length = 0;
+  (H_DIMS.length ? H_DIMS : fallback).forEach(it=>{
+    if (!it) return;
+    const id = String(it.id || it.key || "").trim();
+    if (!id) return;
+    ITEMS.push({
+      id,
+      label: String(it.label || it.name || "").trim() || id,
+      left: String(it.left || it.min_label || "").trim(),
+      right: String(it.right || it.max_label || "").trim(),
+    });
+  });
+
+  buildUI();
+  syncJsonFromSliders();   // default values
+  load();                 // overwrite if saved
+  render();
+})();
