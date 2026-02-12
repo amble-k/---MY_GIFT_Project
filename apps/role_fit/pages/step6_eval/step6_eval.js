@@ -1,4 +1,42 @@
 import { loadTaxonomy } from "/apps/role_fit/core/data_loader.js";console.log("[STEP6_DEBUG] origin=", location.origin);
+import { buildRaw, getTagsWithEvidence } from "/apps/role_fit/core/tag_service.js";
+
+// ---- tag-service helpers (Step6 centralized matching + evidence) ----
+function __rf_buildKRawFromSaved(k){
+  if (!k || typeof k !== "object") return "";
+  const eText = String(k.edu_level_text || "").trim();
+  const m1Text = String(k.major1_text || "").trim();
+  const m2Text = String(k.major2_text || "").trim();
+  const certs = Array.isArray(k.certs) ? k.certs : [];
+  const trainings = Array.isArray(k.trainings) ? k.trainings : [];
+  const n = String(k.note || "").trim();
+  return buildRaw([eText, m1Text, m2Text, ...certs, ...trainings, n]);
+}
+
+function __rf_buildSRawFromSaved(sv){
+  if (!sv || typeof sv !== "object") return "";
+  const titles = Array.isArray(sv.titles) ? sv.titles : [];
+  const ips = Array.isArray(sv.ips) ? sv.ips : [];
+  const trains = Array.isArray(sv.skill_trainings) ? sv.skill_trainings : [];
+  const practices = Array.isArray(sv.practices) ? sv.practices : [];
+  const p = String(sv.portfolio || "").trim();
+  const n = String(sv.note || "").trim();
+  return buildRaw([ ...titles, ...ips, ...trains, ...practices, p, n ]);
+}
+
+function __rf_evidenceToHtml(ev, map){
+  const arr = Array.isArray(ev) ? ev : [];
+  if (!arr.length) return "";
+  // show top 8 evidence lines
+  return arr.slice(0, 8).map(x=>{
+    const tag = String(x?.tag||"");
+    const label = map && tag in map ? map[tag] : tag;
+    const by = String(x?.matchedBy||"");
+    const mode = String(x?.mode||"");
+    return `<div style="margin-top:4px;">· <b>${label}</b> ← <code>${by}</code> <span style="color:rgba(14,18,32,.55)">(${mode})</span></div>`;
+  }).join("");
+}
+
 console.log("[STEP6_DEBUG] ROLE_FIT keys=", Object.keys(localStorage).filter(k=>k.includes("ROLE_FIT")).sort());
 ["ROLE_FIT_STEP1_ROLE_V3","ROLE_FIT_STEP2_K_V1","ROLE_FIT_STEP3_S_V1","ROLE_FIT_STEP4_A_V1","ROLE_FIT_STEP4_A_V0_1","ROLE_FIT_STEP5_H_V1"].forEach(k=>{
   try{ console.log("[STEP6_DEBUG] getItem", k, "=>", localStorage.getItem(k)); }catch(e){ console.log("[STEP6_DEBUG] getItem", k, "=> ERR", e); }
@@ -284,11 +322,24 @@ function main(){
   const kMap = buildTagMap(tx?.K_TAGS || tx?.k_tags || []);
   const sMap = buildTagMap(tx?.S_TAGS || tx?.s_tags || []);
 
-  const K_hit  = (K.detail?.hit || []);
+  // ---- centralized matching in Step6 (re-derive tags + evidence from saved payload) ----
+  const __rf_K_RAW = __rf_buildKRawFromSaved(k || null);
+  const __rf_S_RAW = __rf_buildSRawFromSaved(s || null);
+
+  const __rf_K_RES = getTagsWithEvidence(__rf_K_RAW, K_TAGS || []);
+  const __rf_S_RES = getTagsWithEvidence(__rf_S_RAW, S_TAGS || []);
+
+  const __rf_K_TAGS_DERIVED = Array.isArray(__rf_K_RES?.tags) ? __rf_K_RES.tags : [];
+  const __rf_S_TAGS_DERIVED = Array.isArray(__rf_S_RES?.tags) ? __rf_S_RES.tags : [];
+
+  const __rf_K_EVID = Array.isArray(__rf_K_RES?.evidence) ? __rf_K_RES.evidence : [];
+  const __rf_S_EVID = Array.isArray(__rf_S_RES?.evidence) ? __rf_S_RES.evidence : [];
+
+  const K_hit = (__rf_K_TAGS_DERIVED && __rf_K_TAGS_DERIVED.length) ? __rf_K_TAGS_DERIVED : (K.detail?.hit || []);
   const K_req  = (K.detail?.required || []);
   const K_miss = K_req.filter(t=> !K_hit.includes(t));
 
-  const S_hit  = (S.detail?.hit || []);
+  const S_hit = (__rf_S_TAGS_DERIVED && __rf_S_TAGS_DERIVED.length) ? __rf_S_TAGS_DERIVED : (S.detail?.hit || []);
   const S_req  = (S.detail?.required || []);
   const S_miss = S_req.filter(t=> !S_hit.includes(t));
 
@@ -340,7 +391,7 @@ function main(){
         <div class="h">
             覆盖:${(K.detail?.hit||[]).length}/${(K.detail?.required||[]).length}<br/>
             命中：${fmtTags(K_hit, kMap)}<br/>
-            缺口：${fmtTags(K_miss, kMap)}
+                          <div style="margin-top:6px;padding-top:6px;border-top:1px dashed rgba(14,18,32,.18);font-size:12px;line-height:1.5;"><div style="color:rgba(14,18,32,.6);font-weight:700;">命中依据（前8条）</div>${__rf_evidenceToHtml(__rf_K_EVID, kMap)}</div>缺口：${fmtTags(K_miss, kMap)}
           </div>
       </div>
       <div class="cardmini">
@@ -350,7 +401,7 @@ function main(){
         <div class="h">
             覆盖:${(S.detail?.hit||[]).length}/${(S.detail?.required||[]).length}<br/>
             命中：${fmtTags(S_hit, sMap)}<br/>
-            缺口：${fmtTags(S_miss, sMap)}
+                          <div style="margin-top:6px;padding-top:6px;border-top:1px dashed rgba(14,18,32,.18);font-size:12px;line-height:1.5;"><div style="color:rgba(14,18,32,.6);font-weight:700;">命中依据（前8条）</div>${__rf_evidenceToHtml(__rf_S_EVID, sMap)}</div>缺口：${fmtTags(S_miss, sMap)}
           </div>
       </div>
       <div class="cardmini">

@@ -1,5 +1,5 @@
 import { loadTaxonomy } from "/apps/role_fit/core/data_loader.js";
-import { suggestTags, joinFields } from "/apps/role_fit/core/tag_suggest.js";
+import { buildRaw, getTags } from "/apps/role_fit/core/tag_service.js";
 const KEY = "ROLE_FIT_STEP3_S_V1";
 const KEY_SUG = "ROLE_FIT_SUGGESTIONS_V0_1";
 
@@ -70,7 +70,7 @@ function readList(container){
 }
 
 function buildSRawFromUI(){
-  return joinFields([
+  return buildRaw([
     ...readList(titleList),
     ...readList(ipList),
     ...readList(skillTrainList),
@@ -81,7 +81,7 @@ function buildSRawFromUI(){
 }
 function deriveSTagsFromUI(){
   const raw = buildSRawFromUI();
-  return suggestTags(raw, S_TAGS);
+  return getTags(raw, S_TAGS);
 }
 
 // Derive tags from a saved payload object (no DOM dependency).
@@ -92,15 +92,15 @@ function deriveSTagsFromSavedPayload(j){
   const practices = Array.isArray(j?.practices) ? j.practices : [];
   const portfolio = String(j?.portfolio || "").trim();
   const note = String(j?.note || "").trim();
-  const raw = joinFields([ ...titles, ...ips, ...trains, ...practices, portfolio, note ]);
-  return suggestTags(raw, S_TAGS);
+  const raw = buildRaw([ ...titles, ...ips, ...trains, ...practices, portfolio, note ]);
+  return getTags(raw, S_TAGS);
 }
 
 
 
 function deriveSTagsFromData(j){
   try{
-    const raw = joinFields([
+    const raw = buildRaw([
       ...(j?.titles||[]),
       ...(j?.ips||[]),
       ...(j?.skill_trainings||[]),
@@ -108,7 +108,7 @@ function deriveSTagsFromData(j){
       String(j?.portfolio||""),
       String(j?.note||"")
     ]);
-    return suggestTags(raw, S_TAGS);
+    return getTags(raw, S_TAGS);
   }catch(e){
     return [];
   }

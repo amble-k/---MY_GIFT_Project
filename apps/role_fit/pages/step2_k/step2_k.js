@@ -1,5 +1,5 @@
 import { loadTaxonomy } from "/apps/role_fit/core/data_loader.js";
-import { suggestTags, joinFields } from "/apps/role_fit/core/tag_suggest.js";
+import { buildRaw, getTags } from "/apps/role_fit/core/tag_service.js";
 const KEY = "ROLE_FIT_STEP2_K_V1";
 const KEY_STEP1 = "ROLE_FIT_STEP1_ROLE_V3";
 const KEY_SUG = "ROLE_FIT_SUGGESTIONS_V0_1";
@@ -116,11 +116,11 @@ function buildKRawFromUI(){
   const certs = readList(certList);
   const trainings = readList(trainList);
   const n = String(note.value||"").trim();
-  return joinFields([eText, m1Text, m2Text, ...certs, ...trainings, n]);
+  return buildRaw([eText, m1Text, m2Text, ...certs, ...trainings, n]);
 }
 function deriveKTagsFromUI(){
   const raw = buildKRawFromUI();
-  return suggestTags(raw, K_TAGS);
+  return getTags(raw, K_TAGS);
 }
 
 // Derive tags from a saved payload object (no DOM dependency).
@@ -131,8 +131,8 @@ function deriveKTagsFromSavedPayload(j){
   const certs = Array.isArray(j?.certs) ? j.certs : [];
   const trainings = Array.isArray(j?.trainings) ? j.trainings : [];
   const n = String(j?.note || "").trim();
-  const raw = joinFields([eText, m1Text, m2Text, ...certs, ...trainings, n]);
-  return suggestTags(raw, K_TAGS);
+  const raw = buildRaw([eText, m1Text, m2Text, ...certs, ...trainings, n]);
+  return getTags(raw, K_TAGS);
 }
 
 function save(){
