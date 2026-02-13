@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ROLE FIT · 中台 Admin</title>
+  <style>
+    :root{--bg:#f6f7fb;--card:#fff;--text:#0e1220;--muted:rgba(14,18,32,.6);--line:rgba(14,18,32,.10);}
+    body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP","Hiragino Sans","PingFang SC","Microsoft YaHei",sans-serif;color:var(--text);}
+    .wrap{max-width:1100px;margin:0 auto;padding:18px;}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 6px 18px rgba(14,18,32,.05);}
+    h2{margin:0 0 10px 0;}
+    .hint{font-size:12px;color:var(--muted);line-height:1.6;margin:8px 0 14px 0;}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .btn{border:none;border-radius:12px;padding:10px 12px;font-weight:800;cursor:pointer;background:#0e1220;color:#fff;}
+    .btn2{border:1px solid rgba(14,18,32,.18);border-radius:12px;padding:10px 12px;font-weight:800;cursor:pointer;background:#fff;color:#0e1220;}
+    input,textarea,select{border:1px solid rgba(14,18,32,.14);border-radius:12px;padding:10px;outline:none;}
+    textarea{width:100%;min-height:120px;}
+    code{background:rgba(14,18,32,.06);padding:2px 6px;border-radius:8px;}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    @media (max-width:900px){ .grid{grid-template-columns:1fr;} }
+    .box{border:1px dashed rgba(14,18,32,.18);border-radius:14px;padding:12px;background:rgba(255,255,255,.7);}
+    .k{font-weight:900;margin-bottom:8px}
+    .tag{display:inline-block;border:1px solid rgba(14,18,32,.15);border-radius:999px;padding:4px 10px;margin:4px 6px 0 0;font-size:12px}
+    .warn{color:#b00020;font-weight:900}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h2>ROLE FIT · 中台 Admin（v0.1）</h2>
+      <div class="hint">
+        目标：让“知识库（taxonomy）/岗位模型（job_models）/匹配算法（matcher）”可视化、可校验、可增量迭代。<br/>
+        这页只读+诊断：先把“为什么 K/S 为 0”这种问题一次性定位清楚。
+      </div>
+
+      <div class="row">
+        <button class="btn" id="btnLoad" type="button">加载数据源</button>
+        <button class="btn2" id="btnDiag" type="button">诊断当前用户（localStorage）</button>
+        <button class="btn2" id="btnClear" type="button">清空 ROLE_FIT 本地数据</button>
+        <span class="hint">（清空只影响你浏览器本地，不会影响代码）</span>
+      </div>
+
+      <div class="grid" style="margin-top:14px;">
+        <div class="box">
+          <div class="k">数据源概览</div>
+          <div id="srcBox" class="hint">未加载</div>
+        </div>
+        <div class="box">
+          <div class="k">当前用户诊断</div>
+          <div id="diagBox" class="hint">未诊断</div>
+        </div>
+      </div>
+
+      <div class="box" style="margin-top:12px;">
+        <div class="k">匹配测试（输入一段文本，看看命中哪些标签）</div>
+        <div class="row" style="margin-bottom:10px;">
+          <select id="ns">
+            <option value="K">K（知识）</option>
+            <option value="S">S（技能）</option>
+          </select>
+          <button class="btn2" id="btnMatch" type="button">运行匹配</button>
+        </div>
+        <textarea id="txt" placeholder="例如：SQL 数据分析 / 项目推进 落地 / SPIN 大客户谈判 等"></textarea>
+        <div id="matchBox" class="hint"></div>
+      </div>
+
+      <div class="box" style="margin-top:12px;">
+        <div class="k">原始输出（调试用）</div>
+        <textarea id="raw" spellcheck="false"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./admin.js"></script>
+</body>
+</html>

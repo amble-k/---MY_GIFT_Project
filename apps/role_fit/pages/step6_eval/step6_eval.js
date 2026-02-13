@@ -1,6 +1,11 @@
 import { loadTaxonomy } from "/apps/role_fit/core/data_loader.js";console.log("[STEP6_DEBUG] origin=", location.origin);
 import { buildRaw, getTagsWithEvidence } from "/apps/role_fit/core/tag_service.js";
 
+// ---- globals for taxonomy tags (Step6) ----
+let TAXONOMY = null;
+let K_TAGS = [];
+let S_TAGS = [];
+
 // ---- tag-service helpers (Step6 centralized matching + evidence) ----
 function __rf_buildKRawFromSaved(k){
   if (!k || typeof k !== "object") return "";
@@ -48,7 +53,24 @@ let DATA_SOURCES = null;
   try{
     DATA_SOURCES = await loadDataSources();
     window.__ROLE_FIT_DATA__ = DATA_SOURCES; // debug hook
-    console.log("[STEP6_DEBUG] DATA_SOURCES loaded", {
+    
+// ---- bind taxonomy tags (K/S) for Step6 ----
+try{
+  TAXONOMY = (DATA_SOURCES && (DATA_SOURCES.taxonomy || DATA_SOURCES.TAXONOMY)) || null;
+  if (Array.isArray(TAXONOMY)){
+    // tolerate legacy shape (array)
+    K_TAGS = TAXONOMY;
+    S_TAGS = TAXONOMY;
+  }else if (TAXONOMY && typeof TAXONOMY === "object"){
+    K_TAGS = TAXONOMY.K_TAGS || TAXONOMY.k_tags || TAXONOMY.tags || [];
+    S_TAGS = TAXONOMY.S_TAGS || TAXONOMY.s_tags || [];
+  }
+  console.log("[STEP6_DEBUG] STEP6 taxonomy bound", { k_n: Array.isArray(K_TAGS)?K_TAGS.length:0, s_n: Array.isArray(S_TAGS)?S_TAGS.length:0 });
+}catch(e){
+  console.warn("[STEP6_DEBUG] STEP6 taxonomy bind failed", e);
+}
+
+console.log("[STEP6_DEBUG] DATA_SOURCES loaded", {
       taxonomy_type: Array.isArray(DATA_SOURCES.taxonomy) ? "array" : typeof DATA_SOURCES.taxonomy,
       jobModels_keys: DATA_SOURCES.jobModels ? Object.keys(DATA_SOURCES.jobModels) : null,
     });
@@ -138,11 +160,13 @@ function coverage(userTags, requiredTags){
   return { score: clamp01(score), detail:{ mode:"coverage", required:req, hit } };
 }
 function findJobModel(jobModels, key){
-  const models = (jobModels && typeof jobModels==="object") ? (jobModels.models || jobModels) : null;
-  const k = String(key||"");
-  if (Array.isArray(models)) return models.find(m=>String(m?.key||m?.id||"")===k) || null;
-  return null;
+  const data = jobModels && (jobModels.models || jobModels);
+  const arr = Array.isArray(data) ? data : (data ? Object.values(data) : []);
+  const kk = String(key||"").trim();
+  if (!kk) return null;
+  return arr.find(m => String(m?.key||m?.id||m?.value||"").trim()===kk) || null;
 }
+
 
 function clamp01(x){
   const n = Number(x);
@@ -284,6 +308,9 @@ function overall(A_fit, K_coverage, S_coverage, H_fit){
 function pct(x){ return Math.round(clamp01(x)*100); }
 
 function main(){
+  let __rf_K_EVID = [];
+  let __rf_S_EVID = [];
+  const __DBG = (name, v)=>{ try{ console.log("[STEP6_DBG]", name, v); }catch(e){} };
   const box = el("summaryBox");
   const raw = el("rawBox");
 
@@ -302,8 +329,24 @@ function main(){
     (jobKeyUI === "__custom__" ? "" : jobKeyUI);
 
   const jm = findJobModel(DATA_SOURCES?.jobModels, jobModelKey);
-  const K = coverage(k?.k_tags || k?.payload?.k_tags || [], jm?.required_k_tags || []);
-  const S = coverage(s?.s_tags || s?.payload?.s_tags || [], jm?.required_s_tags || []);
+  // K/S as coverage: user tags cover job required tags
+  const __rf_K_RAW = __rf_buildKRawFromSaved(k || null);
+  const __rf_S_RAW = __rf_buildSRawFromSaved(s || null);
+
+  const __rf_K_RES = getTagsWithEvidence(__rf_K_RAW, K_TAGS || []);
+    __DBG("K_TAGS_n", Array.isArray(K_TAGS)?K_TAGS.length:0);
+    __DBG("K_RAW", __rf_K_RAW);
+    __DBG("K_DERIVED", (__rf_K_RES&&__rf_K_RES.tags)||[]);
+  const __rf_S_RES = getTagsWithEvidence(__rf_S_RAW, S_TAGS || []);
+    __DBG("S_TAGS_n", Array.isArray(S_TAGS)?S_TAGS.length:0);
+    __DBG("S_RAW", __rf_S_RAW);
+    __DBG("S_DERIVED", (__rf_S_RES&&__rf_S_RES.tags)||[]);
+
+  const __rf_K_TAGS_DERIVED = Array.isArray(__rf_K_RES?.tags) ? __rf_K_RES.tags : [];
+  const __rf_S_TAGS_DERIVED = Array.isArray(__rf_S_RES?.tags) ? __rf_S_RES.tags : [];
+
+  const K = coverage(__rf_K_TAGS_DERIVED, jm?.required_k_tags || []);
+  const S = coverage(__rf_S_TAGS_DERIVED, jm?.required_s_tags || []);
   const K_ability = scoreK(k);
   const S_ability = scoreS(s);
   const A = scoreA(a);
@@ -318,32 +361,19 @@ function main(){
 
 
   // ---- K/S tag labels + hit/miss ----
-  const tx = (DATA_SOURCES && DATA_SOURCES.taxonomy) ? DATA_SOURCES.taxonomy : null;
-  const kMap = buildTagMap(tx?.K_TAGS || tx?.k_tags || []);
-  const sMap = buildTagMap(tx?.S_TAGS || tx?.s_tags || []);
+    const tx = (DATA_SOURCES && DATA_SOURCES.taxonomy) ? DATA_SOURCES.taxonomy : null;
+    const kMap = buildTagMap(tx?.K_TAGS || tx?.k_tags || []);
+    const sMap = buildTagMap(tx?.S_TAGS || tx?.s_tags || []);
+    const K_req  = Array.isArray(jm?.required_k_tags) ? jm.required_k_tags : (K.detail?.required || []);
+    const S_req  = Array.isArray(jm?.required_s_tags) ? jm.required_s_tags : (S.detail?.required || []);
 
-  // ---- centralized matching in Step6 (re-derive tags + evidence from saved payload) ----
-  const __rf_K_RAW = __rf_buildKRawFromSaved(k || null);
-  const __rf_S_RAW = __rf_buildSRawFromSaved(s || null);
+    const K_hit = __rf_K_TAGS_DERIVED.length ? __rf_K_TAGS_DERIVED : (K.detail?.hit || []);
+    const S_hit = __rf_S_TAGS_DERIVED.length ? __rf_S_TAGS_DERIVED : (S.detail?.hit || []);
 
-  const __rf_K_RES = getTagsWithEvidence(__rf_K_RAW, K_TAGS || []);
-  const __rf_S_RES = getTagsWithEvidence(__rf_S_RAW, S_TAGS || []);
+    const K_miss = K_req.filter(t=> !K_hit.includes(t));
+    const S_miss = S_req.filter(t=> !S_hit.includes(t));
 
-  const __rf_K_TAGS_DERIVED = Array.isArray(__rf_K_RES?.tags) ? __rf_K_RES.tags : [];
-  const __rf_S_TAGS_DERIVED = Array.isArray(__rf_S_RES?.tags) ? __rf_S_RES.tags : [];
-
-  const __rf_K_EVID = Array.isArray(__rf_K_RES?.evidence) ? __rf_K_RES.evidence : [];
-  const __rf_S_EVID = Array.isArray(__rf_S_RES?.evidence) ? __rf_S_RES.evidence : [];
-
-  const K_hit = (__rf_K_TAGS_DERIVED && __rf_K_TAGS_DERIVED.length) ? __rf_K_TAGS_DERIVED : (K.detail?.hit || []);
-  const K_req  = (K.detail?.required || []);
-  const K_miss = K_req.filter(t=> !K_hit.includes(t));
-
-  const S_hit = (__rf_S_TAGS_DERIVED && __rf_S_TAGS_DERIVED.length) ? __rf_S_TAGS_DERIVED : (S.detail?.hit || []);
-  const S_req  = (S.detail?.required || []);
-  const S_miss = S_req.filter(t=> !S_hit.includes(t));
-
-  const O_match = overall(A.score, K.score, S.score, H.score);
+    const O_match = overall(A.score, K.score, S.score, H.score);
   // ability bonus: 让“填了信息”也能体现（但权重很小，不掩盖匹配差距）
   const bonus_w = 0.10;
   const O = clamp01(O_match + bonus_w * avg([K_ability.score, S_ability.score]) * clamp01(A.score));

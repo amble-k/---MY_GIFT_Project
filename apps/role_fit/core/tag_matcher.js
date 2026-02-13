@@ -134,7 +134,7 @@ export function _matchTagsCore(text, tags, opts = {}){
       // phrase match
       const re = phraseToRegExp(w, cfg.phraseGapMax);
       if (re && re.test(raw)){
-        const tagKey = key || ww;
+        const tagKey = key; if (!tagKey) return;
         out.push(tagKey);
         evidence.push({
           tag: tagKey,
@@ -147,7 +147,7 @@ export function _matchTagsCore(text, tags, opts = {}){
 
       // substring match
       if (raw.includes(ww)){
-        const tagKey = key || ww;
+        const tagKey = key; if (!tagKey) return;
         out.push(tagKey);
         evidence.push({
           tag: tagKey,
