@@ -490,7 +490,12 @@
         "プレゼン",
         "提案書",
         "説明",
-        "presentation"
+        "presentation",
+        "Keynote",
+        "Demo",
+        "プレゼンテーション",
+        "報告",
+        "発表"
       ]
     },
     {
