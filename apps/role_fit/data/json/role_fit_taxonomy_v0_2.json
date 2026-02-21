@@ -1,9 +1,11 @@
 {
   "meta": {
-    "version": "0.1",
+    "version": "v0.2",
     "note": "Phase2 JSON taxonomy (company + K/S tags)",
     "h_dims_norm_version": "v0.2",
-    "h_dims_norm_ts": 1771151178289
+    "h_dims_norm_ts": 1771151178289,
+    "ts": 1771573619003,
+    "source": "seed_expand_from_v0_1"
   },
   "company_categories": [
     {
@@ -123,15 +125,27 @@
     },
     {
       "key": "ux_basics",
-      "label": "UX基础"
+      "label": "UX基础",
+      "aliases": [
+        "UX基础",
+        "ux_basics"
+      ]
     },
     {
       "key": "marketing_basics",
-      "label": "市场基础"
+      "label": "市场基础",
+      "aliases": [
+        "市场基础",
+        "marketing_basics"
+      ]
     },
     {
       "key": "finance_basics",
-      "label": "财务基础"
+      "label": "财务基础",
+      "aliases": [
+        "财务基础",
+        "finance_basics"
+      ]
     },
     {
       "key": "project_mgmt",
@@ -171,13 +185,242 @@
     },
     {
       "key": "compliance",
-      "label": "合规/风控"
+      "label": "合规/风控",
+      "aliases": [
+        "合规/风控",
+        "compliance"
+      ]
     },
     {
       "key": "business_english",
       "label": "商务英语",
       "aliases": [
         "SPIN"
+      ]
+    },
+    {
+      "key": "strategy",
+      "label": "战略与经营",
+      "aliases": [
+        "战略",
+        "经营战略",
+        "战略规划",
+        "business strategy",
+        "strategy"
+      ]
+    },
+    {
+      "key": "biz_analysis",
+      "label": "业务分析",
+      "aliases": [
+        "业务分析",
+        "商业分析",
+        "需求分析",
+        "business analysis",
+        "BA"
+      ]
+    },
+    {
+      "key": "finance_basic",
+      "label": "财务基础",
+      "aliases": [
+        "财务",
+        "会计基础",
+        "财务分析",
+        "财务报表",
+        "P/L",
+        "BS",
+        "CF"
+      ]
+    },
+    {
+      "key": "fp_and_a",
+      "label": "FP&A/经营企划",
+      "aliases": [
+        "FP&A",
+        "经营企划",
+        "预算",
+        "rolling forecast",
+        "budget"
+      ]
+    },
+    {
+      "key": "accounting",
+      "label": "会计",
+      "aliases": [
+        "会计",
+        "记账",
+        "审计准备",
+        "accounting"
+      ]
+    },
+    {
+      "key": "tax",
+      "label": "税务",
+      "aliases": [
+        "税务",
+        "税金",
+        "税务筹划",
+        "tax"
+      ]
+    },
+    {
+      "key": "marketing_basic",
+      "label": "市场营销基础",
+      "aliases": [
+        "市场营销",
+        "营销",
+        "marketing",
+        "品牌"
+      ]
+    },
+    {
+      "key": "digital_marketing",
+      "label": "数字营销",
+      "aliases": [
+        "数字营销",
+        "投放",
+        "SEO",
+        "SEM",
+        "广告投放",
+        "growth",
+        "performance marketing"
+      ]
+    },
+    {
+      "key": "sales_method",
+      "label": "销售方法论",
+      "aliases": [
+        "销售",
+        "SPIN",
+        "解决方案销售",
+        "顾问式销售",
+        "B2B销售",
+        "KA方法"
+      ]
+    },
+    {
+      "key": "consulting_method",
+      "label": "咨询方法论",
+      "aliases": [
+        "咨询",
+        "MECE",
+        "金字塔原理",
+        "逻辑树",
+        "issue tree",
+        "hypothesis driven"
+      ]
+    },
+    {
+      "key": "research",
+      "label": "研究/调研",
+      "aliases": [
+        "调研",
+        "用户研究",
+        "访谈",
+        "问卷",
+        "desk research",
+        "market research"
+      ]
+    },
+    {
+      "key": "data_literacy",
+      "label": "数据素养",
+      "aliases": [
+        "数据分析",
+        "指标体系",
+        "数据看板",
+        "KPI",
+        "SQL",
+        "统计",
+        "A/B test"
+      ]
+    },
+    {
+      "key": "ppt_doc",
+      "label": "文档与汇报产出",
+      "aliases": [
+        "PPT",
+        "报告",
+        "提案",
+        "文档",
+        "企划书",
+        "deck"
+      ]
+    },
+    {
+      "key": "org_design",
+      "label": "组织与人力",
+      "aliases": [
+        "组织",
+        "人力资源",
+        "HR",
+        "绩效",
+        "组织设计",
+        "人才发展"
+      ]
+    },
+    {
+      "key": "ops_process",
+      "label": "流程与运营",
+      "aliases": [
+        "流程",
+        "运营",
+        "SOP",
+        "标准流程",
+        "运营管理"
+      ]
+    },
+    {
+      "key": "risk_compliance",
+      "label": "风险与合规",
+      "aliases": [
+        "合规",
+        "内控",
+        "风险",
+        "监管",
+        "compliance"
+      ]
+    },
+    {
+      "key": "stakeholder_map",
+      "label": "利益相关方分析",
+      "aliases": [
+        "利益相关方",
+        "stakeholder map",
+        "stakeholder analysis"
+      ]
+    },
+    {
+      "key": "problem_structuring",
+      "label": "问题结构化",
+      "aliases": [
+        "结构化",
+        "问题拆解",
+        "框架",
+        "分析框架",
+        "structuring"
+      ]
+    },
+    {
+      "key": "facilitation",
+      "label": "工作坊/引导",
+      "aliases": [
+        "工作坊",
+        "facilitation",
+        "引导",
+        "共创",
+        "design workshop"
+      ]
+    },
+    {
+      "key": "change_mgmt",
+      "label": "变革管理",
+      "aliases": [
+        "变革",
+        "变革管理",
+        "change management",
+        "落地推动"
       ]
     }
   ],
@@ -208,7 +451,11 @@
         "仕様書",
         "議事録",
         "レポート",
-        "ドキュメント"
+        "ドキュメント",
+        "报告撰写",
+        "写方案",
+        "写材料",
+        "document"
       ]
     },
     {
@@ -242,7 +489,8 @@
         "共识",
         "プレゼン",
         "提案書",
-        "説明"
+        "説明",
+        "presentation"
       ]
     },
     {
@@ -271,7 +519,9 @@
         "谈判",
         "总经理",
         "管理层",
-        "推进协同"
+        "推进协同",
+        "干系人",
+        "stakeholder"
       ]
     },
     {
@@ -288,7 +538,9 @@
         "项目统筹",
         "项目计划",
         "交付管理",
-        "过程管理"
+        "过程管理",
+        "PMO",
+        "推进落地"
       ],
       "id": "project_mgmt"
     },
@@ -305,7 +557,9 @@
         "行动力",
         "推进落地",
         "执行落地",
-        "推进"
+        "推进",
+        "闭环",
+        "follow through"
       ],
       "id": "execution"
     },
@@ -351,7 +605,8 @@
         "课题",
         "课题解決",
         "問題解決",
-        "仮説検証"
+        "仮説検証",
+        "case interview"
       ]
     },
     {
@@ -370,17 +625,26 @@
     {
       "key": "data_viz",
       "label": "数据可视化",
-      "aliases": []
+      "aliases": [
+        "数据可视化",
+        "data_viz"
+      ]
     },
     {
       "key": "coding",
       "label": "编码实现",
-      "aliases": []
+      "aliases": [
+        "编码实现",
+        "coding"
+      ]
     },
     {
       "key": "prototyping",
       "label": "原型设计",
-      "aliases": []
+      "aliases": [
+        "原型设计",
+        "prototyping"
+      ]
     },
     {
       "key": "negotiation",
@@ -395,7 +659,11 @@
         "销售沟通",
         "关键客户",
         "KA",
-        "ToB销售"
+        "ToB销售",
+        "谈判",
+        "议价",
+        "协商",
+        "negotiation"
       ]
     },
     {
@@ -403,13 +671,96 @@
       "label": "领导力",
       "aliases": [
         "总经理",
-        "总经理经验"
+        "总经理经验",
+        "领导力",
+        "带团队",
+        "管理团队",
+        "团队管理",
+        "people management"
       ]
     },
     {
       "key": "process_improve",
       "label": "流程优化",
-      "aliases": []
+      "aliases": [
+        "流程优化",
+        "process_improve"
+      ]
+    },
+    {
+      "key": "structured_thinking",
+      "label": "结构化思考",
+      "aliases": [
+        "结构化思考",
+        "MECE",
+        "金字塔原理",
+        "逻辑清晰",
+        "逻辑性"
+      ]
+    },
+    {
+      "key": "client_facing",
+      "label": "客户沟通",
+      "aliases": [
+        "客户沟通",
+        "客户管理",
+        "客户拜访",
+        "对客",
+        "client facing"
+      ]
+    },
+    {
+      "key": "analysis",
+      "label": "分析能力",
+      "aliases": [
+        "分析",
+        "数据分析",
+        "财务分析",
+        "洞察",
+        "insight"
+      ]
+    },
+    {
+      "key": "communication",
+      "label": "沟通协作",
+      "aliases": [
+        "沟通",
+        "协作",
+        "协调",
+        "对齐",
+        "沟通能力"
+      ]
+    },
+    {
+      "key": "facilitation_s",
+      "label": "引导与共创",
+      "aliases": [
+        "引导",
+        "工作坊",
+        "共创",
+        "主持",
+        "facilitation"
+      ]
+    },
+    {
+      "key": "ownership",
+      "label": "责任心/Ownership",
+      "aliases": [
+        "责任心",
+        "owner",
+        "ownership",
+        "主人翁"
+      ]
+    },
+    {
+      "key": "learning_agility",
+      "label": "学习敏捷",
+      "aliases": [
+        "学习能力",
+        "学习敏捷",
+        "快速学习",
+        "自我驱动"
+      ]
     }
   ],
   "H_DIMS": [

@@ -1,4 +1,4 @@
-import { loadTaxonomy } from "/apps/role_fit/core/data_loader.js";console.log("[STEP6_DEBUG] origin=", location.origin);
+import { loadTaxonomy, loadContextMap } from "/apps/role_fit/core/data_loader.js";console.log("[STEP6_DEBUG] origin=", location.origin);
 import { buildRaw, getTagsWithEvidence } from "/apps/role_fit/core/tag_service.js";
 
 // ---- globals for taxonomy tags (Step6) ----
@@ -49,10 +49,12 @@ console.log("[STEP6_DEBUG] ROLE_FIT keys=", Object.keys(localStorage).filter(k=>
 
 // Phase2: load JSON data sources (taxonomy/job_models)
 let DATA_SOURCES = null;
+let POLICY = null;
 (async ()=>{
   try{
     DATA_SOURCES = await loadDataSources();
     window.__ROLE_FIT_DATA__ = DATA_SOURCES; // debug hook
+      try{ POLICY = DATA_SOURCES?.policy || null; }catch(e){ POLICY = null; }
     
 // ---- bind taxonomy tags (K/S) for Step6 ----
 try{
@@ -116,11 +118,12 @@ function loadAny(keys){
 async function loadDataSources(){
   // Primary: JSON via fetch (Phase2)
   try{
-    const [taxonomy, jobModels] = await Promise.all([
-      loadTaxonomy(),
+    const [taxonomy, jobModels, policy] = await Promise.all([
+loadTaxonomy(),
       fetch("/apps/role_fit/data/json/job_models_v0_1.json", { cache: "no-store" }).then(r=>r.json()),
-    ]);
-    return { taxonomy, jobModels, source: "json" };
+  fetch("/apps/role_fit/data/json/role_fit_policy_v0_1.json", { cache: "no-store" }).then(r=>r.json()),
+]);
+return { taxonomy, jobModels, policy, source: "json" };
   }catch(e){
     console.error("[DATA_LOADER] JSON fetch failed (no JS fallback in Phase2)", e);
     throw e;
@@ -239,32 +242,47 @@ function scoreS(sPayload){
   return {score, detail:{titleN, ipN, trainN, pracN, hasPortfolio:!!portfolio}};
 }
 
-function scoreA(aPayload){
-  // Product rule: A is multiplicative axis, but missing A should not hard-zero the whole score.
-  // Use a neutral default and keep a visible missing flag for UX.
-  const DEFAULT_A = 0.65;
+function scoreA(aPayload, jm){
+  // A is multiplicative axis; use policy for defaults when available
+  const DEFAULT_A = Number(POLICY?.policy?.A_axis?.missing_default ?? 0.65);
+  const FLOOR_A   = Number(POLICY?.policy?.A_axis?.floor ?? 0.35);
 
-  if (!aPayload) return {score:DEFAULT_A, detail:{missing:true, mode:"default_neutral"}};
+  if (!aPayload) return {score:clamp01(Math.max(FLOOR_A, DEFAULT_A)), detail:{missing:true, mode:"default_neutral"}};
 
   const p = aPayload.payload || aPayload;
   const a = p.a_score || p;
 
-  // Prefer fit_overall if present
+  // Prefer fit_overall if present (still useful)
   const fit = a.fit_overall;
-  if (isFinite(Number(fit))) return {score:clamp01(fit), detail:{missing:false, mode:"fit_overall"}};
+  if (isFinite(Number(fit))) return {score:clamp01(Math.max(FLOOR_A, Number(fit))), detail:{missing:false, mode:"fit_overall"}};
 
   // Fallback: average A_vector
   const v = a.A_vector || a.vector || null;
   if (v && typeof v === "object"){
+    // If job model has a_target, use distance-to-target (professional axis)
+    const t = jm?.a_target || jm?.A_target || null;
+    if (t && typeof t === "object"){
+      const dims = ["D","I","S","C"];
+      const diffs = dims.map(k => {
+        const vv = Number(v?.[k]); const tt = Number(t?.[k]);
+        if (!isFinite(vv) || !isFinite(tt)) return null;
+        return Math.abs(vv - tt);
+      }).filter(x=>x!==null);
+      if (diffs.length){
+        const dist = diffs.reduce((a,b)=>a+b,0) / diffs.length; // 0..1
+        const closeness = 1 - clamp01(dist);
+        return {score:clamp01(Math.max(FLOOR_A, closeness)), detail:{missing:false, mode:"distance_to_target", dist:Number(dist.toFixed(3))}};
+      }
+    }
+
     const vals = Object.values(v).map(Number).filter(n=>isFinite(n));
     if (vals.length){
       const m = avg(vals);
-      return {score:clamp01(m), detail:{missing:false, mode:"avg_vector"}};
+      return {score:clamp01(Math.max(FLOOR_A, m)), detail:{missing:false, mode:"avg_vector"}};
     }
   }
 
-  // Unknown shape -> neutral default
-  return {score:DEFAULT_A, detail:{missing:true, mode:"default_neutral"}};
+  return {score:clamp01(Math.max(FLOOR_A, DEFAULT_A)), detail:{missing:true, mode:"default_neutral"}};
 }
 
 function scoreH(hPayload){
@@ -307,7 +325,7 @@ function overall(A_fit, K_coverage, S_coverage, H_fit){
 
 function pct(x){ return Math.round(clamp01(x)*100); }
 
-function main(){
+async function main(){
   let __rf_K_EVID = [];
   let __rf_S_EVID = [];
   const __DBG = (name, v)=>{ try{ console.log("[STEP6_DBG]", name, v); }catch(e){} };
@@ -315,10 +333,34 @@ function main(){
   const raw = el("rawBox");
 
   const step1 = loadOne(KEY_STEP1);
+
+        // GUARD_DATA_READY_v0_1: avoid early run before sources loaded
+    const _hasTax = (typeof K_TAGS!=="undefined") && Array.isArray(K_TAGS) && K_TAGS.length>0
+                && (typeof S_TAGS!=="undefined") && Array.isArray(S_TAGS) && S_TAGS.length>0;
+    const _hasJM  = (DATA_SOURCES && DATA_SOURCES.jobModels);
+    if (!_hasTax || !_hasJM){
+      try{ console.warn("[STEP6_GUARD] sources not ready, skip main()", { hasTax:_hasTax, hasJM:!!_hasJM }); }catch(e){}
+      return;
+    }
   const k = loadOne(KEY_K);
   const s = loadOne(KEY_S);
   const a = loadAny([KEY_A_V1, KEY_A_V01]).data;
-  const h = loadAny([KEY_H_V1, KEY_H_V01]).data;
+  
+const h = loadAny([KEY_H_V1, KEY_H_V01]).data;
+
+    // ---- CTXMAP_LOADER_V0_1 (company_category x job_family) ----
+    try{
+      if (!CONTEXT_MAP){
+        CONTEXT_MAP = await fetch("/apps/role_fit/data/json/company_job_context_map_v0_1.json", { cache:"no-store" }).then(r=>r.json());
+        const n = (CONTEXT_MAP && Array.isArray(CONTEXT_MAP.pairs)) ? CONTEXT_MAP.pairs.length : 0;
+        console.log("[CTXMAP] loaded", { pairs_n:n });
+      }
+    }catch(e){
+      console.warn("[CTXMAP] load failed", String(e?.message||e));
+      CONTEXT_MAP = null;
+    }
+
+    let jm_eff = null;
 
     // K/S as coverage: user tags cover job required tags
   const jobKeyUI = step1?.job_key || step1?.payload?.job_key || "";
@@ -329,6 +371,36 @@ function main(){
     (jobKeyUI === "__custom__" ? "" : jobKeyUI);
 
   const jm = findJobModel(DATA_SOURCES?.jobModels, jobModelKey);
+
+  // ---- apply company x job_family context overrides ----
+  const __STEP1 = step1 || null;
+  const __CTX_PAIR = __rf_findContextPair(__STEP1);
+  const __CTX_EFF = __rf_applyContextOverrides(jm, __CTX_PAIR);
+
+  // effective job model (after overrides)
+  jm_eff = jm ? Object.assign({}, jm) : null;
+  if (jm_eff){
+    jm_eff.required_k_tags = __CTX_EFF.required_k_tags;
+    jm_eff.required_s_tags = __CTX_EFF.required_s_tags;
+    jm_eff.required_h_dims = __CTX_EFF.required_h_dims;
+    if (__CTX_EFF.a_target_patch!=null) jm_eff.a_target = __CTX_EFF.a_target_patch;
+  }
+
+  // expose for debug
+  window.__ROLE_FIT_STEP6_CTX__ = { key: __CTX_PAIR?.key || null, overrides: __CTX_PAIR?.overrides || null };
+
+
+    // ---- debug: context + effective model ----
+    __DBG("CTX_PAIR", window.__ROLE_FIT_STEP6_CTX__);
+    __DBG("JM_EFF", jm_eff ? {
+      key: String(jm_eff.key||jm_eff.id||jobModelKey||""),
+      family: String(jm_eff.family||""),
+      a_target: (jm_eff.a_target ?? null),
+      a_alpha: (jm_eff.a_alpha ?? null),
+      reqK: Array.isArray(jm_eff.required_k_tags)?jm_eff.required_k_tags:[],
+      reqS: Array.isArray(jm_eff.required_s_tags)?jm_eff.required_s_tags:[],
+      reqH: Array.isArray(jm_eff.required_h_dims)?jm_eff.required_h_dims:[]
+    } : null);
   // K/S as coverage: user tags cover job required tags
   const __rf_K_RAW = __rf_buildKRawFromSaved(k || null);
   const __rf_S_RAW = __rf_buildSRawFromSaved(s || null);
@@ -349,7 +421,7 @@ function main(){
   const S = coverage(__rf_S_TAGS_DERIVED, jm?.required_s_tags || []);
   const K_ability = scoreK(k);
   const S_ability = scoreS(s);
-  const A = scoreA(a);
+  const A = scoreA(a, jm);
   // attach A_vector for reporting (support both {a_score:{A_vector}} and {A_vector})
   const A_vec = (a && typeof a==='object') ? (a.a_score?.A_vector || a.A_vector || null) : null;
   if (A && typeof A==='object'){
@@ -364,8 +436,8 @@ function main(){
     const tx = (DATA_SOURCES && DATA_SOURCES.taxonomy) ? DATA_SOURCES.taxonomy : null;
     const kMap = buildTagMap(tx?.K_TAGS || tx?.k_tags || []);
     const sMap = buildTagMap(tx?.S_TAGS || tx?.s_tags || []);
-    const K_req  = Array.isArray(jm?.required_k_tags) ? jm.required_k_tags : (K.detail?.required || []);
-    const S_req  = Array.isArray(jm?.required_s_tags) ? jm.required_s_tags : (S.detail?.required || []);
+    const K_req  = Array.isArray(jm?.required_k_tags) ? jm_eff?.required_k_tags : (K.detail?.required || []);
+    const S_req  = Array.isArray(jm?.required_s_tags) ? jm_eff?.required_s_tags : (S.detail?.required || []);
 
     const K_hit = __rf_K_TAGS_DERIVED.length ? __rf_K_TAGS_DERIVED : (K.detail?.hit || []);
     const S_hit = __rf_S_TAGS_DERIVED.length ? __rf_S_TAGS_DERIVED : (S.detail?.hit || []);
@@ -462,10 +534,48 @@ function main(){
 
   
 
-  document.getElementById("gotoStep4A")?.addEventListener("click", ()=>{
+  
+  // ---- explain panel (UI) ----
+  try{
+    if (__rf_explain_v0_1 && box){
+      const d = document.createElement("details");
+      d.style.marginTop = "12px";
+      d.open = false;
+
+      const s = document.createElement("summary");
+      s.textContent = "评分解释（explain_v0_1）";
+      s.style.cursor = "pointer";
+      s.style.fontWeight = "900";
+      d.appendChild(s);
+
+      const pre = document.createElement("pre");
+      pre.style.whiteSpace = "pre-wrap";
+      pre.style.fontSize = "12px";
+      pre.style.lineHeight = "1.45";
+      pre.style.marginTop = "8px";
+      pre.textContent = JSON.stringify(__rf_explain_v0_1, null, 2);
+      d.appendChild(pre);
+
+      box.appendChild(d);
+    }
+  }catch(e){}
+
+document.getElementById("gotoStep4A")?.addEventListener("click", ()=>{
     location.href = "/apps/role_fit/pages/step4_a/index.html";
   });
 const rawObj = {
+      // ---- admin: show effective job model + context ----
+      ctx: (window.__ROLE_FIT_STEP6_CTX__ || null),
+      jm_effective: (jm_eff ? {
+        key: String(jm_eff.key||jm_eff.id||jobModelKey||""),
+        title: String(jm_eff.title_zh||jm_eff.title||""),
+        family: String(jm_eff.family||""),
+        a_target: (jm_eff.a_target ?? null),
+        a_alpha: (jm_eff.a_alpha ?? null),
+        required_k_tags: Array.isArray(jm_eff.required_k_tags)?jm_eff.required_k_tags:[],
+        required_s_tags: Array.isArray(jm_eff.required_s_tags)?jm_eff.required_s_tags:[],
+        required_h_dims: Array.isArray(jm_eff.required_h_dims)?jm_eff.required_h_dims:[]
+      } : null),
     keys:{
       step1: KEY_STEP1,
       k: KEY_K,
@@ -495,7 +605,210 @@ const rawObj = {
     }
   };
 
+  
+  // ---- explain_v0_1 (wire) ----
+  // build explanation payload for transparency + debugging
+  let __rf_explain_v0_1 = null;
+  try{
+    const __rf_Kcov = (typeof K_cov!=="undefined" && K_cov) ? K_cov : null;
+    const __rf_Scov = (typeof S_cov!=="undefined" && S_cov) ? S_cov : null;
+
+    const __rf_KcovScore = (__rf_Kcov && typeof __rf_Kcov.score!=="undefined") ? __rf_Kcov.score : (K && typeof K.score!=="undefined" ? K.score : 0);
+    const __rf_ScovScore = (__rf_Scov && typeof __rf_Scov.score!=="undefined") ? __rf_Scov.score : (S && typeof S.score!=="undefined" ? S.score : 0);
+    const __rf_Cov = (typeof avg==="function") ? avg([__rf_KcovScore, __rf_ScovScore]) : ((__rf_KcovScore + __rf_ScovScore)/2);
+
+    __rf_explain_v0_1 = buildExplainV01({
+      job_model_key: (typeof jobModelKey!=="undefined" ? jobModelKey : (typeof job_model_key!=="undefined" ? job_model_key : "")),
+      jm: (typeof jm!=="undefined" ? jm : null),
+      policy: (typeof POLICY!=="undefined" ? POLICY : (typeof policy!=="undefined" ? policy : null)),
+      Afit: (A && typeof A.score!=="undefined") ? A.score : 0,
+      Hfit: (H && typeof H.score!=="undefined") ? H.score : 0,
+      Kcov: __rf_KcovScore,
+      Scov: __rf_ScovScore,
+      Cov: __rf_Cov,
+      Bonus: (typeof Bonus!=="undefined") ? Bonus : 0,
+      Fit: (typeof O!=="undefined") ? O : 0,
+      required: {
+        K: (__rf_Kcov && (__rf_Kcov.required || (__rf_Kcov.detail && __rf_Kcov.detail.required))) || [],
+        S: (__rf_Scov && (__rf_Scov.required || (__rf_Scov.detail && __rf_Scov.detail.required))) || [],
+        H: (jm && jm_eff?.required_h_dims) ? jm_eff?.required_h_dims : []
+      },
+      hit: {
+        K: (__rf_Kcov && (__rf_Kcov.hit || (__rf_Kcov.detail && __rf_Kcov.detail.hit))) || [],
+        S: (__rf_Scov && (__rf_Scov.hit || (__rf_Scov.detail && __rf_Scov.detail.hit))) || []
+      },
+      miss: {
+        K: (__rf_Kcov && (__rf_Kcov.miss)) || [],
+        S: (__rf_Scov && (__rf_Scov.miss)) || []
+      },
+      evidence: {
+        K: (typeof K_evidence!=="undefined") ? K_evidence : {},
+        S: (typeof S_evidence!=="undefined") ? S_evidence : {}
+      },
+      missingFlags: {
+        missing_step4A: !!(A && A.detail && A.detail.missing),
+        missing_step5H: !!(H && H.detail && H.detail.missing),
+        missing_step2K: !!(K && K.detail && K.detail.missing),
+        missing_step3S: !!(S && S.detail && S.detail.missing)
+      }
+    });
+
+    try{
+      localStorage.setItem("ROLE_FIT_STEP6_EXPLAIN_V0_1", JSON.stringify(__rf_explain_v0_1));
+    }catch(e){}
+    try{
+      if (rawObj && typeof rawObj==="object") rawObj.explain_v0_1 = __rf_explain_v0_1;
+    }catch(e){}
+  }catch(e){
+    console.warn("[STEP6] buildExplainV01 failed", e);
+  }
+
   raw.textContent = JSON.stringify(rawObj, null, 2);
 }
 
 main();
+
+// ===============================
+// EXPLAIN v0.1 (locked output)
+// ===============================
+function __rf_round3(x){
+  const n = Number(x);
+  if (!isFinite(n)) return 0;
+  return Math.round(n*1000)/1000;
+}
+function __rf_clamp01(x){
+  const n = Number(x);
+  if (!isFinite(n)) return 0;
+  return Math.max(0, Math.min(1, n));
+}
+function __rf_pct(x){ return Math.round(__rf_clamp01(x)*100); }
+
+// ---- context map (company_category x job_family) ----
+let CONTEXT_MAP = null;
+function __rf_findContextPair(step1){
+  try{
+    // normalize: merge payload + root, tolerate legacy field names
+    const src = (step1 && typeof step1==="object" && step1.payload && typeof step1.payload==="object")
+      ? Object.assign({}, step1.payload, step1)
+      : (step1 && typeof step1==="object" ? step1 : {});
+
+    const cc = String(src.company_category || src.companyCat || "").trim();
+    const jf = String(src.job_family || src.jobFamily || "").trim();
+
+    // debug: what cc/jf did we read?
+    try{
+      console.log("[STEP6_DBG] CTX_CC_JF", {
+        cc, jf,
+        step1_keys: (step1 && typeof step1==="object") ? Object.keys(step1) : null,
+        payload_keys: (step1 && step1.payload && typeof step1.payload==="object") ? Object.keys(step1.payload) : null
+      });
+    }catch(e){}
+
+    if(!cc || !jf) return null;
+    const key = cc + "::" + jf;
+    const pairs = CONTEXT_MAP && Array.isArray(CONTEXT_MAP.pairs) ? CONTEXT_MAP.pairs : [];
+    return pairs.find(x=>String(x?.key||"")===key) || null;
+  }catch(e){ return null; }
+}
+
+function __rf_applyContextOverrides(jm, pair){
+  // returns effective { required_k_tags, required_s_tags, required_h_dims, weights_patch, a_target_patch }
+  const o = pair && pair.overrides ? pair.overrides : null;
+  const baseK = Array.isArray(jm?.required_k_tags) ? jm.required_k_tags.slice() : [];
+  const baseS = Array.isArray(jm?.required_s_tags) ? jm.required_s_tags.slice() : [];
+  const baseH = Array.isArray(jm?.required_h_dims) ? jm.required_h_dims.slice() : [];
+
+  function uniq(arr){
+    const out=[]; const seen=new Set();
+    for(const x of arr){ const k=String(x||"").trim(); if(!k) continue; if(seen.has(k)) continue; seen.add(k); out.push(k); }
+    return out;
+  }
+  function add(base, extra){
+    const ex = Array.isArray(extra)?extra:[];
+    return uniq(base.concat(ex));
+  }
+  function remove(base, rm){
+    const r = new Set((Array.isArray(rm)?rm:[]).map(x=>String(x||"").trim()).filter(Boolean));
+    return base.filter(x=>!r.has(String(x||"").trim()));
+  }
+
+  const K1 = o ? add(baseK, o.add_required_k_tags) : baseK;
+  const S1 = o ? add(baseS, o.add_required_s_tags) : baseS;
+  const H1 = o ? add(baseH, o.add_required_h_dims) : baseH;
+
+  const K2 = o ? remove(K1, o.remove_required_k_tags) : K1;
+  const S2 = o ? remove(S1, o.remove_required_s_tags) : S1;
+  const H2 = o ? remove(H1, o.remove_required_h_dims) : H1;
+
+  return {
+    required_k_tags: K2,
+    required_s_tags: S2,
+    required_h_dims: H2,
+    weights_patch: o ? (o.weights_patch || null) : null,
+    a_target_patch: o && Number.isFinite(Number(o.a_target_patch)) ? Number(o.a_target_patch) : null,
+    notes: o ? String(o.notes||"") : ""
+  };
+}
+
+// Build explain payload from current eval context.
+// Call this right before rendering final score / saving final payload.
+function buildExplainV01(ctx){
+  // ctx expects:
+  // { job_model_key, jm, policy, Afit, Hfit, Kcov, Scov, Cov, Bonus, Fit,
+  //   required:{K,S,H}, hit:{K,S}, miss:{K,S}, evidence:{K,S}, missingFlags:{} }
+  const pol = (ctx && ctx.policy) ? ctx.policy : {};
+  const pol2 = pol.policy ? pol.policy : pol;
+  const w = (pol2 && pol2.overall) ? pol2.overall : {};
+
+  const wA   = Number((w.wA ?? w.A ?? 0.45));
+  const wH   = Number((w.wH ?? w.H ?? 0.20));
+  const wCov = Number((w.wCov ?? w.coverage ?? 0.35));
+
+  const Kpart = Number((w.wK ?? 0.5));
+  const Spart = Number((w.wS ?? 0.5));
+
+  const Afit = __rf_clamp01(ctx && ctx.Afit);
+  const Hfit = __rf_clamp01(ctx && ctx.Hfit);
+  const Cov  = __rf_clamp01(ctx && ctx.Cov);
+  const Bonus = __rf_clamp01(ctx && ctx.Bonus);
+
+  const A_contrib   = __rf_round3(wA   * Afit);
+  const H_contrib   = __rf_round3(wH   * Hfit);
+  const Cov_contrib = __rf_round3(wCov * Cov);
+  const Bonus_contrib = __rf_round3(Bonus);
+
+  const Fit = __rf_clamp01((ctx && ctx.Fit!=null) ? ctx.Fit : (A_contrib + H_contrib + Cov_contrib + Bonus_contrib));
+
+  return {
+    version: "explain_v0_1",
+    ts: Date.now(),
+    job_model_key: String((ctx && ctx.job_model_key) || ""),
+    job_title: String((ctx && ctx.jm && (ctx.jm.title_zh || ctx.jm.title)) || ""),
+    weights: {
+      overall: { wA: __rf_round3(wA), wH: __rf_round3(wH), wCov: __rf_round3(wCov) },
+      coverage: { wK: __rf_round3(Kpart), wS: __rf_round3(Spart) }
+    },
+    components: {
+      A: { fit: __rf_round3(Afit), pct: __rf_pct(Afit), target: (ctx && ctx.jm) ? (ctx.jm_eff?.a_target ?? null) : null, alpha: (ctx && ctx.jm) ? (ctx.jm_eff?.a_alpha ?? null) : null },
+      H: { fit: __rf_round3(Hfit), pct: __rf_pct(Hfit), required_h_dims: (ctx && ctx.required && ctx.required.H) ? ctx.required.H : [] },
+      coverage: {
+        Kcov: __rf_round3(ctx && ctx.Kcov), Scov: __rf_round3(ctx && ctx.Scov), Cov: __rf_round3(Cov),
+        K: { required: (ctx && ctx.required && ctx.required.K) ? ctx.required.K : [], hit: (ctx && ctx.hit && ctx.hit.K) ? ctx.hit.K : [], miss: (ctx && ctx.miss && ctx.miss.K) ? ctx.miss.K : [] },
+        S: { required: (ctx && ctx.required && ctx.required.S) ? ctx.required.S : [], hit: (ctx && ctx.hit && ctx.hit.S) ? ctx.hit.S : [], miss: (ctx && ctx.miss && ctx.miss.S) ? ctx.miss.S : [] }
+      },
+      bonus: { score: __rf_round3(Bonus) }
+    },
+    contributions: { A: A_contrib, H: H_contrib, coverage: Cov_contrib, bonus: Bonus_contrib },
+    fit: { score: __rf_round3(Fit), pct: __rf_pct(Fit) },
+    evidence: (ctx && ctx.evidence) ? ctx.evidence : {},
+    missing: (ctx && ctx.missingFlags) ? ctx.missingFlags : {}
+  };
+}
+
+
+
+// (fallback) context map load
+(async()=>{
+  try{ CONTEXT_MAP = await loadContextMap(); }
+  catch(e){ CONTEXT_MAP=null; }
+})();

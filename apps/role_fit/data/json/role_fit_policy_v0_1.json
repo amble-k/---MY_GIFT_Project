@@ -1,0 +1,25 @@
+{
+  "meta": { "version": "v0.1", "ts": 0 },
+  "policy": {
+    "overall": {
+      "wK": 0.45,
+      "wS": 0.35,
+      "wH": 0.20
+    },
+    "A_axis": {
+      "alpha": 1.0,
+      "floor": 0.35,
+      "missing_default": 0.65,
+      "mode": "fit_overall_or_vector"
+    },
+    "coverage": {
+      "mode": "hit_over_required",
+      "min_required": 1
+    },
+    "ability_bonus": {
+      "enabled": true,
+      "w": 0.10,
+      "cap": 0.10
+    }
+  }
+}

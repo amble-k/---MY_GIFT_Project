@@ -22,7 +22,7 @@ const previewBox = document.getElementById("previewBox");
 const exportSugBtn = document.getElementById("exportSugBtn");
 const backBtn = document.getElementById("backBtn");
 const nextBtn = document.getElementById("nextBtn");
-
+if (nextBtn) nextBtn.disabled = false;
 function _rf_hash(str){
   let h = 5381;
   const s = String(str || "");
@@ -135,6 +135,9 @@ function renderPreview(){
 }
 
 function save(){
+  if (!Array.isArray(S_TAGS) || !S_TAGS.length){
+    return {ok:false, msg:"标签库加载中，请稍后 1-2 秒再点下一步"};
+  }
   // ---- taxonomy: derive S tags from all free text ----
   const s_tags = deriveSTagsFromUI();
 
@@ -245,7 +248,11 @@ exportSugBtn.addEventListener("click", ()=>{
 backBtn.addEventListener("click", ()=>{ location.href = "/apps/role_fit/pages/step2_k/index.html"; });
 
 nextBtn.addEventListener("click", ()=>{
-  save();
+  const r = save();
+  if (!r || r.ok === false){
+    alert((r && r.msg) ? r.msg : "请完成必填项");
+    return;
+  }
   location.href = "/apps/role_fit/pages/step4_a/index.html";
 });
 

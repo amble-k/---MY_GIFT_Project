@@ -42,3 +42,13 @@ archive/
 
 # local test
 rf_tax_test.mjs
+
+# ---- ROLE_FIT: generated admin reports / exports (do not commit) ----
+apps/role_fit/admin/*_report_*.json
+apps/role_fit/admin/*_export_*.json
+apps/role_fit/admin/*_export_*.csv
+apps/role_fit/admin/options_check_*.json
+apps/role_fit/admin/standards_snapshot_*.json
+
+# ---- ROLE_FIT: backups (do not commit) ----
+apps/role_fit/data/json/*.bak*.json

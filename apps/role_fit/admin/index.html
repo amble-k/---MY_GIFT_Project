@@ -36,15 +36,37 @@
 
       <div class="row">
         <button class="btn" id="btnLoad" type="button">加载数据源</button>
+        <button class="btn2" id="btnGoStep1" type="button">打开岗位页 Step1</button>
         <button class="btn2" id="btnDiag" type="button">诊断当前用户（localStorage）</button>
         <button class="btn2" id="btnClear" type="button">清空 ROLE_FIT 本地数据</button>
         <span class="hint">（清空只影响你浏览器本地，不会影响代码）</span>
       </div>
 
-      <div class="grid" style="margin-top:14px;">
+      
+      <div class="box" style="margin-top:12px;">
+        <div class="k">标准总览（Standards v0.2）</div>
+        <div class="hint">
+          这里显示：Options / Taxonomy / Job Models / Policy 是否齐全、数量、以及 Step6 计算所需字段是否存在。
+        </div>
+        <div id="stdBox" class="hint">未加载</div>
+      </div>
+
+<div class="grid" style="margin-top:14px;">
         <div class="box">
           <div class="k">数据源概览</div>
-          <div id="srcBox" class="hint">未加载</div>
+          
+
+      <div class="box" style="margin-top:12px;">
+        <div class="k">Job Models 诊断</div>
+        <div id="jmBox" class="hint">未加载</div>
+      </div>
+
+      <div class="box" style="margin-top:12px;">
+        <div class="k">岗位模型缺口（Job Models）</div>
+        <div id="jmBox" class="hint">未加载</div>
+      </div>
+
+<div id="srcBox" class="hint">未加载</div>
         </div>
         <div class="box">
           <div class="k">当前用户诊断</div>

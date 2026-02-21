@@ -1,0 +1,367 @@
+{
+  "meta": {
+    "version": "0.2",
+    "ts": 1771044191056,
+    "key": "role_fit_options"
+  },
+  "company_categories": [
+    {
+      "key": "internet",
+      "label": "互联网/IT"
+    },
+    {
+      "key": "manufacturing",
+      "label": "制造业"
+    },
+    {
+      "key": "finance",
+      "label": "金融"
+    },
+    {
+      "key": "consulting",
+      "label": "咨询/专业服务"
+    },
+    {
+      "key": "retail",
+      "label": "零售/消费"
+    },
+    {
+      "key": "healthcare",
+      "label": "医疗/健康"
+    },
+    {
+      "key": "education",
+      "label": "教育"
+    },
+    {
+      "key": "public",
+      "label": "公共部门/事业单位"
+    },
+    {
+      "key": "startup",
+      "label": "创业公司"
+    },
+    {
+      "key": "other",
+      "label": "其他"
+    }
+  ],
+  "job_families": [
+    {
+      "key": "management",
+      "label": "经营/管理"
+    },
+    {
+      "key": "sales",
+      "label": "销售"
+    },
+    {
+      "key": "marketing",
+      "label": "市场/品牌"
+    },
+    {
+      "key": "product",
+      "label": "产品"
+    },
+    {
+      "key": "bizdev",
+      "label": "业务发展/联盟"
+    },
+    {
+      "key": "customer_success",
+      "label": "客户成功/客服"
+    },
+    {
+      "key": "hr",
+      "label": "人力资源"
+    },
+    {
+      "key": "finance",
+      "label": "财务/会计"
+    },
+    {
+      "key": "legal",
+      "label": "法务/合规"
+    },
+    {
+      "key": "ops",
+      "label": "运营/支持"
+    },
+    {
+      "key": "engineering",
+      "label": "工程"
+    },
+    {
+      "key": "data",
+      "label": "数据"
+    },
+    {
+      "key": "design",
+      "label": "设计/创意"
+    },
+    {
+      "key": "consulting",
+      "label": "咨询/专业服务"
+    },
+    {
+      "key": "supply_chain",
+      "label": "供应链/采购"
+    }
+  ],
+  "edu_levels": [
+    {
+      "key": "highschool",
+      "label": "高中/中专"
+    },
+    {
+      "key": "associate",
+      "label": "大专"
+    },
+    {
+      "key": "bachelor",
+      "label": "本科"
+    },
+    {
+      "key": "master",
+      "label": "硕士"
+    },
+    {
+      "key": "phd",
+      "label": "博士"
+    },
+    {
+      "key": "other",
+      "label": "其他"
+    }
+  ],
+  "majors": [
+    {
+      "key": "cs",
+      "label": "计算机/软件"
+    },
+    {
+      "key": "math",
+      "label": "数学/统计"
+    },
+    {
+      "key": "biz",
+      "label": "工商管理"
+    },
+    {
+      "key": "econ",
+      "label": "经济/金融"
+    },
+    {
+      "key": "design",
+      "label": "设计"
+    },
+    {
+      "key": "psych",
+      "label": "心理学"
+    },
+    {
+      "key": "hr",
+      "label": "人力资源"
+    },
+    {
+      "key": "other",
+      "label": "其他"
+    }
+  ],
+  "certs": [
+    {
+      "key": "pmp",
+      "label": "PMP"
+    },
+    {
+      "key": "cfa",
+      "label": "CFA"
+    },
+    {
+      "key": "cpa",
+      "label": "CPA"
+    },
+    {
+      "key": "scrum",
+      "label": "Scrum/敏捷"
+    },
+    {
+      "key": "other",
+      "label": "其他"
+    }
+  ],
+  "job_titles": [
+    {
+      "key": "product_manager",
+      "label": "产品经理",
+      "family": "product"
+    },
+    {
+      "key": "data_analyst",
+      "label": "数据分析师",
+      "family": "data"
+    },
+    {
+      "key": "software_engineer",
+      "label": "软件工程师",
+      "family": "engineering"
+    },
+    {
+      "key": "office_admin",
+      "label": "行政/综合支持",
+      "family": "ops"
+    },
+    {
+      "key": "management_tbd",
+      "label": "（待补全）management",
+      "family": "management"
+    },
+    {
+      "key": "bizdev_tbd",
+      "label": "（待补全）bizdev",
+      "family": "bizdev"
+    },
+    {
+      "key": "customer_success_tbd",
+      "label": "（待补全）customer_success",
+      "family": "customer_success"
+    },
+    {
+      "key": "hr_tbd",
+      "label": "（待补全）hr",
+      "family": "hr"
+    },
+    {
+      "key": "legal_tbd",
+      "label": "（待补全）legal",
+      "family": "legal"
+    },
+    {
+      "key": "design_tbd",
+      "label": "（待补全）design",
+      "family": "design"
+    },
+    {
+      "key": "consulting_tbd",
+      "label": "（待补全）consulting",
+      "family": "consulting"
+    },
+    {
+      "key": "supply_chain_tbd",
+      "label": "（待补全）supply_chain",
+      "family": "supply_chain"
+    },
+    {
+      "key": "finance_manager",
+      "label": "财务经理",
+      "family": "finance"
+    },
+    {
+      "key": "accountant",
+      "label": "会计",
+      "family": "finance"
+    },
+    {
+      "key": "fp_and_a",
+      "label": "FP&A（经营企划/预算）",
+      "family": "finance"
+    },
+    {
+      "key": "auditor",
+      "label": "审计",
+      "family": "finance"
+    },
+    {
+      "key": "tax_specialist",
+      "label": "税务",
+      "family": "finance"
+    },
+    {
+      "key": "treasury",
+      "label": "资金/出纳",
+      "family": "finance"
+    },
+    {
+      "key": "key_account_manager",
+      "label": "大客户经理（KA）",
+      "family": "sales"
+    },
+    {
+      "key": "sales_manager",
+      "label": "销售经理",
+      "family": "sales"
+    },
+    {
+      "key": "inside_sales",
+      "label": "内勤销售（Inside Sales）",
+      "family": "sales"
+    },
+    {
+      "key": "sales_ops",
+      "label": "销售运营（Sales Ops）",
+      "family": "sales"
+    },
+    {
+      "key": "bd_sales",
+      "label": "BD 销售",
+      "family": "sales"
+    },
+    {
+      "key": "pre_sales",
+      "label": "售前顾问",
+      "family": "sales"
+    },
+    {
+      "key": "brand_marketing",
+      "label": "品牌营销",
+      "family": "marketing"
+    },
+    {
+      "key": "digital_marketing",
+      "label": "数字营销",
+      "family": "marketing"
+    },
+    {
+      "key": "growth_marketing",
+      "label": "增长营销",
+      "family": "marketing"
+    },
+    {
+      "key": "content_marketing",
+      "label": "内容营销",
+      "family": "marketing"
+    },
+    {
+      "key": "product_marketing",
+      "label": "产品营销（PMM）",
+      "family": "marketing"
+    },
+    {
+      "key": "pr_comms",
+      "label": "公关/传播（PR）",
+      "family": "marketing"
+    }
+  ],
+  "trainings": [
+    {
+      "key": "sales_method",
+      "label": "销售方法论（如 SPIN）"
+    },
+    {
+      "key": "pm_method",
+      "label": "产品/项目方法论"
+    },
+    {
+      "key": "data",
+      "label": "数据分析/统计"
+    },
+    {
+      "key": "ai",
+      "label": "AI/机器学习"
+    },
+    {
+      "key": "other",
+      "label": "其他"
+    }
+  ]
+}

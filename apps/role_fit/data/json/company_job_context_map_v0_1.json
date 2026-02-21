@@ -1,0 +1,2431 @@
+{
+  "meta": {
+    "version": "v0.1",
+    "id": "company_job_context_map",
+    "generated_at": "2026-02-20T08:17:37.988Z",
+    "source": "role_fit_options_v0_2.json",
+    "company_categories_n": 10,
+    "job_families_n": 15,
+    "pairs_n": 150
+  },
+  "schema": {
+    "key": "company_category::job_family",
+    "fields": {
+      "company_category": "string",
+      "job_family": "string",
+      "overrides": {
+        "add_required_k_tags": "string[]",
+        "add_required_s_tags": "string[]",
+        "add_required_h_dims": "string[]",
+        "remove_required_k_tags": "string[]",
+        "remove_required_s_tags": "string[]",
+        "remove_required_h_dims": "string[]",
+        "weights_patch": "object|null",
+        "a_target_patch": "number|null",
+        "notes": "string"
+      }
+    }
+  },
+  "pairs": [
+    {
+      "key": "internet::management",
+      "company_category": "internet",
+      "job_family": "management",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "internet::sales",
+      "company_category": "internet",
+      "job_family": "sales",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "internet::marketing",
+      "company_category": "internet",
+      "job_family": "marketing",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "internet::product",
+      "company_category": "internet",
+      "job_family": "product",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "internet::bizdev",
+      "company_category": "internet",
+      "job_family": "bizdev",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "internet::customer_success",
+      "company_category": "internet",
+      "job_family": "customer_success",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "internet::hr",
+      "company_category": "internet",
+      "job_family": "hr",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "internet::finance",
+      "company_category": "internet",
+      "job_family": "finance",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "internet::legal",
+      "company_category": "internet",
+      "job_family": "legal",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "internet::ops",
+      "company_category": "internet",
+      "job_family": "ops",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "internet::engineering",
+      "company_category": "internet",
+      "job_family": "engineering",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "internet::data",
+      "company_category": "internet",
+      "job_family": "data",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "internet::design",
+      "company_category": "internet",
+      "job_family": "design",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "internet::consulting",
+      "company_category": "internet",
+      "job_family": "consulting",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "internet::supply_chain",
+      "company_category": "internet",
+      "job_family": "supply_chain",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "manufacturing::management",
+      "company_category": "manufacturing",
+      "job_family": "management",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "manufacturing::sales",
+      "company_category": "manufacturing",
+      "job_family": "sales",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "manufacturing::marketing",
+      "company_category": "manufacturing",
+      "job_family": "marketing",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "manufacturing::product",
+      "company_category": "manufacturing",
+      "job_family": "product",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "manufacturing::bizdev",
+      "company_category": "manufacturing",
+      "job_family": "bizdev",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "manufacturing::customer_success",
+      "company_category": "manufacturing",
+      "job_family": "customer_success",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "manufacturing::hr",
+      "company_category": "manufacturing",
+      "job_family": "hr",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "manufacturing::finance",
+      "company_category": "manufacturing",
+      "job_family": "finance",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "manufacturing::legal",
+      "company_category": "manufacturing",
+      "job_family": "legal",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "manufacturing::ops",
+      "company_category": "manufacturing",
+      "job_family": "ops",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "manufacturing::engineering",
+      "company_category": "manufacturing",
+      "job_family": "engineering",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "manufacturing::data",
+      "company_category": "manufacturing",
+      "job_family": "data",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "manufacturing::design",
+      "company_category": "manufacturing",
+      "job_family": "design",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "manufacturing::consulting",
+      "company_category": "manufacturing",
+      "job_family": "consulting",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "manufacturing::supply_chain",
+      "company_category": "manufacturing",
+      "job_family": "supply_chain",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "finance::management",
+      "company_category": "finance",
+      "job_family": "management",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "finance::sales",
+      "company_category": "finance",
+      "job_family": "sales",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "finance::marketing",
+      "company_category": "finance",
+      "job_family": "marketing",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "finance::product",
+      "company_category": "finance",
+      "job_family": "product",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "finance::bizdev",
+      "company_category": "finance",
+      "job_family": "bizdev",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "finance::customer_success",
+      "company_category": "finance",
+      "job_family": "customer_success",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "finance::hr",
+      "company_category": "finance",
+      "job_family": "hr",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "finance::finance",
+      "company_category": "finance",
+      "job_family": "finance",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "finance::legal",
+      "company_category": "finance",
+      "job_family": "legal",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "finance::ops",
+      "company_category": "finance",
+      "job_family": "ops",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "finance::engineering",
+      "company_category": "finance",
+      "job_family": "engineering",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "finance::data",
+      "company_category": "finance",
+      "job_family": "data",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "finance::design",
+      "company_category": "finance",
+      "job_family": "design",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "finance::consulting",
+      "company_category": "finance",
+      "job_family": "consulting",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "finance::supply_chain",
+      "company_category": "finance",
+      "job_family": "supply_chain",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "consulting::management",
+      "company_category": "consulting",
+      "job_family": "management",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "consulting::sales",
+      "company_category": "consulting",
+      "job_family": "sales",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "consulting::marketing",
+      "company_category": "consulting",
+      "job_family": "marketing",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "consulting::product",
+      "company_category": "consulting",
+      "job_family": "product",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "consulting::bizdev",
+      "company_category": "consulting",
+      "job_family": "bizdev",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "consulting::customer_success",
+      "company_category": "consulting",
+      "job_family": "customer_success",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "consulting::hr",
+      "company_category": "consulting",
+      "job_family": "hr",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "consulting::finance",
+      "company_category": "consulting",
+      "job_family": "finance",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "consulting::legal",
+      "company_category": "consulting",
+      "job_family": "legal",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "consulting::ops",
+      "company_category": "consulting",
+      "job_family": "ops",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "consulting::engineering",
+      "company_category": "consulting",
+      "job_family": "engineering",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "consulting::data",
+      "company_category": "consulting",
+      "job_family": "data",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "consulting::design",
+      "company_category": "consulting",
+      "job_family": "design",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "consulting::consulting",
+      "company_category": "consulting",
+      "job_family": "consulting",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "consulting::supply_chain",
+      "company_category": "consulting",
+      "job_family": "supply_chain",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "retail::management",
+      "company_category": "retail",
+      "job_family": "management",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "retail::sales",
+      "company_category": "retail",
+      "job_family": "sales",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "retail::marketing",
+      "company_category": "retail",
+      "job_family": "marketing",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "retail::product",
+      "company_category": "retail",
+      "job_family": "product",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "retail::bizdev",
+      "company_category": "retail",
+      "job_family": "bizdev",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "retail::customer_success",
+      "company_category": "retail",
+      "job_family": "customer_success",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "retail::hr",
+      "company_category": "retail",
+      "job_family": "hr",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "retail::finance",
+      "company_category": "retail",
+      "job_family": "finance",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "retail::legal",
+      "company_category": "retail",
+      "job_family": "legal",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "retail::ops",
+      "company_category": "retail",
+      "job_family": "ops",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "retail::engineering",
+      "company_category": "retail",
+      "job_family": "engineering",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "retail::data",
+      "company_category": "retail",
+      "job_family": "data",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "retail::design",
+      "company_category": "retail",
+      "job_family": "design",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "retail::consulting",
+      "company_category": "retail",
+      "job_family": "consulting",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "retail::supply_chain",
+      "company_category": "retail",
+      "job_family": "supply_chain",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "healthcare::management",
+      "company_category": "healthcare",
+      "job_family": "management",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "healthcare::sales",
+      "company_category": "healthcare",
+      "job_family": "sales",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "healthcare::marketing",
+      "company_category": "healthcare",
+      "job_family": "marketing",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "healthcare::product",
+      "company_category": "healthcare",
+      "job_family": "product",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "healthcare::bizdev",
+      "company_category": "healthcare",
+      "job_family": "bizdev",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "healthcare::customer_success",
+      "company_category": "healthcare",
+      "job_family": "customer_success",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "healthcare::hr",
+      "company_category": "healthcare",
+      "job_family": "hr",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "healthcare::finance",
+      "company_category": "healthcare",
+      "job_family": "finance",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "healthcare::legal",
+      "company_category": "healthcare",
+      "job_family": "legal",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "healthcare::ops",
+      "company_category": "healthcare",
+      "job_family": "ops",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "healthcare::engineering",
+      "company_category": "healthcare",
+      "job_family": "engineering",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "healthcare::data",
+      "company_category": "healthcare",
+      "job_family": "data",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "healthcare::design",
+      "company_category": "healthcare",
+      "job_family": "design",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "healthcare::consulting",
+      "company_category": "healthcare",
+      "job_family": "consulting",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "healthcare::supply_chain",
+      "company_category": "healthcare",
+      "job_family": "supply_chain",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "education::management",
+      "company_category": "education",
+      "job_family": "management",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "education::sales",
+      "company_category": "education",
+      "job_family": "sales",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "education::marketing",
+      "company_category": "education",
+      "job_family": "marketing",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "education::product",
+      "company_category": "education",
+      "job_family": "product",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "education::bizdev",
+      "company_category": "education",
+      "job_family": "bizdev",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "education::customer_success",
+      "company_category": "education",
+      "job_family": "customer_success",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "education::hr",
+      "company_category": "education",
+      "job_family": "hr",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "education::finance",
+      "company_category": "education",
+      "job_family": "finance",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "education::legal",
+      "company_category": "education",
+      "job_family": "legal",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "education::ops",
+      "company_category": "education",
+      "job_family": "ops",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "education::engineering",
+      "company_category": "education",
+      "job_family": "engineering",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "education::data",
+      "company_category": "education",
+      "job_family": "data",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "education::design",
+      "company_category": "education",
+      "job_family": "design",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "education::consulting",
+      "company_category": "education",
+      "job_family": "consulting",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "education::supply_chain",
+      "company_category": "education",
+      "job_family": "supply_chain",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "public::management",
+      "company_category": "public",
+      "job_family": "management",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "public::sales",
+      "company_category": "public",
+      "job_family": "sales",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "public::marketing",
+      "company_category": "public",
+      "job_family": "marketing",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "public::product",
+      "company_category": "public",
+      "job_family": "product",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "public::bizdev",
+      "company_category": "public",
+      "job_family": "bizdev",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "public::customer_success",
+      "company_category": "public",
+      "job_family": "customer_success",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "public::hr",
+      "company_category": "public",
+      "job_family": "hr",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "public::finance",
+      "company_category": "public",
+      "job_family": "finance",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "public::legal",
+      "company_category": "public",
+      "job_family": "legal",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "public::ops",
+      "company_category": "public",
+      "job_family": "ops",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "public::engineering",
+      "company_category": "public",
+      "job_family": "engineering",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "public::data",
+      "company_category": "public",
+      "job_family": "data",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "public::design",
+      "company_category": "public",
+      "job_family": "design",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "public::consulting",
+      "company_category": "public",
+      "job_family": "consulting",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "public::supply_chain",
+      "company_category": "public",
+      "job_family": "supply_chain",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "startup::management",
+      "company_category": "startup",
+      "job_family": "management",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "startup::sales",
+      "company_category": "startup",
+      "job_family": "sales",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "startup::marketing",
+      "company_category": "startup",
+      "job_family": "marketing",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "startup::product",
+      "company_category": "startup",
+      "job_family": "product",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "startup::bizdev",
+      "company_category": "startup",
+      "job_family": "bizdev",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "startup::customer_success",
+      "company_category": "startup",
+      "job_family": "customer_success",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "startup::hr",
+      "company_category": "startup",
+      "job_family": "hr",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "startup::finance",
+      "company_category": "startup",
+      "job_family": "finance",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "startup::legal",
+      "company_category": "startup",
+      "job_family": "legal",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "startup::ops",
+      "company_category": "startup",
+      "job_family": "ops",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "startup::engineering",
+      "company_category": "startup",
+      "job_family": "engineering",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "startup::data",
+      "company_category": "startup",
+      "job_family": "data",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "startup::design",
+      "company_category": "startup",
+      "job_family": "design",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "startup::consulting",
+      "company_category": "startup",
+      "job_family": "consulting",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "startup::supply_chain",
+      "company_category": "startup",
+      "job_family": "supply_chain",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "other::management",
+      "company_category": "other",
+      "job_family": "management",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "other::sales",
+      "company_category": "other",
+      "job_family": "sales",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "other::marketing",
+      "company_category": "other",
+      "job_family": "marketing",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "other::product",
+      "company_category": "other",
+      "job_family": "product",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "other::bizdev",
+      "company_category": "other",
+      "job_family": "bizdev",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "other::customer_success",
+      "company_category": "other",
+      "job_family": "customer_success",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "other::hr",
+      "company_category": "other",
+      "job_family": "hr",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "other::finance",
+      "company_category": "other",
+      "job_family": "finance",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "other::legal",
+      "company_category": "other",
+      "job_family": "legal",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "other::ops",
+      "company_category": "other",
+      "job_family": "ops",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "other::engineering",
+      "company_category": "other",
+      "job_family": "engineering",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "other::data",
+      "company_category": "other",
+      "job_family": "data",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "other::design",
+      "company_category": "other",
+      "job_family": "design",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "other::consulting",
+      "company_category": "other",
+      "job_family": "consulting",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    },
+    {
+      "key": "other::supply_chain",
+      "company_category": "other",
+      "job_family": "supply_chain",
+      "overrides": {
+        "add_required_k_tags": [],
+        "add_required_s_tags": [],
+        "add_required_h_dims": [],
+        "remove_required_k_tags": [],
+        "remove_required_s_tags": [],
+        "remove_required_h_dims": [],
+        "weights_patch": null,
+        "a_target_patch": null,
+        "notes": ""
+      }
+    }
+  ]
+}

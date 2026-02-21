@@ -1,0 +1,924 @@
+{
+  "meta": {
+    "version": "v0.2",
+    "source": "job_models_v0_1 + templates",
+    "ts": 1771573893417
+  },
+  "models": {
+    "product_manager": {
+      "key": "product_manager",
+      "title_zh": "产品经理",
+      "family": "product",
+      "jd_text": "负责需求分析、路线规划、跨团队协作与指标达成。",
+      "required_k_tags": [
+        "product_sense",
+        "project_mgmt",
+        "industry_domain"
+      ],
+      "required_s_tags": [
+        "writing",
+        "presentation",
+        "stakeholder_mgmt",
+        "problem_solving"
+      ],
+      "required_h_dims": [
+        "punctuality",
+        "followthrough",
+        "planning",
+        "execution",
+        "reflection",
+        "stability"
+      ],
+      "a_target": 0.7,
+      "a_alpha": 1.35
+    },
+    "data_analyst": {
+      "key": "data_analyst",
+      "title_zh": "数据分析师",
+      "family": "engineering",
+      "jd_text": "指标体系、数据分析、洞察输出与业务决策支持。",
+      "required_k_tags": [
+        "data_analysis",
+        "sql",
+        "statistics",
+        "industry_domain"
+      ],
+      "required_s_tags": [
+        "data_viz",
+        "problem_solving",
+        "presentation"
+      ],
+      "required_h_dims": [
+        "punctuality",
+        "followthrough",
+        "planning",
+        "execution",
+        "reflection",
+        "stability"
+      ],
+      "a_target": 0.7,
+      "a_alpha": 1.25
+    },
+    "software_engineer": {
+      "key": "software_engineer",
+      "title_zh": "软件工程师",
+      "family": "engineering",
+      "jd_text": "系统设计、编码、测试、上线与性能优化。",
+      "required_k_tags": [
+        "cs_basics",
+        "industry_domain"
+      ],
+      "required_s_tags": [
+        "coding",
+        "problem_solving",
+        "execution"
+      ],
+      "required_h_dims": [
+        "punctuality",
+        "followthrough",
+        "planning",
+        "execution",
+        "reflection",
+        "stability"
+      ],
+      "a_target": 0.7,
+      "a_alpha": 1.2
+    },
+    "office_admin": {
+      "key": "office_admin",
+      "title_zh": "行政/综合支持",
+      "family": "ops",
+      "jd_text": "行政支持、流程协同、文档与资源管理。",
+      "required_k_tags": [
+        "project_mgmt",
+        "compliance"
+      ],
+      "required_s_tags": [
+        "writing",
+        "process_improve",
+        "execution",
+        "stakeholder_mgmt"
+      ],
+      "required_h_dims": [
+        "punctuality",
+        "followthrough",
+        "planning",
+        "execution",
+        "reflection",
+        "stability"
+      ],
+      "a_target": 0.7,
+      "a_alpha": 1.2
+    },
+    "management_tbd": {
+      "key": "management_tbd",
+      "title_zh": "（待补全）management",
+      "family": "management",
+      "jd_text": "【（待补全）management】负责目标设定与资源协调：制定方向→拆解计划→推动跨部门执行→复盘迭代；管理团队与关键干系人。",
+      "required_k_tags": [
+        "strategy",
+        "stakeholder_map",
+        "ppt_doc",
+        "finance_basic",
+        "change_mgmt",
+        "project_mgmt"
+      ],
+      "required_s_tags": [
+        "leadership",
+        "stakeholder_mgmt",
+        "problem_solving",
+        "presentation",
+        "writing",
+        "communication"
+      ],
+      "required_h_dims": [
+        "punctuality",
+        "followthrough",
+        "planning",
+        "execution",
+        "reflection",
+        "stability"
+      ],
+      "a_target": 0.7,
+      "a_alpha": 1
+    },
+    "bizdev_tbd": {
+      "key": "bizdev_tbd",
+      "title_zh": "（待补全）bizdev",
+      "family": "bizdev",
+      "jd_text": "【（待补全）bizdev】负责合作机会识别与推进：对外沟通→方案与谈判→签约→交付协同；管理关键关系并推动落地。",
+      "required_k_tags": [
+        "strategy",
+        "stakeholder_map",
+        "ppt_doc",
+        "project_mgmt"
+      ],
+      "required_s_tags": [
+        "negotiation",
+        "stakeholder_mgmt",
+        "communication",
+        "presentation",
+        "problem_solving",
+        "execution"
+      ],
+      "required_h_dims": [
+        "punctuality",
+        "followthrough",
+        "planning",
+        "execution",
+        "reflection",
+        "stability"
+      ],
+      "a_target": 0.7,
+      "a_alpha": 1
+    },
+    "customer_success_tbd": {
+      "key": "customer_success_tbd",
+      "title_zh": "（待补全）customer_success",
+      "family": "customer_success",
+      "jd_text": "【（待补全）customer_success】围绕客户成功推进价值实现：需求澄清→方案/培训→问题跟进→续费/扩展；对内协同并推动闭环。",
+      "required_k_tags": [
+        "ops_process",
+        "ppt_doc",
+        "project_mgmt",
+        "industry_domain"
+      ],
+      "required_s_tags": [
+        "client_facing",
+        "stakeholder_mgmt",
+        "communication",
+        "problem_solving",
+        "execution",
+        "writing"
+      ],
+      "required_h_dims": [
+        "punctuality",
+        "followthrough",
+        "planning",
+        "execution",
+        "reflection",
+        "stability"
+      ],
+      "a_target": 0.7,
+      "a_alpha": 1
+    },
+    "hr_tbd": {
+      "key": "hr_tbd",
+      "title_zh": "（待补全）hr",
+      "family": "hr",
+      "jd_text": "【（待补全）hr】围绕组织与人才工作进行诊断与方案：需求澄清→设计制度/项目→沟通宣导→落地评估；输出材料并推动闭环。",
+      "required_k_tags": [
+        "org_design",
+        "ppt_doc",
+        "ops_process",
+        "data_literacy"
+      ],
+      "required_s_tags": [
+        "communication",
+        "stakeholder_mgmt",
+        "problem_solving",
+        "writing",
+        "presentation"
+      ],
+      "required_h_dims": [
+        "punctuality",
+        "followthrough",
+        "planning",
+        "execution",
+        "reflection",
+        "stability"
+      ],
+      "a_target": 0.7,
+      "a_alpha": 1
+    },
+    "legal_tbd": {
+      "key": "legal_tbd",
+      "title_zh": "（待补全）legal",
+      "family": "legal",
+      "jd_text": "【（待补全）legal】负责合规与风险控制：识别风险→提出建议→推动整改/制度化；通过清晰文档与沟通保障业务稳健推进。",
+      "required_k_tags": [
+        "risk_compliance",
+        "ppt_doc",
+        "biz_analysis"
+      ],
+      "required_s_tags": [
+        "writing",
+        "problem_solving",
+        "stakeholder_mgmt",
+        "communication",
+        "presentation"
+      ],
+      "required_h_dims": [
+        "punctuality",
+        "followthrough",
+        "planning",
+        "execution",
+        "reflection",
+        "stability"
+      ],
+      "a_target": 0.7,
+      "a_alpha": 1
+    },
+    "design_tbd": {
+      "key": "design_tbd",
+      "title_zh": "（待补全）design",
+      "family": "design",
+      "jd_text": "【（待补全）design】通过调研与方案表达解决体验问题：澄清目标→产出方案→对齐干系人→推动实现与迭代。",
+      "required_k_tags": [
+        "research",
+        "ppt_doc",
+        "biz_analysis"
+      ],
+      "required_s_tags": [
+        "communication",
+        "problem_solving",
+        "presentation",
+        "writing",
+        "stakeholder_mgmt"
+      ],
+      "required_h_dims": [
+        "punctuality",
+        "followthrough",
+        "planning",
+        "execution",
+        "reflection",
+        "stability"
+      ],
+      "a_target": 0.7,
+      "a_alpha": 1
+    },
+    "consulting_tbd": {
+      "key": "consulting_tbd",
+      "title_zh": "咨询顾问（通用）",
+      "family": "consulting",
+      "jd_text": "围绕客户业务问题进行结构化分析与方案设计；推动关键干系人对齐，形成结论与行动计划；以PPT/文档形式进行高质量表达与汇报；对项目节奏与交付质量负责（小型项目/模块）",
+      "required_k_tags": [
+        "industry_domain",
+        "project_mgmt"
+      ],
+      "required_s_tags": [
+        "problem_solving",
+        "presentation",
+        "writing",
+        "stakeholder_mgmt"
+      ],
+      "required_h_dims": [
+        "punctuality",
+        "followthrough",
+        "planning",
+        "execution",
+        "reflection",
+        "stability"
+      ],
+      "a_target": 0.7,
+      "a_alpha": 1
+    },
+    "supply_chain_tbd": {
+      "key": "supply_chain_tbd",
+      "title_zh": "（待补全）supply_chain",
+      "family": "supply_chain",
+      "jd_text": "【（待补全）supply_chain】负责采购/供应链流程与风险：计划与协同→谈判→交付→质量/成本控制；数据化复盘并推动优化。",
+      "required_k_tags": [
+        "ops_process",
+        "risk_compliance",
+        "data_literacy",
+        "ppt_doc",
+        "project_mgmt"
+      ],
+      "required_s_tags": [
+        "negotiation",
+        "stakeholder_mgmt",
+        "communication",
+        "problem_solving",
+        "execution",
+        "analysis"
+      ],
+      "required_h_dims": [
+        "punctuality",
+        "followthrough",
+        "planning",
+        "execution",
+        "reflection",
+        "stability"
+      ],
+      "a_target": 0.7,
+      "a_alpha": 1
+    },
+    "finance_manager": {
+      "key": "finance_manager",
+      "title_zh": "财务经理",
+      "family": "finance",
+      "jd_text": "【财务经理】负责财务核算/分析/预算与经营指标，形成可解释的报表与经营洞察；与业务/管理层对齐目标并输出材料，推动合规与风险控制。",
+      "required_k_tags": [
+        "finance_basic",
+        "fp_and_a",
+        "risk_compliance",
+        "ppt_doc",
+        "stakeholder_map",
+        "accounting",
+        "data_literacy"
+      ],
+      "required_s_tags": [
+        "analysis",
+        "presentation",
+        "stakeholder_mgmt",
+        "writing",
+        "problem_solving",
+        "communication"
+      ],
+      "required_h_dims": [
+        "punctuality",
+        "followthrough",
+        "planning",
+        "execution",
+        "reflection",
+        "stability"
+      ],
+      "a_target": 0.7,
+      "a_alpha": 1
+    },
+    "accountant": {
+      "key": "accountant",
+      "title_zh": "会计",
+      "family": "finance",
+      "jd_text": "【会计】负责财务核算/分析/预算与经营指标，形成可解释的报表与经营洞察；与业务/管理层对齐目标并输出材料，推动合规与风险控制。",
+      "required_k_tags": [
+        "accounting",
+        "finance_basic",
+        "risk_compliance",
+        "fp_and_a",
+        "ppt_doc",
+        "data_literacy"
+      ],
+      "required_s_tags": [
+        "writing",
+        "analysis",
+        "communication",
+        "execution",
+        "presentation",
+        "problem_solving",
+        "stakeholder_mgmt"
+      ],
+      "required_h_dims": [
+        "punctuality",
+        "followthrough",
+        "planning",
+        "execution",
+        "reflection",
+        "stability"
+      ],
+      "a_target": 0.7,
+      "a_alpha": 1
+    },
+    "fp_and_a": {
+      "key": "fp_and_a",
+      "title_zh": "FP&A（经营企划/预算）",
+      "family": "finance",
+      "jd_text": "【FP&A（经营企划/预算）】负责财务核算/分析/预算与经营指标，形成可解释的报表与经营洞察；与业务/管理层对齐目标并输出材料，推动合规与风险控制。",
+      "required_k_tags": [
+        "fp_and_a",
+        "finance_basic",
+        "data_literacy",
+        "ppt_doc",
+        "accounting",
+        "risk_compliance"
+      ],
+      "required_s_tags": [
+        "analysis",
+        "problem_solving",
+        "presentation",
+        "writing",
+        "stakeholder_mgmt",
+        "communication"
+      ],
+      "required_h_dims": [
+        "punctuality",
+        "followthrough",
+        "planning",
+        "execution",
+        "reflection",
+        "stability"
+      ],
+      "a_target": 0.7,
+      "a_alpha": 1
+    },
+    "auditor": {
+      "key": "auditor",
+      "title_zh": "审计",
+      "family": "finance",
+      "jd_text": "【审计】负责财务核算/分析/预算与经营指标，形成可解释的报表与经营洞察；与业务/管理层对齐目标并输出材料，推动合规与风险控制。",
+      "required_k_tags": [
+        "risk_compliance",
+        "accounting",
+        "finance_basic",
+        "ppt_doc",
+        "fp_and_a",
+        "data_literacy"
+      ],
+      "required_s_tags": [
+        "structured_thinking",
+        "writing",
+        "analysis",
+        "communication",
+        "presentation",
+        "problem_solving",
+        "stakeholder_mgmt"
+      ],
+      "required_h_dims": [
+        "punctuality",
+        "followthrough",
+        "planning",
+        "execution",
+        "reflection",
+        "stability"
+      ],
+      "a_target": 0.7,
+      "a_alpha": 1
+    },
+    "tax_specialist": {
+      "key": "tax_specialist",
+      "title_zh": "税务",
+      "family": "finance",
+      "jd_text": "【税务】负责财务核算/分析/预算与经营指标，形成可解释的报表与经营洞察；与业务/管理层对齐目标并输出材料，推动合规与风险控制。",
+      "required_k_tags": [
+        "tax",
+        "finance_basic",
+        "risk_compliance",
+        "accounting",
+        "fp_and_a",
+        "ppt_doc",
+        "data_literacy"
+      ],
+      "required_s_tags": [
+        "writing",
+        "analysis",
+        "problem_solving",
+        "communication",
+        "presentation",
+        "stakeholder_mgmt"
+      ],
+      "required_h_dims": [
+        "punctuality",
+        "followthrough",
+        "planning",
+        "execution",
+        "reflection",
+        "stability"
+      ],
+      "a_target": 0.7,
+      "a_alpha": 1
+    },
+    "treasury": {
+      "key": "treasury",
+      "title_zh": "资金/出纳",
+      "family": "finance",
+      "jd_text": "【资金/出纳】负责财务核算/分析/预算与经营指标，形成可解释的报表与经营洞察；与业务/管理层对齐目标并输出材料，推动合规与风险控制。",
+      "required_k_tags": [
+        "finance_basic",
+        "risk_compliance",
+        "data_literacy",
+        "accounting",
+        "fp_and_a",
+        "ppt_doc"
+      ],
+      "required_s_tags": [
+        "execution",
+        "analysis",
+        "communication",
+        "writing",
+        "presentation",
+        "problem_solving",
+        "stakeholder_mgmt"
+      ],
+      "required_h_dims": [
+        "punctuality",
+        "followthrough",
+        "planning",
+        "execution",
+        "reflection",
+        "stability"
+      ],
+      "a_target": 0.7,
+      "a_alpha": 1
+    },
+    "key_account_manager": {
+      "key": "key_account_manager",
+      "title_zh": "大客户经理（KA）",
+      "family": "sales",
+      "jd_text": "负责大客户（Key Account）开发与经营，推动方案落地与续约增长。\n关键能力：客户沟通与谈判、跨部门协同、推进与拿结果。",
+      "required_k_tags": [
+        "industry_domain"
+      ],
+      "required_s_tags": [
+        "stakeholder_mgmt",
+        "negotiation",
+        "presentation",
+        "problem_solving"
+      ],
+      "required_h_dims": [
+        "punctuality",
+        "followthrough",
+        "planning",
+        "execution",
+        "reflection",
+        "stability"
+      ],
+      "a_target": 0.7,
+      "a_alpha": 1
+    },
+    "sales_manager": {
+      "key": "sales_manager",
+      "title_zh": "销售经理",
+      "family": "sales",
+      "jd_text": "【销售经理】面向客户需求进行方案沟通与成交推进：机会识别→需求澄清→方案/报价→谈判→签约→交付协同；管理关键干系人并推动过程闭环。",
+      "required_k_tags": [
+        "sales_method",
+        "stakeholder_map",
+        "project_mgmt",
+        "ppt_doc",
+        "industry_domain"
+      ],
+      "required_s_tags": [
+        "leadership",
+        "negotiation",
+        "stakeholder_mgmt",
+        "execution",
+        "communication",
+        "client_facing",
+        "problem_solving"
+      ],
+      "required_h_dims": [
+        "punctuality",
+        "followthrough",
+        "planning",
+        "execution",
+        "reflection",
+        "stability"
+      ],
+      "a_target": 0.7,
+      "a_alpha": 1
+    },
+    "inside_sales": {
+      "key": "inside_sales",
+      "title_zh": "内勤销售（Inside Sales）",
+      "family": "sales",
+      "jd_text": "【内勤销售（Inside Sales）】面向客户需求进行方案沟通与成交推进：机会识别→需求澄清→方案/报价→谈判→签约→交付协同；管理关键干系人并推动过程闭环。",
+      "required_k_tags": [
+        "sales_method",
+        "ppt_doc",
+        "stakeholder_map",
+        "industry_domain",
+        "project_mgmt"
+      ],
+      "required_s_tags": [
+        "client_facing",
+        "communication",
+        "execution",
+        "negotiation",
+        "stakeholder_mgmt",
+        "problem_solving"
+      ],
+      "required_h_dims": [
+        "punctuality",
+        "followthrough",
+        "planning",
+        "execution",
+        "reflection",
+        "stability"
+      ],
+      "a_target": 0.7,
+      "a_alpha": 1
+    },
+    "sales_ops": {
+      "key": "sales_ops",
+      "title_zh": "销售运营（Sales Ops）",
+      "family": "sales",
+      "jd_text": "【销售运营（Sales Ops）】面向客户需求进行方案沟通与成交推进：机会识别→需求澄清→方案/报价→谈判→签约→交付协同；管理关键干系人并推动过程闭环。",
+      "required_k_tags": [
+        "ops_process",
+        "data_literacy",
+        "ppt_doc",
+        "sales_method",
+        "stakeholder_map",
+        "industry_domain",
+        "project_mgmt"
+      ],
+      "required_s_tags": [
+        "analysis",
+        "execution",
+        "communication",
+        "writing",
+        "negotiation",
+        "client_facing",
+        "stakeholder_mgmt",
+        "problem_solving"
+      ],
+      "required_h_dims": [
+        "punctuality",
+        "followthrough",
+        "planning",
+        "execution",
+        "reflection",
+        "stability"
+      ],
+      "a_target": 0.7,
+      "a_alpha": 1
+    },
+    "bd_sales": {
+      "key": "bd_sales",
+      "title_zh": "BD 销售",
+      "family": "sales",
+      "jd_text": "【BD 销售】面向客户需求进行方案沟通与成交推进：机会识别→需求澄清→方案/报价→谈判→签约→交付协同；管理关键干系人并推动过程闭环。",
+      "required_k_tags": [
+        "sales_method",
+        "strategy",
+        "stakeholder_map",
+        "ppt_doc",
+        "industry_domain",
+        "project_mgmt"
+      ],
+      "required_s_tags": [
+        "negotiation",
+        "presentation",
+        "stakeholder_mgmt",
+        "execution",
+        "communication",
+        "client_facing",
+        "problem_solving"
+      ],
+      "required_h_dims": [
+        "punctuality",
+        "followthrough",
+        "planning",
+        "execution",
+        "reflection",
+        "stability"
+      ],
+      "a_target": 0.7,
+      "a_alpha": 1
+    },
+    "pre_sales": {
+      "key": "pre_sales",
+      "title_zh": "售前顾问",
+      "family": "sales",
+      "jd_text": "【售前顾问】面向客户需求进行方案沟通与成交推进：机会识别→需求澄清→方案/报价→谈判→签约→交付协同；管理关键干系人并推动过程闭环。",
+      "required_k_tags": [
+        "sales_method",
+        "ppt_doc",
+        "problem_structuring",
+        "stakeholder_map",
+        "industry_domain",
+        "project_mgmt"
+      ],
+      "required_s_tags": [
+        "presentation",
+        "problem_solving",
+        "stakeholder_mgmt",
+        "communication",
+        "writing",
+        "negotiation",
+        "client_facing",
+        "execution"
+      ],
+      "required_h_dims": [
+        "punctuality",
+        "followthrough",
+        "planning",
+        "execution",
+        "reflection",
+        "stability"
+      ],
+      "a_target": 0.7,
+      "a_alpha": 1
+    },
+    "brand_marketing": {
+      "key": "brand_marketing",
+      "title_zh": "品牌营销",
+      "family": "marketing",
+      "jd_text": "【品牌营销】负责市场洞察与策略/内容/投放协同，通过数据指标评估效果并迭代；输出对内对外材料，推动跨部门落地。",
+      "required_k_tags": [
+        "marketing_basic",
+        "research",
+        "ppt_doc",
+        "digital_marketing",
+        "data_literacy"
+      ],
+      "required_s_tags": [
+        "writing",
+        "presentation",
+        "analysis",
+        "communication",
+        "stakeholder_mgmt",
+        "problem_solving"
+      ],
+      "required_h_dims": [
+        "punctuality",
+        "followthrough",
+        "planning",
+        "execution",
+        "reflection",
+        "stability"
+      ],
+      "a_target": 0.7,
+      "a_alpha": 1
+    },
+    "digital_marketing": {
+      "key": "digital_marketing",
+      "title_zh": "数字营销",
+      "family": "marketing",
+      "jd_text": "【数字营销】负责市场洞察与策略/内容/投放协同，通过数据指标评估效果并迭代；输出对内对外材料，推动跨部门落地。",
+      "required_k_tags": [
+        "digital_marketing",
+        "data_literacy",
+        "marketing_basic",
+        "research",
+        "ppt_doc"
+      ],
+      "required_s_tags": [
+        "analysis",
+        "problem_solving",
+        "communication",
+        "writing",
+        "presentation",
+        "stakeholder_mgmt"
+      ],
+      "required_h_dims": [
+        "punctuality",
+        "followthrough",
+        "planning",
+        "execution",
+        "reflection",
+        "stability"
+      ],
+      "a_target": 0.7,
+      "a_alpha": 1
+    },
+    "growth_marketing": {
+      "key": "growth_marketing",
+      "title_zh": "增长营销",
+      "family": "marketing",
+      "jd_text": "【增长营销】负责市场洞察与策略/内容/投放协同，通过数据指标评估效果并迭代；输出对内对外材料，推动跨部门落地。",
+      "required_k_tags": [
+        "digital_marketing",
+        "data_literacy",
+        "research",
+        "marketing_basic",
+        "ppt_doc"
+      ],
+      "required_s_tags": [
+        "analysis",
+        "problem_solving",
+        "stakeholder_mgmt",
+        "communication",
+        "writing",
+        "presentation"
+      ],
+      "required_h_dims": [
+        "punctuality",
+        "followthrough",
+        "planning",
+        "execution",
+        "reflection",
+        "stability"
+      ],
+      "a_target": 0.7,
+      "a_alpha": 1
+    },
+    "content_marketing": {
+      "key": "content_marketing",
+      "title_zh": "内容营销",
+      "family": "marketing",
+      "jd_text": "【内容营销】负责市场洞察与策略/内容/投放协同，通过数据指标评估效果并迭代；输出对内对外材料，推动跨部门落地。",
+      "required_k_tags": [
+        "marketing_basic",
+        "ppt_doc",
+        "research",
+        "digital_marketing",
+        "data_literacy"
+      ],
+      "required_s_tags": [
+        "writing",
+        "communication",
+        "presentation",
+        "stakeholder_mgmt",
+        "analysis",
+        "problem_solving"
+      ],
+      "required_h_dims": [
+        "punctuality",
+        "followthrough",
+        "planning",
+        "execution",
+        "reflection",
+        "stability"
+      ],
+      "a_target": 0.7,
+      "a_alpha": 1
+    },
+    "product_marketing": {
+      "key": "product_marketing",
+      "title_zh": "产品营销（PMM）",
+      "family": "marketing",
+      "jd_text": "【产品营销（PMM）】负责市场洞察与策略/内容/投放协同，通过数据指标评估效果并迭代；输出对内对外材料，推动跨部门落地。",
+      "required_k_tags": [
+        "marketing_basic",
+        "biz_analysis",
+        "ppt_doc",
+        "research",
+        "digital_marketing",
+        "data_literacy"
+      ],
+      "required_s_tags": [
+        "structured_thinking",
+        "presentation",
+        "writing",
+        "stakeholder_mgmt",
+        "communication",
+        "analysis",
+        "problem_solving"
+      ],
+      "required_h_dims": [
+        "punctuality",
+        "followthrough",
+        "planning",
+        "execution",
+        "reflection",
+        "stability"
+      ],
+      "a_target": 0.7,
+      "a_alpha": 1
+    },
+    "pr_comms": {
+      "key": "pr_comms",
+      "title_zh": "公关/传播（PR）",
+      "family": "marketing",
+      "jd_text": "【公关/传播（PR）】负责市场洞察与策略/内容/投放协同，通过数据指标评估效果并迭代；输出对内对外材料，推动跨部门落地。",
+      "required_k_tags": [
+        "marketing_basic",
+        "ppt_doc",
+        "digital_marketing",
+        "research",
+        "data_literacy"
+      ],
+      "required_s_tags": [
+        "writing",
+        "presentation",
+        "stakeholder_mgmt",
+        "communication",
+        "client_facing",
+        "analysis",
+        "problem_solving"
+      ],
+      "required_h_dims": [
+        "punctuality",
+        "followthrough",
+        "planning",
+        "execution",
+        "reflection",
+        "stability"
+      ],
+      "a_target": 0.7,
+      "a_alpha": 1
+    }
+  }
+}

@@ -1,4 +1,5 @@
 import { loadJobModels, loadJobCatalog } from "/apps/role_fit/core/data_loader.js";
+import { loadOptions } from "/apps/role_fit/core/data_loader.js";
 
 /**
  * Step1 Role
@@ -10,6 +11,49 @@ const KEY = "ROLE_FIT_STEP1_ROLE_V3";
 const KEY_SUG = "ROLE_FIT_SUGGESTIONS_V0_1";
 
 
+
+
+
+function __rf_fillSelect(sel, items, opt){
+  try{
+    if (!sel) return;
+    const arr = Array.isArray(items) ? items : [];
+    const valueKey = opt?.valueKey || "key";
+    const labelKey = opt?.labelKey || "label";
+    sel.innerHTML = "";
+    sel.appendChild(new Option("请选择", ""));
+    arr.forEach(it=>{
+      const v = String(it?.[valueKey] ?? "").trim();
+      if (!v) return;
+      const lab = String(it?.[labelKey] ?? v).trim();
+      sel.appendChild(new Option(lab, v));
+    });
+  }catch(e){
+    console.warn("[STEP1_ROLE] __rf_fillSelect fallback failed", e);
+  }
+}
+
+
+
+/** ---- options helper: filter job_titles by selected jobFamily ---- */
+function __rf_jobTitlesByFamily(options, familyKey){
+  const fam = String(familyKey||"").trim();
+  const all = optArr(options,"job_titles");
+  if (!fam) return all;
+  return all.filter(x=> String(x?.family||"").trim()===fam);
+}
+
+function optArr(obj, key){
+  try{
+    const o = obj && typeof obj==="object" ? obj : null;
+    if (!o) return [];
+    const v = o[key];
+    return Array.isArray(v) ? v : [];
+  }catch(e){
+    return [];
+  }
+}
+let OPTIONS = null;
 // ---- DOM ----
 const companyCat   = document.getElementById("companyCat");
 const jobFamily    = document.getElementById("jobFamily");
@@ -62,26 +106,40 @@ let JOB_CATALOG = null;
 
 
 function populateCustomModelPicker(){
+  const row = document.getElementById("jobModelKeyRow");
   const sel = document.getElementById("jobModelKey");
-  if (!sel) return;
+  if(!row || !sel) return;
 
-  const prev = String(sel.value || "");
+  // Always show row when job is custom; toggleCustomJob() will decide hide/show.
   sel.innerHTML = "";
   sel.appendChild(new Option("请选择基准模型", ""));
 
-  const items = (JOB_CATALOG && Array.isArray(JOB_CATALOG.custom_base_models))
-    ? JOB_CATALOG.custom_base_models
-    : [];
+  const fam = String(jobFamily?.value || "").trim();
 
-  items.forEach(it=>{
-    const k = String(it.job_model_key || it.key || "").trim();
-    const label = String(it.title_zh || it.label_zh || it.label || k).trim();
-    if (!k) return;
-    sel.appendChild(new Option(label, k));
+  // Source of truth: job_models (loaded into `models`)
+  const src = Array.isArray(models) ? models : [];
+  const items = src.map(m=>{
+    const key = String(m?.key || m?.id || m?.value || "").trim();
+    if(!key) return None
+    return {
+      "key": key,
+      "title": String(m?.title_zh || m?.title || key || "").trim(),
+      "family": String(m?.family || "").trim()
+    }
+  }).filter(Boolean);
+
+  const filtered = fam ? items.filter(x=>x.family===fam) : items;
+
+  filtered.forEach(it=>{
+    sel.appendChild(new Option(it.title || it.key, it.key));
   });
 
-  // restore previous selection if possible
-  if (prev) sel.value = prev;
+  console.log("[STEP1_ROLE] base_model picker populated", {
+    fam,
+    total_models: items.length,
+    shown: filtered.length,
+    sample: filtered.slice(0,8).map(x=>x.key)
+  });
 }
 
 function getJobModelKeyFromSelection(){
@@ -137,39 +195,17 @@ function escapeHtml(s){
     .replaceAll("'","&#39;");
 }
 // ---- UI: select options ----
-function populateJobsByFamily(fid){
+function populateJobsByFamily(famKey){
+  const fam = String(famKey||jobFamily?.value||"").trim();
+  const list = (OPTIONS && Array.isArray(OPTIONS.job_titles)) ? OPTIONS.job_titles : [];
+  const items = list.filter(it=>String(it?.family||"")===fam);
+
   jobKey.innerHTML = "";
   jobKey.appendChild(new Option("请选择", ""));
-
-  const items = [];
-  const familyId = String(fid || "");
-
-  models.forEach((m, idx)=>{
-    const key = getKey(m, idx);
-    const fam = familyToId(getFamily(m));
-    if (!familyId) return;
-
-    // 大类=other：不加入 items，但不要 return 掉（否则 "__custom__" 会不稳定）
-    if (familyId !== "other"){
-      if (fam && fam === familyId) items.push({ key, label: getLabel(m, key) });
-    }
-  });
-
-  // 如果该大类找不到任何匹配（或岗位库没有 family），就兜底把全部岗位放进去（便于跑通流程）
-  if (items.length === 0 && familyId && familyId !== "other"){
-    models.forEach((m, idx)=>{
-      const key = getKey(m, idx);
-      items.push({ key, label: getLabel(m, key) });
-    });
-  }
-
-  items.forEach(it=>{
-    jobKey.appendChild(new Option(it.label || it.key, it.key));
-  });
-
-  // 永远追加一个可自定义的细分岗位
+  items.forEach(it=> jobKey.appendChild(new Option(it.label||it.key, it.key)));
   jobKey.appendChild(new Option("其他（自定义）", "__custom__"));
 }
+
 
 // ---- UI toggles ----
 function toggleCompanyCustom(){
@@ -331,6 +367,25 @@ function save(){
   }
 
   const payload = {
+  /* ADMIN: persist job_model_key */
+  // priority: explicit query(from admin) > existing in-memory jobModelKey (if any) > job_key (when not custom)
+  job_model_key: (()=>{
+    try{
+      const q = String(window.__RF_JOB_MODEL_KEY_FROM_ADMIN__||"").trim();
+      if (q) return q;
+    }catch(e){}
+    try{
+      if (typeof jobModelKey !== "undefined"){
+        const v = String(jobModelKey||"").trim();
+        if (v) return v;
+      }
+    }catch(e){}
+    try{
+      const jk = String(jobKey?.value||"").trim();
+      if (jk && jk !== "__custom__") return jk;
+    }catch(e){}
+    return "";
+  })(),
     company_category: c,
     company_category_text: cText,
     job_family: fam,
@@ -424,10 +479,12 @@ companyCat?.addEventListener("change", ()=>{
 
 document.getElementById("companyCustom")?.addEventListener("input", renderPreview);
 
-jobFamily?.addEventListener("change", ()=>{
-  toggleJobFamilyCustom();
-  toggleCustom();
-});
+  jobFamily?.addEventListener("change", ()=>{
+    try{ populateJobsByFamily(jobFamily.value); }catch(e){}
+    try{ toggleJobFamilyCustom(); }catch(e){}
+    try{ toggleCustomJob(); }catch(e){}
+    try{ renderPreview(); }catch(e){}
+  });
 
 document.getElementById("jobFamilyCustomTitle")?.addEventListener("input", renderPreview);
 
@@ -459,11 +516,51 @@ nextBtn?.addEventListener("click", ()=>{
 
 // ---- init ----
 (async ()=>{
+  
+    
+  /* ADMIN: accept job_model_key from query */
   try{
+    const q = new URLSearchParams(location.search||"");
+    const qModel = String(q.get("job_model_key")||"").trim();
+    if (qModel){
+      // expose for preview/save pipeline
+      window.__RF_JOB_MODEL_KEY_FROM_ADMIN__ = qModel;
+
+      // best-effort: if there is a global/state variable used by save(), set it
+      try{
+        if (typeof jobModelKey !== "undefined") { jobModelKey = qModel; }
+      }catch(e){}
+
+      console.log("[STEP1_ROLE] job_model_key from query =", qModel);
+    }
+  }catch(e){}
+// ---- options (v0.2) ----
+    try{
+      OPTIONS = await loadOptions();
+      // page may have selects with these ids (best-effort)
+      const cc = document.getElementById("companyCat");
+      const jf = document.getElementById("jobFamily");
+      const jt = document.getElementById("jobKey");
+      __rf_fillSelect(cc, optArr(OPTIONS,"company_categories"), {valueKey:"key", labelKey:"label"});
+      __rf_fillSelect(jf, optArr(OPTIONS,"job_families"), {valueKey:"key", labelKey:"label"});
+      __rf_fillSelect(jt, optArr(OPTIONS,"job_titles"), {valueKey:"key", labelKey:"label"});
+      console.log("[STEP1_ROLE] options loaded", {
+        company_categories_n: optArr(OPTIONS,"company_categories").length,
+        job_families_n: optArr(OPTIONS,"job_families").length,
+        job_titles_n: optArr(OPTIONS,"job_titles").length
+      });
+    }catch(e){
+      console.warn("[STEP1_ROLE] loadOptions failed (fallback to built-in UI options)", e);
+      OPTIONS = null;
+    }
+
+try{
     const J = await loadJobModels();
     models = normModels(J);
     console.log("[STEP1_ROLE] job_models loaded", { n: models.length, meta: J?.meta || null });
-  }catch(e){
+  
+    try{ window.models = models; }catch(e){}
+}catch(e){
     console.error("[STEP1_ROLE] loadJobModels failed", e);
     models = [];
   }

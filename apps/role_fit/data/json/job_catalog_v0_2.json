@@ -1,0 +1,159 @@
+{
+  "meta": {
+    "version": "v0.2",
+    "source": "job_models_v0_1",
+    "ts": 1771064103542
+  },
+  "items": [
+    {
+      "key": "product_manager",
+      "title": "产品经理",
+      "family": "product"
+    },
+    {
+      "key": "data_analyst",
+      "title": "数据分析师",
+      "family": "engineering"
+    },
+    {
+      "key": "software_engineer",
+      "title": "软件工程师",
+      "family": "engineering"
+    },
+    {
+      "key": "office_admin",
+      "title": "行政/综合支持",
+      "family": "ops"
+    },
+    {
+      "key": "management_tbd",
+      "title": "（待补全）management",
+      "family": "management"
+    },
+    {
+      "key": "bizdev_tbd",
+      "title": "（待补全）bizdev",
+      "family": "bizdev"
+    },
+    {
+      "key": "customer_success_tbd",
+      "title": "（待补全）customer_success",
+      "family": "customer_success"
+    },
+    {
+      "key": "hr_tbd",
+      "title": "（待补全）hr",
+      "family": "hr"
+    },
+    {
+      "key": "legal_tbd",
+      "title": "（待补全）legal",
+      "family": "legal"
+    },
+    {
+      "key": "design_tbd",
+      "title": "（待补全）design",
+      "family": "design"
+    },
+    {
+      "key": "consulting_tbd",
+      "title": "（待补全）consulting",
+      "family": "consulting"
+    },
+    {
+      "key": "supply_chain_tbd",
+      "title": "（待补全）supply_chain",
+      "family": "supply_chain"
+    },
+    {
+      "key": "finance_manager",
+      "title": "财务经理",
+      "family": "finance"
+    },
+    {
+      "key": "accountant",
+      "title": "会计",
+      "family": "finance"
+    },
+    {
+      "key": "fp_and_a",
+      "title": "FP&A（经营企划/预算）",
+      "family": "finance"
+    },
+    {
+      "key": "auditor",
+      "title": "审计",
+      "family": "finance"
+    },
+    {
+      "key": "tax_specialist",
+      "title": "税务",
+      "family": "finance"
+    },
+    {
+      "key": "treasury",
+      "title": "资金/出纳",
+      "family": "finance"
+    },
+    {
+      "key": "key_account_manager",
+      "title": "大客户经理（KA）",
+      "family": "sales"
+    },
+    {
+      "key": "sales_manager",
+      "title": "销售经理",
+      "family": "sales"
+    },
+    {
+      "key": "inside_sales",
+      "title": "内勤销售（Inside Sales）",
+      "family": "sales"
+    },
+    {
+      "key": "sales_ops",
+      "title": "销售运营（Sales Ops）",
+      "family": "sales"
+    },
+    {
+      "key": "bd_sales",
+      "title": "BD 销售",
+      "family": "sales"
+    },
+    {
+      "key": "pre_sales",
+      "title": "售前顾问",
+      "family": "sales"
+    },
+    {
+      "key": "brand_marketing",
+      "title": "品牌营销",
+      "family": "marketing"
+    },
+    {
+      "key": "digital_marketing",
+      "title": "数字营销",
+      "family": "marketing"
+    },
+    {
+      "key": "growth_marketing",
+      "title": "增长营销",
+      "family": "marketing"
+    },
+    {
+      "key": "content_marketing",
+      "title": "内容营销",
+      "family": "marketing"
+    },
+    {
+      "key": "product_marketing",
+      "title": "产品营销（PMM）",
+      "family": "marketing"
+    },
+    {
+      "key": "pr_comms",
+      "title": "公关/传播（PR）",
+      "family": "marketing"
+    }
+  ]
+}
