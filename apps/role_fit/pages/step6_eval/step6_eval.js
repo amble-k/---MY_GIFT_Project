@@ -120,7 +120,7 @@ async function loadDataSources(){
   try{
     const [taxonomy, jobModels, policy] = await Promise.all([
 loadTaxonomy(),
-      fetch("/apps/role_fit/data/json/job_models_v0_1.json", { cache: "no-store" }).then(r=>r.json()),
+      fetch("/apps/role_fit/data/json/job_models_v0_2.json", { cache: "no-store" }).then(r=>r.json()),
   fetch("/apps/role_fit/data/json/role_fit_policy_v0_1.json", { cache: "no-store" }).then(r=>r.json()),
 ]);
 return { taxonomy, jobModels, policy, source: "json" };
@@ -410,6 +410,7 @@ const h = loadAny([KEY_H_V1, KEY_H_V01]).data;
     __DBG("K_RAW", __rf_K_RAW);
     __DBG("K_DERIVED", (__rf_K_RES&&__rf_K_RES.tags)||[]);
   const __rf_S_RES = getTagsWithEvidence(__rf_S_RAW, S_TAGS || []);
+    __rf_S_EVID = Array.isArray(__rf_S_RES?.evidence) ? __rf_S_RES.evidence : [];
     __DBG("S_TAGS_n", Array.isArray(S_TAGS)?S_TAGS.length:0);
     __DBG("S_RAW", __rf_S_RAW);
     __DBG("S_DERIVED", (__rf_S_RES&&__rf_S_RES.tags)||[]);
@@ -499,7 +500,7 @@ const h = loadAny([KEY_H_V1, KEY_H_V01]).data;
       <div class="cardmini">
         <div class="k">S（技能）</div>
         <div class="v">${pct(S.score)}%</div>
-        <div class="h">能力分：${pct(S_ability.score)}%</div>
+        <div class="h">能力分：${pct(S.score)}%</div>
         <div class="h">
             覆盖:${(S.detail?.hit||[]).length}/${(S.detail?.required||[]).length}<br/>
             命中：${fmtTags(S_hit, sMap)}<br/>
